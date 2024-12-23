@@ -24,6 +24,12 @@ const Index = () => {
       image: "/lovable-uploads/93f4a4d3-0266-4de9-adcb-0b83e06ef79a.png",
       color: "from-green-500",
     },
+    {
+      title: "Moments en famille",
+      description: "Partagez des moments inoubliables avec vos proches",
+      image: "/lovable-uploads/d5a2fef2-4158-4ee4-b25e-8492028478d8.png",
+      color: "from-pink-500",
+    },
   ];
 
   return (
