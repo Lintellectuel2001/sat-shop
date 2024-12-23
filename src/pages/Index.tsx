@@ -1,3 +1,4 @@
+import React from 'react';
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,12 @@ const Index = () => {
       description: "Des milliers de films et séries à la demande",
       image: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7",
       color: "from-pink-500",
+    },
+    {
+      title: "Divertissement à la maison",
+      description: "Profitez du meilleur du divertissement depuis votre canapé",
+      image: "/lovable-uploads/93f4a4d3-0266-4de9-adcb-0b83e06ef79a.png",
+      color: "from-green-500",
     },
   ];
 
