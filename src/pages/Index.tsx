@@ -1,11 +1,10 @@
 import Navbar from "../components/Navbar";
-import CategoryNav from "../components/CategoryNav";
-import ProductCard from "../components/ProductCard";
 import Footer from "../components/Footer";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ArrowRight, Check, Plus, ChevronDown, ChevronUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ProductCard from "../components/ProductCard";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -19,16 +18,16 @@ const Index = () => {
         <div className="container mx-auto flex flex-col lg:flex-row items-center justify-between">
           <div className="lg:w-1/2 animate-fade-up">
             <p className="text-accent text-lg mb-4">
-              In this season, find the best 🔥
+              Découvrez nos services premium 🌟
             </p>
             <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-8 text-primary">
-              Exclusive collection for everyone
+              Services IPTV, Sharing et VOD de qualité
             </h1>
             <button 
               onClick={() => navigate('/marketplace')}
               className="bg-primary text-white px-8 py-3 rounded-full hover:bg-primary/90 transition-colors flex items-center gap-2"
             >
-              Explore now
+              Découvrir nos offres
               <span className="inline-block">→</span>
             </button>
           </div>
@@ -47,32 +46,32 @@ const Index = () => {
       {/* New Arrivals Section */}
       <section className="py-16">
         <div className="container mx-auto">
-          <h2 className="text-3xl font-bold mb-8 px-4">New Arrivals</h2>
+          <h2 className="text-3xl font-bold mb-8 px-4">Nos Services</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
             <ProductCard
-              name="MacBook Pro"
-              price="$1,299"
+              name="IPTV Premium"
+              price="29.99€"
               image="https://images.unsplash.com/photo-1483058712412-4245e9b90334"
               rating={5}
               reviews={12}
             />
             <ProductCard
-              name="iPhone 13"
-              price="$799"
+              name="Sharing Access"
+              price="19.99€"
               image="https://images.unsplash.com/photo-1434494878577-86c23bcb06b9"
               rating={4}
               reviews={8}
             />
             <ProductCard
-              name="iPad Pro"
-              price="$999"
+              name="VOD Service"
+              price="24.99€"
               image="https://images.unsplash.com/photo-1485827404703-89b55fcc595e"
               rating={5}
               reviews={15}
             />
             <ProductCard
-              name="AirPods Pro"
-              price="$249"
+              name="Pack Complet"
+              price="59.99€"
               image="https://images.unsplash.com/photo-1498050108023-c5249f4df085"
               rating={4}
               reviews={10}
@@ -85,26 +84,26 @@ const Index = () => {
       <section className="py-16 px-4 bg-[#F8F8F8]">
         <div className="container mx-auto max-w-6xl flex flex-col lg:flex-row items-center gap-8">
           <div className="lg:w-1/2 space-y-6">
-            <h2 className="text-4xl font-bold">Don't miss out on special offers</h2>
-            <p className="text-accent">Register to receive news about the latest, savings combos, discount codes...</p>
+            <h2 className="text-4xl font-bold">Ne manquez pas nos offres spéciales</h2>
+            <p className="text-accent">Inscrivez-vous pour recevoir nos dernières offres, nouveautés et codes de réduction...</p>
             
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <span className="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-sm">01</span>
-                <span>Savings combos</span>
+                <span>Offres exclusives</span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm">02</span>
-                <span>Freeship</span>
+                <span>Support premium</span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="w-6 h-6 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center text-sm">03</span>
-                <span>Premium magazines</span>
+                <span>Contenu exclusif</span>
               </div>
             </div>
 
             <div className="flex gap-2 max-w-md">
-              <Input placeholder="Enter your email" className="flex-1" />
+              <Input placeholder="Entrez votre email" className="flex-1" />
               <Button className="bg-primary">
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -128,36 +127,36 @@ const Index = () => {
               <div className="bg-purple-50 w-20 h-20 mx-auto rounded-lg flex items-center justify-center">
                 <ChevronDown className="w-10 h-10 text-purple-600" />
               </div>
-              <p className="text-sm text-purple-600">Step 1</p>
-              <h3 className="font-semibold text-lg">Filter & Discover</h3>
-              <p className="text-accent text-sm">Smart filtering and suggestions make it easy to find</p>
+              <p className="text-sm text-purple-600">Étape 1</p>
+              <h3 className="font-semibold text-lg">Choisissez votre service</h3>
+              <p className="text-accent text-sm">Sélectionnez le service qui vous convient</p>
             </div>
             
             <div className="text-center space-y-4">
               <div className="bg-blue-50 w-20 h-20 mx-auto rounded-lg flex items-center justify-center">
                 <Plus className="w-10 h-10 text-blue-600" />
               </div>
-              <p className="text-sm text-blue-600">Step 2</p>
-              <h3 className="font-semibold text-lg">Add to bag</h3>
-              <p className="text-accent text-sm">Easily select the correct items and add them to the cart</p>
+              <p className="text-sm text-blue-600">Étape 2</p>
+              <h3 className="font-semibold text-lg">Procédez au paiement</h3>
+              <p className="text-accent text-sm">Paiement sécurisé et rapide</p>
             </div>
 
             <div className="text-center space-y-4">
               <div className="bg-yellow-50 w-20 h-20 mx-auto rounded-lg flex items-center justify-center">
                 <ChevronUp className="w-10 h-10 text-yellow-600" />
               </div>
-              <p className="text-sm text-yellow-600">Step 3</p>
-              <h3 className="font-semibold text-lg">Fast shipping</h3>
-              <p className="text-accent text-sm">The carrier will confirm and ship quickly to you</p>
+              <p className="text-sm text-yellow-600">Étape 3</p>
+              <h3 className="font-semibold text-lg">Activation rapide</h3>
+              <p className="text-accent text-sm">Accès immédiat après confirmation</p>
             </div>
 
             <div className="text-center space-y-4">
               <div className="bg-pink-50 w-20 h-20 mx-auto rounded-lg flex items-center justify-center">
                 <Check className="w-10 h-10 text-pink-600" />
               </div>
-              <p className="text-sm text-pink-600">Step 4</p>
-              <h3 className="font-semibold text-lg">Enjoy the product</h3>
-              <p className="text-accent text-sm">Have fun and enjoy your 5-star quality products</p>
+              <p className="text-sm text-pink-600">Étape 4</p>
+              <h3 className="font-semibold text-lg">Profitez du service</h3>
+              <p className="text-accent text-sm">Support technique 24/7</p>
             </div>
           </div>
         </div>
