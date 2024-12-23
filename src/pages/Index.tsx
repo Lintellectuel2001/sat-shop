@@ -19,24 +19,6 @@ const Index = () => {
 
   const slides = [
     {
-      title: "Service IPTV Premium",
-      description: "Accédez à des milliers de chaînes en direct",
-      image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81",
-      color: "from-purple-500",
-    },
-    {
-      title: "Sharing Premium",
-      description: "Partagez vos accès en toute sécurité",
-      image: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb",
-      color: "from-blue-500",
-    },
-    {
-      title: "VOD Illimitée",
-      description: "Des milliers de films et séries à la demande",
-      image: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7",
-      color: "from-pink-500",
-    },
-    {
       title: "Divertissement à la maison",
       description: "Profitez du meilleur du divertissement depuis votre canapé",
       image: "/lovable-uploads/93f4a4d3-0266-4de9-adcb-0b83e06ef79a.png",
