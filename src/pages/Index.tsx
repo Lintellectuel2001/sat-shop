@@ -5,14 +5,70 @@ import { Input } from "@/components/ui/input";
 import { ArrowRight, Check, Plus, ChevronDown, ChevronUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const Index = () => {
   const navigate = useNavigate();
 
+  const slides = [
+    {
+      title: "Service IPTV Premium",
+      description: "Accédez à des milliers de chaînes en direct",
+      image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81",
+      color: "from-purple-500",
+    },
+    {
+      title: "Sharing Premium",
+      description: "Partagez vos accès en toute sécurité",
+      image: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb",
+      color: "from-blue-500",
+    },
+    {
+      title: "VOD Illimitée",
+      description: "Des milliers de films et séries à la demande",
+      image: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7",
+      color: "from-pink-500",
+    },
+  ];
+
   return (
     <div className="min-h-screen">
       <Navbar />
-      
+
+      {/* Carousel Section */}
+      <section className="w-full py-12 bg-white">
+        <div className="container mx-auto px-4">
+          <Carousel className="w-full max-w-5xl mx-auto">
+            <CarouselContent>
+              {slides.map((slide, index) => (
+                <CarouselItem key={index}>
+                  <div className="relative h-[400px] w-full overflow-hidden rounded-xl">
+                    <div className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent opacity-60`} />
+                    <img
+                      src={slide.image}
+                      alt={slide.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute bottom-0 left-0 p-8 text-white">
+                      <h3 className="text-2xl font-bold mb-2">{slide.title}</h3>
+                      <p className="text-lg">{slide.description}</p>
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-4" />
+            <CarouselNext className="right-4" />
+          </Carousel>
+        </div>
+      </section>
+
       {/* Hero Section */}
       <section className="pt-32 pb-16 px-4 bg-white">
         <div className="container mx-auto flex flex-col lg:flex-row items-center justify-between">
