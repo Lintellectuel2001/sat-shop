@@ -8,35 +8,12 @@ import { Star } from "lucide-react";
 const products = [
   {
     id: 1,
-    name: "Test Item",
-    price: "$1,232",
-    rating: 0,
-    reviews: 0,
-    image: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7"
-  },
-  {
-    id: 2,
-    name: "Premium Laptop",
-    price: "$1,231",
-    rating: 0,
-    reviews: 0,
-    image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b"
-  },
-  {
-    id: 3,
-    name: "Smart Gadget",
-    price: "$1,234",
-    rating: 0,
-    reviews: 0,
-    image: "https://images.unsplash.com/photo-1518770660439-4636190af475"
-  },
-  {
-    id: 4,
-    name: "Tech Accessory",
-    price: "$21",
-    rating: 1,
-    reviews: 0,
-    image: "https://images.unsplash.com/photo-1518770660439-4636190af475"
+    name: "IRON TV PRO",
+    price: "3500 DA",
+    rating: 5,
+    reviews: 124,
+    image: "/lovable-uploads/c5a3c89d-432f-4cef-a538-75a6da43c7e0.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01j9xhxpv4k98rp4mhbpbcrk6z"
   }
 ];
 
@@ -46,7 +23,12 @@ const Marketplace = () => {
   const [category, setCategory] = useState("all");
 
   const handleProductClick = (productId: number) => {
-    navigate(`/product/${productId}`);
+    const product = products.find(p => p.id === productId);
+    if (product?.paymentLink) {
+      window.location.href = product.paymentLink;
+    } else {
+      navigate(`/product/${productId}`);
+    }
   };
 
   return (
@@ -55,39 +37,38 @@ const Marketplace = () => {
       
       <main className="container mx-auto px-4 pt-32 pb-16">
         <div className="mb-12">
-          <h1 className="text-4xl font-bold mb-4">Explore</h1>
+          <h1 className="text-4xl font-bold mb-4">Nos Services</h1>
           <p className="text-accent">
-            We not only help you design exceptional products, but also make it easy for you
-            to share your designs with more like-minded people.
+            Découvrez notre sélection de services premium pour votre divertissement.
           </p>
         </div>
 
         <div className="flex flex-wrap gap-4 items-center justify-between mb-8">
           <div className="flex gap-4 items-center">
-            <div className="text-sm text-accent">12 - 5000</div>
+            <div className="text-sm text-accent">{products.length} produit(s)</div>
             
             <Select value={category} onValueChange={setCategory}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Categories" />
+                <SelectValue placeholder="Catégories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="mobile">Mobile Phones</SelectItem>
-                <SelectItem value="laptop">Laptops</SelectItem>
-                <SelectItem value="gadget">Gadgets</SelectItem>
+                <SelectItem value="all">Toutes les catégories</SelectItem>
+                <SelectItem value="iptv">IPTV</SelectItem>
+                <SelectItem value="sharing">Sharing</SelectItem>
+                <SelectItem value="vod">VOD</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <Select value={sortOrder} onValueChange={setSortOrder}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Sort order" />
+              <SelectValue placeholder="Trier par" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="newest">Newest First</SelectItem>
-              <SelectItem value="price-asc">Price: Low to High</SelectItem>
-              <SelectItem value="price-desc">Price: High to Low</SelectItem>
-              <SelectItem value="rating">Rating</SelectItem>
+              <SelectItem value="newest">Plus récents</SelectItem>
+              <SelectItem value="price-asc">Prix croissant</SelectItem>
+              <SelectItem value="price-desc">Prix décroissant</SelectItem>
+              <SelectItem value="rating">Avis clients</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -99,11 +80,11 @@ const Marketplace = () => {
               className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
               onClick={() => handleProductClick(product.id)}
             >
-              <div className="aspect-square overflow-hidden">
+              <div className="aspect-square overflow-hidden bg-white p-4">
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
                 />
               </div>
               <div className="p-4">
