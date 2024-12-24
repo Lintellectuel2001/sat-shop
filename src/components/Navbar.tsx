@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { ShoppingCart } from "lucide-react";
 
 const Navbar = () => {
   return (
@@ -17,25 +17,33 @@ const Navbar = () => {
           </Link>
           
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="nav-link">
-              Accueil
+            <Link 
+              to="/marketplace?category=iptv" 
+              className="nav-link hover:text-[#ea384c] transition-colors font-medium"
+            >
+              IPTV
             </Link>
-            <Link to="/marketplace" className="nav-link">
-              Services
+            <Link 
+              to="/marketplace?category=sharing" 
+              className="nav-link hover:text-[#ea384c] transition-colors font-medium"
+            >
+              SHARING
             </Link>
-            <Link to="/contact" className="nav-link">
-              Contact
+            <Link 
+              to="/marketplace?category=vod" 
+              className="nav-link hover:text-[#ea384c] transition-colors font-medium"
+            >
+              VOD
             </Link>
           </div>
 
-          <div className="flex items-center space-x-4">
-            <Button variant="outline">
-              Se connecter
-            </Button>
-            <Button>
-              S'inscrire
-            </Button>
-          </div>
+          <Link 
+            to="/cart" 
+            className="flex items-center gap-2 text-[#ea384c] hover:text-[#ea384c]/80 transition-colors"
+          >
+            <ShoppingCart className="w-6 h-6" />
+            <span className="font-medium">Panier</span>
+          </Link>
         </div>
       </div>
     </nav>
