@@ -9,6 +9,15 @@ const products = [
     reviews: 124,
     image: "/lovable-uploads/c5a3c89d-432f-4cef-a538-75a6da43c7e0.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9xhxpv4k98rp4mhbpbcrk6z"
+  },
+  {
+    id: 2,
+    name: "ATLAS PRO",
+    price: "3000 DA",
+    rating: 5,
+    reviews: 98,
+    image: "/lovable-uploads/36762d97-5db1-4e2c-9796-0de62a32cfde.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01j9ymqj9fbpggyvfjdcwxhfjq"
   }
 ];
 
