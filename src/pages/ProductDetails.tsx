@@ -4,11 +4,8 @@ import Navbar from "../components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 
-const ProductDetails = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-
-  const product = {
+const products = {
+  1: {
     name: "IRON TV PRO",
     price: "3500 DA",
     rating: 5,
@@ -23,7 +20,35 @@ const ProductDetails = () => {
     ],
     image: "/lovable-uploads/c5a3c89d-432f-4cef-a538-75a6da43c7e0.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9xhxpv4k98rp4mhbpbcrk6z"
-  };
+  },
+  2: {
+    name: "ATLAS PRO",
+    price: "3000 DA",
+    rating: 5,
+    reviews: 98,
+    description: "Service IPTV premium avec une expérience de visionnage exceptionnelle.",
+    features: [
+      "Large sélection de chaînes TV",
+      "Contenu VOD varié",
+      "Qualité HD/4K",
+      "Support client réactif",
+      "Multi-plateformes"
+    ],
+    image: "/lovable-uploads/36762d97-5db1-4e2c-9796-0de62a32cfde.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01j9ymqj9fbpggyvfjdcwxhfjq"
+  }
+};
+
+const ProductDetails = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  
+  const product = products[Number(id)];
+
+  if (!product) {
+    navigate('/');
+    return null;
+  }
 
   const handleOrder = () => {
     window.location.href = product.paymentLink;
