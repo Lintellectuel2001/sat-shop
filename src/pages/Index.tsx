@@ -39,7 +39,7 @@ const Index = () => {
             <CarouselContent>
               {slides.map((slide, index) => (
                 <CarouselItem key={index}>
-                  <div className="relative h-[400px] w-full overflow-hidden rounded-xl">
+                  <div className="relative h-[500px] w-full overflow-hidden rounded-xl">
                     <div className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent opacity-60`} />
                     <img
                       src={slide.image}
