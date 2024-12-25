@@ -1,29 +1,32 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from "../components/Navbar";
-import { Star } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { Star } from "lucide-react";
 
 const ProductDetails = () => {
   const { id } = useParams();
-  // In a real app, you would fetch the product details using the id
+  const navigate = useNavigate();
+
   const product = {
-    name: "Test Item",
-    price: "$1,232",
-    rating: 0,
-    reviews: 0,
-    images: [
-      "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
-      "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b",
-      "https://images.unsplash.com/photo-1518770660439-4636190af475",
+    name: "IRON TV PRO",
+    price: "3500 DA",
+    rating: 5,
+    reviews: 124,
+    description: "Service IPTV premium avec accès à des milliers de chaînes et contenus VOD.",
+    features: [
+      "Accès à plus de 10000 chaînes TV",
+      "Bibliothèque VOD extensive",
+      "Haute qualité HD/4K",
+      "Support technique 24/7",
+      "Compatible avec tous les appareils"
     ],
-    description: "This is a detailed description of the product...",
+    image: "/lovable-uploads/c5a3c89d-432f-4cef-a538-75a6da43c7e0.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01j9xhxpv4k98rp4mhbpbcrk6z"
+  };
+
+  const handleOrder = () => {
+    window.location.href = product.paymentLink;
   };
 
   return (
@@ -32,25 +35,14 @@ const ProductDetails = () => {
       
       <main className="container mx-auto px-4 pt-32 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Product Images */}
+          {/* Product Image */}
           <div className="space-y-4">
-            <div className="aspect-square overflow-hidden rounded-lg">
+            <div className="aspect-square overflow-hidden rounded-lg bg-white p-8">
               <img
-                src={product.images[0]}
+                src={product.image}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
-            </div>
-            <div className="grid grid-cols-6 gap-2">
-              {product.images.map((image, index) => (
-                <div key={index} className="aspect-square rounded-md overflow-hidden">
-                  <img
-                    src={image}
-                    alt={`${product.name} ${index + 1}`}
-                    className="w-full h-full object-cover cursor-pointer hover:opacity-75"
-                  />
-                </div>
-              ))}
             </div>
           </div>
 
@@ -63,60 +55,41 @@ const ProductDetails = () => {
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}
-                    className={`w-4 h-4 ${
-                      i < product.rating ? "fill-[#ffd700] text-[#ffd700]" : "text-gray-300"
-                    }`}
+                    className="w-4 h-4 fill-[#ffd700] text-[#ffd700]"
                   />
                 ))}
                 <span className="text-sm text-accent ml-2">
-                  ({product.reviews} reviews)
+                  ({product.reviews} avis)
                 </span>
               </div>
             </div>
 
-            <Button className="w-full lg:w-auto">Add to Cart</Button>
+            <p className="text-lg text-accent">{product.description}</p>
 
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="description">
-                <AccordionTrigger>Description</AccordionTrigger>
-                <AccordionContent>
-                  {product.description}
-                </AccordionContent>
-              </AccordionItem>
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold">Caractéristiques:</h3>
+              <ul className="space-y-2">
+                {product.features.map((feature, index) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <span className="text-primary">•</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-              <AccordionItem value="short-info">
-                <AccordionTrigger>Short Info</AccordionTrigger>
-                <AccordionContent>
-                  Additional product information and specifications...
-                </AccordionContent>
-              </AccordionItem>
+            <Button 
+              onClick={handleOrder}
+              className="w-full lg:w-auto text-lg py-6 bg-primary hover:bg-primary/90"
+            >
+              Commander Maintenant
+            </Button>
 
-              <AccordionItem value="faq">
-                <AccordionTrigger>FAQ</AccordionTrigger>
-                <AccordionContent>
-                  Frequently asked questions about the product...
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-
-            {/* Shipping Info */}
-            <div className="grid grid-cols-2 gap-4 pt-8">
-              <div className="bg-muted p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">Free shipping</h3>
-                <p className="text-sm text-accent">On orders over $50.00</p>
-              </div>
-              <div className="bg-muted p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">Very easy to return</h3>
-                <p className="text-sm text-accent">Just phone number</p>
-              </div>
-              <div className="bg-muted p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">Nationwide delivery</h3>
-                <p className="text-sm text-accent">Fast and reliable shipping</p>
-              </div>
-              <div className="bg-muted p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">Refunds policy</h3>
-                <p className="text-sm text-accent">Easy returns within 30 days</p>
-              </div>
+            <div className="bg-muted p-4 rounded-lg mt-8">
+              <h3 className="font-semibold mb-2">Paiement sécurisé</h3>
+              <p className="text-sm text-accent">
+                Paiement sécurisé via Chargily. Livraison immédiate après confirmation du paiement.
+              </p>
             </div>
           </div>
         </div>
