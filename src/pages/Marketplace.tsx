@@ -55,6 +55,16 @@ const products = [
     image: "/lovable-uploads/6e4a8cf4-1a86-41dd-88ba-6f5ca84ba7fe.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9yn1angy3xsk301b98e56v1",
     category: "iptv"
+  },
+  {
+    id: 6,
+    name: "ORCA PRO",
+    price: "3500 DA",
+    rating: 5,
+    reviews: 0,
+    image: "/lovable-uploads/66304b90-e140-4a42-b75d-d8938d8d11c6.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01j9ymyx1ev9sh162mj67qa59q",
+    category: "iptv"
   }
 ];
 
