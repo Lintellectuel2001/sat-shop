@@ -85,6 +85,16 @@ const products = [
     image: "/lovable-uploads/5ff839f5-dc44-4d86-98da-9b6d5b041e81.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9ymsckhqd8qqcgr35tyr4gc",
     category: "iptv"
+  },
+  {
+    id: 9,
+    name: "IRON TV",
+    price: "3000 DA",
+    rating: 5,
+    reviews: 0,
+    image: "/lovable-uploads/1c875639-253e-4953-b461-1dba3e5aa8c4.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01j9ymwapfq0y9kjcsjway9xh9",
+    category: "iptv"
   }
 ];
 
