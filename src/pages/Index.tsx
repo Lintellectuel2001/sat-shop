@@ -12,7 +12,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { useEffect } from "react";
-import useEmblaCarousel from 'embla-carousel-react';
+import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react';
 
 const Index = () => {
   const slides = [
@@ -30,17 +30,23 @@ const Index = () => {
     },
   ];
 
-  const [api] = useEmblaCarousel({ loop: true });
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
 
   useEffect(() => {
-    if (api) {
+    if (emblaApi) {
       const intervalId = setInterval(() => {
-        api.scrollNext();
-      }, 5000); // Change slide every 5 seconds
+        emblaApi.scrollNext();
+      }, 5000);
 
       return () => clearInterval(intervalId);
     }
-  }, [api]);
+  }, [emblaApi]);
+
+  const onApiChange = React.useCallback((api: EmblaCarouselType) => {
+    if (api) {
+      console.log('Carousel initialized');
+    }
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -49,7 +55,7 @@ const Index = () => {
       {/* Carousel Section */}
       <section className="w-full py-12 bg-white">
         <div className="container mx-auto px-4">
-          <Carousel className="w-full max-w-5xl mx-auto" setApi={api}>
+          <Carousel className="w-full max-w-5xl mx-auto" setApi={onApiChange}>
             <CarouselContent>
               {slides.map((slide, index) => (
                 <CarouselItem key={index}>
