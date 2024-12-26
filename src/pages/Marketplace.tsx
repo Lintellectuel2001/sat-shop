@@ -61,14 +61,17 @@ const Marketplace = () => {
       <Navbar />
       
       <main className="container mx-auto px-4 pt-32 pb-16">
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold mb-4">Nos Services</h1>
-          <p className="text-accent">
-            Découvrez notre sélection de services premium pour votre divertissement.
-          </p>
+        <div className="bg-white rounded-lg shadow-sm p-8 mb-12">
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="text-4xl font-bold mb-4 text-primary">Nos Services Premium</h1>
+            <p className="text-accent text-lg">
+              Découvrez notre sélection exclusive de services de streaming et de divertissement, 
+              soigneusement choisis pour votre satisfaction.
+            </p>
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-4 items-center justify-between mb-8">
+        <div className="flex flex-wrap gap-4 items-center justify-between mb-8 bg-white p-6 rounded-lg shadow-sm">
           <div className="flex gap-4 items-center">
             <div className="text-sm text-accent">{filteredProducts.length} produit(s)</div>
             
