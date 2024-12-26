@@ -42,21 +42,21 @@ const Footer = () => {
               <h3 className="font-semibold mb-4">Entrer en contact</h3>
               <p className="text-accent mb-4">
                 Pour toute demande de renseignements, contactez-nous au
-                <a href="mailto:mehalli.rabie@gmail.com" className="text-primary block mt-2">
+                <a href="mailto:mehalli.rabie@gmail.com" className="text-[#ea384c] block mt-2">
                   mehalli.rabie@gmail.com
                 </a>
               </p>
               <div className="flex gap-4">
-                <Link to="/" className="text-accent hover:text-primary">
+                <Link to="/" className="text-[#ea384c] hover:text-[#ea384c]/80">
                   <Facebook className="w-5 h-5" />
                 </Link>
-                <Link to="/" className="text-accent hover:text-primary">
+                <Link to="/" className="text-[#ea384c] hover:text-[#ea384c]/80">
                   <Twitter className="w-5 h-5" />
                 </Link>
-                <Link to="/" className="text-accent hover:text-primary">
+                <Link to="/" className="text-[#ea384c] hover:text-[#ea384c]/80">
                   <Instagram className="w-5 h-5" />
                 </Link>
-                <Link to="/" className="text-accent hover:text-primary">
+                <Link to="/" className="text-[#ea384c] hover:text-[#ea384c]/80">
                   <Linkedin className="w-5 h-5" />
                 </Link>
               </div>
