@@ -2,6 +2,7 @@ import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Star } from "lucide-react";
 import { Product } from '@/data/products';
+import { useNavigate } from 'react-router-dom';
 
 interface ProductGridProps {
   products: Product[];
@@ -9,12 +10,10 @@ interface ProductGridProps {
 }
 
 const ProductGrid = ({ products, onProductClick }: ProductGridProps) => {
+  const navigate = useNavigate();
+
   const handleProductClick = (product: Product) => {
-    if (product.paymentLink) {
-      window.location.href = product.paymentLink;
-    } else {
-      onProductClick(product.id);
-    }
+    navigate(`/product/${product.id}`);
   };
 
   return (

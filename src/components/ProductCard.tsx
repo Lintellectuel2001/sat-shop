@@ -1,4 +1,5 @@
 import { Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface ProductCardProps {
   id?: number;
@@ -11,10 +12,10 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ id = 1, name, price, image, rating, reviews, paymentLink }: ProductCardProps) => {
+  const navigate = useNavigate();
+
   const handleClick = () => {
-    if (paymentLink) {
-      window.location.href = paymentLink;
-    }
+    navigate(`/product/${id}`);
   };
 
   return (
