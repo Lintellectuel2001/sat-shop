@@ -20,8 +20,8 @@ const NewsletterSection = () => {
         </div>
         <div className="lg:w-1/2">
           <img 
-            src="https://images.unsplash.com/photo-1595665593673-bf1ad72905c0?q=80&w=1000&auto=format&fit=crop"
-            alt="Newsletter"
+            src="/lovable-uploads/e3c1a7ee-dc3a-4a53-854e-683d7af9da46.png"
+            alt="VOD Interface"
             className="rounded-lg object-cover w-full h-[400px]"
           />
         </div>
