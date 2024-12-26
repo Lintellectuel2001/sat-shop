@@ -17,22 +17,22 @@ const Navbar = () => {
           
           <div className="hidden md:flex items-center space-x-8">
             <Link 
-              to="/marketplace?category=iptv" 
+              to="/" 
               className="nav-link hover:text-[#ea384c] transition-colors font-medium"
             >
-              IPTV
+              Accueil
             </Link>
             <Link 
-              to="/marketplace?category=sharing" 
+              to="/marketplace" 
               className="nav-link hover:text-[#ea384c] transition-colors font-medium"
             >
-              SHARING
+              Marketplace
             </Link>
             <Link 
-              to="/marketplace?category=vod" 
+              to="/contact" 
               className="nav-link hover:text-[#ea384c] transition-colors font-medium"
             >
-              VOD
+              Contactez-nous
             </Link>
           </div>
 
