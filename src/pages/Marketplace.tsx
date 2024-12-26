@@ -45,6 +45,16 @@ const products = [
     image: "/lovable-uploads/ac2683f4-4da0-488c-ba1f-4d0478e9a991.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9ymxw0sg2szb0a987dhx9y1",
     category: "iptv"
+  },
+  {
+    id: 5,
+    name: "MY HD",
+    price: "2000 DA",
+    rating: 5,
+    reviews: 0,
+    image: "/lovable-uploads/6e4a8cf4-1a86-41dd-88ba-6f5ca84ba7fe.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01j9yn1angy3xsk301b98e56v1",
+    category: "iptv"
   }
 ];
 
