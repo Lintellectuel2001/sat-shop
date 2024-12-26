@@ -36,7 +36,7 @@ const Index = () => {
     if (emblaApi) {
       const intervalId = setInterval(() => {
         emblaApi.scrollNext();
-      }, 10000);
+      }, 5000); // Changed from 10000 to 5000 for 5 second interval
 
       return () => clearInterval(intervalId);
     }
