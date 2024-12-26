@@ -63,7 +63,7 @@ const Index = () => {
                   <img
                     src={slide.image}
                     alt={slide.title}
-                    className="w-full h-full object-cover object-[50%_15%] sm:object-[50%_25%]"
+                    className="w-full h-full object-cover object-[50%_5%] sm:object-[50%_25%]"
                   />
                   <div className="absolute bottom-0 left-0 p-8 text-white">
                     <h3 className="text-2xl font-bold mb-2">{slide.title}</h3>
