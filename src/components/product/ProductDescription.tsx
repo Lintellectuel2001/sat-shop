@@ -26,42 +26,42 @@ const ProductDescription = ({ description, downloadInfo }: ProductDescriptionPro
         
         {downloadInfo && (
           <>
-            <h3 className="text-xl font-semibold mt-6">How to download the app:</h3>
+            <h3 className="text-xl font-semibold mt-6">Comment télécharger l'application :</h3>
             
-            <h4 className="font-semibold mt-4">IRON TV PRO:</h4>
+            <h4 className="font-semibold mt-4">IRON TV PRO :</h4>
             <ul>
               {downloadInfo.ironTvPro.directLinks.map((link, index) => (
-                <li key={index}>Direct link {index + 1}: <a href={link} className="text-primary hover:underline">{link}</a></li>
+                <li key={index}>Lien direct {index + 1} : <a href={link} className="text-primary hover:underline">{link}</a></li>
               ))}
-              <li>Downloader codes: {downloadInfo.ironTvPro.downloaderCodes.join(' or ')}</li>
+              <li>Codes Downloader : {downloadInfo.ironTvPro.downloaderCodes.join(' ou ')}</li>
             </ul>
 
-            <h4 className="font-semibold mt-4">IRON TV MAX (new design):</h4>
+            <h4 className="font-semibold mt-4">IRON TV MAX (nouveau design) :</h4>
             <ul>
               {downloadInfo.ironTvMax.directLinks.map((link, index) => (
-                <li key={index}>Direct link {index + 1}: <a href={link} className="text-primary hover:underline">{link}</a></li>
+                <li key={index}>Lien direct {index + 1} : <a href={link} className="text-primary hover:underline">{link}</a></li>
               ))}
-              <li>Downloader codes: {downloadInfo.ironTvMax.downloaderCodes.join(' or ')}</li>
+              <li>Codes Downloader : {downloadInfo.ironTvMax.downloaderCodes.join(' ou ')}</li>
             </ul>
 
-            <h4 className="font-semibold mt-4">NOX PRO:</h4>
+            <h4 className="font-semibold mt-4">NOX PRO :</h4>
             <ul>
-              <li>Direct link: <a href={downloadInfo.noxPro.directLink} className="text-primary hover:underline">{downloadInfo.noxPro.directLink}</a></li>
-              <li>Downloader code: {downloadInfo.noxPro.downloaderCode}</li>
+              <li>Lien direct : <a href={downloadInfo.noxPro.directLink} className="text-primary hover:underline">{downloadInfo.noxPro.directLink}</a></li>
+              <li>Code Downloader : {downloadInfo.noxPro.downloaderCode}</li>
             </ul>
 
-            <h3 className="text-xl font-semibold mt-6">How to convert Iron code to Xtream or Smarter or M3u:</h3>
-            <p>To convert Iron code to Xtream or Smarter or M3u you should contact us to get the user and password and url</p>
+            <h3 className="text-xl font-semibold mt-6">Comment convertir le code Iron en Xtream, Smarter ou M3u :</h3>
+            <p>Pour convertir le code Iron en Xtream, Smarter ou M3u, vous devez nous contacter pour obtenir l'utilisateur, le mot de passe et l'URL</p>
 
-            <h3 className="text-xl font-semibold mt-6">How to use IRON IPTV on Apple devices:</h3>
-            <p>First, convert the code to xtream, and install this app 247 IPTV Player or IPTV Smarter. After installing the app insert the user and password and the URL... that's all, enjoy!</p>
+            <h3 className="text-xl font-semibold mt-6">Comment utiliser IRON IPTV sur les appareils Apple :</h3>
+            <p>D'abord, convertissez le code en xtream, puis installez l'application 247 IPTV Player ou IPTV Smarter. Après l'installation, insérez l'utilisateur, le mot de passe et l'URL... c'est tout, profitez !</p>
 
-            <h3 className="text-xl font-semibold mt-6">Important:</h3>
+            <h3 className="text-xl font-semibold mt-6">Important :</h3>
             <ol className="list-decimal pl-5">
-              <li>The supplier remains solely responsible for the content of his packages and the availability of the channels included in his offer.</li>
-              <li>Some channels or bouquets may be temporarily unavailable, this is totally beyond our control</li>
-              <li>No guarantee on the availability of services or packages during the subscription.</li>
-              <li>The code is irreversibly linked with the Mac address of the first receiver that uses it.</li>
+              <li>Le fournisseur reste seul responsable du contenu de ses bouquets et de la disponibilité des chaînes incluses dans son offre.</li>
+              <li>Certaines chaînes ou bouquets peuvent être temporairement indisponibles, ceci est totalement hors de notre contrôle</li>
+              <li>Aucune garantie sur la disponibilité des services ou des bouquets pendant l'abonnement.</li>
+              <li>Le code est irréversiblement lié à l'adresse Mac du premier récepteur qui l'utilise.</li>
             </ol>
           </>
         )}

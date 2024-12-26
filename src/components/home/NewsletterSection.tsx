@@ -21,7 +21,7 @@ const NewsletterSection = () => {
         <div className="lg:w-1/2">
           <img 
             src="/lovable-uploads/4f809d8c-2ceb-427e-ab7b-cc701210868b.png"
-            alt="TV Remote Control"
+            alt="Télécommande TV"
             className="rounded-lg object-cover w-full h-[400px]"
           />
         </div>
