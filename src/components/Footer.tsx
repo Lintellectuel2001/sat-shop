@@ -39,9 +39,9 @@ const Footer = () => {
 
           <div className="col-span-1">
             <div className="space-y-4">
-              <h3 className="font-semibold mb-4">Get in touch</h3>
+              <h3 className="font-semibold mb-4">Entrer en contact</h3>
               <p className="text-accent mb-4">
-                For any inquiries, reach us at
+                Pour toute demande de renseignements, contactez-nous au
                 <a href="mailto:contact@ezshop.com" className="text-primary block mt-2">
                   contact@ezshop.com
                 </a>
