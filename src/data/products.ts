@@ -119,5 +119,15 @@ export const products: Product[] = [
     image: "/lovable-uploads/9e1bdf86-f879-4165-a2ac-ec025ed3d82c.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9xj2mgn28nnajwa5jbm1yhe",
     category: "sharing"
+  },
+  {
+    id: 12,
+    name: "G-SHAIRE",
+    price: "2500 DA",
+    rating: 5,
+    reviews: 0,
+    image: "/lovable-uploads/4eb70ddd-f939-43e6-a24f-4a9228a2bd9a.png",
+    paymentLink: "https://pay.chargily.dz/checkouts/01jg1gfmfhcrd5krhq41b24352/pay",
+    category: "sharing"
   }
 ];
