@@ -102,7 +102,7 @@ const products = [
     price: "3000 DA",
     rating: 5,
     reviews: 0,
-    image: "/lovable-uploads/abe758f9-67c7-455d-a24a-0e6f3224a168.png",
+    image: "/lovable-uploads/515ea47f-412f-4b76-9df3-d7d0a5d62378.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9ymtvhx6xam5dk7vksej0yw",
     category: "iptv"
   }
