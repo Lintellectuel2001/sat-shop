@@ -21,7 +21,7 @@ const Footer = () => {
             <nav className="space-y-4">
               <h3 className="font-semibold mb-4">Company</h3>
               <ul className="space-y-2 text-accent">
-                <li><Link to="/">About Us</Link></li>
+                <li><Link to="/">À propos de nous</Link></li>
                 <li><Link to="/">Contact</Link></li>
               </ul>
             </nav>
