@@ -36,6 +36,23 @@ const products = {
     ],
     image: "/lovable-uploads/36762d97-5db1-4e2c-9796-0de62a32cfde.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9ymqj9fbpggyvfjdcwxhfjq"
+  },
+  3: {
+    name: "FUNCAM",
+    price: "1800 DA",
+    rating: 5,
+    reviews: 0,
+    description: "Service de sharing premium pour une expérience de visionnage optimale.",
+    features: [
+      "Service de sharing fiable",
+      "Installation facile",
+      "Support technique disponible",
+      "Mise à jour régulière",
+      "Prix compétitif"
+    ],
+    image: "/lovable-uploads/36762d97-5db1-4e2c-9796-0de62a32cfde.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01j9ymfmt12rezgtbqt7abyftt",
+    category: "sharing"
   }
 };
 

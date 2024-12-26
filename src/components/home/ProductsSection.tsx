@@ -18,6 +18,16 @@ const products = [
     reviews: 98,
     image: "/lovable-uploads/36762d97-5db1-4e2c-9796-0de62a32cfde.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9ymqj9fbpggyvfjdcwxhfjq"
+  },
+  {
+    id: 3,
+    name: "FUNCAM",
+    price: "1800 DA",
+    rating: 5,
+    reviews: 0,
+    image: "/lovable-uploads/36762d97-5db1-4e2c-9796-0de62a32cfde.png", // Using existing image as placeholder
+    paymentLink: "https://pay.chargily.com/payment-links/01j9ymfmt12rezgtbqt7abyftt",
+    category: "sharing"
   }
 ];
 
