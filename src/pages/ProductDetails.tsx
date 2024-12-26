@@ -43,14 +43,25 @@ const products = {
     price: "3000 DA",
     rating: 5,
     reviews: 98,
-    description: "Service IPTV premium avec une expérience de visionnage exceptionnelle.",
+    description: "ABONNEMENT IPTV ATLAS PRO ONTV \n\nATLAS PRO ONTV à travers son application officielle vous offre l'accès à la TV et à la VOD (séries et films) ainsi qu'au replay (rediffusion)\n\nABONNEMENT IPTV, STABLE ET RAPIDE\n\nL'abonnement IPTV Atlas iptv pro ontv vous offre : \n\nChaînes disponibles : France, Belgique, Suisse, Algérie, Maroc, Tunisie.\nAutres pays : Espagne, Portugal, Italie, Allemagne, Pays-Bas, Arabe, UK, Latino, Turquie, USA, Canada, Afrique, etc.\nNotre contenu est diversifié, riche et stable.\nNous avons mis à votre disposition environ 7000 chaines TV, 30000 films et 563 séries.\n107 Chaines en replay disponible pour 15 jours passés.\nIl y a environ 188 canaux français disponibles en plusieurs qualités FHD / UHD, HD ou SD.\nNotre Video-on-demand est en Full HD pour la plupart et en multilingue.\nVOD : L'application vous permet de poursuivre le film ou l'épisode d'une série la ou vous l'avez arrêté précédemment même si vous éteignez la TV.",
     features: [
-      "Large sélection de chaînes TV",
-      "Contenu VOD varié",
-      "Qualité HD/4K",
-      "Support client réactif",
-      "Multi-plateformes"
+      "Plus de 7000 chaînes TV",
+      "30000 films et 563 séries",
+      "107 chaînes en replay (15 jours)",
+      "188 canaux français en FHD/UHD/HD/SD",
+      "VOD en Full HD et multilingue",
+      "Reprise automatique de la lecture"
     ],
+    downloadInfo: {
+      atlasPro: {
+        directLink: "https://atlaspro.tv/soft/ATLAS%20PRO%20ONTV%283.0%29.apk",
+        downloaderCode: "727750"
+      },
+      atlasProMax: {
+        directLink: "https://atlaspro.tv/soft/ATLAS-PRO-MAX.apk",
+        downloaderCode: "537400"
+      }
+    },
     image: "/lovable-uploads/36762d97-5db1-4e2c-9796-0de62a32cfde.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9ymqj9fbpggyvfjdcwxhfjq",
     category: "iptv"
