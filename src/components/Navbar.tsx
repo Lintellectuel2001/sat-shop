@@ -9,11 +9,10 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16 px-4">
           <Link to="/" className="flex items-center gap-3">
             <img 
-              src="/lovable-uploads/abe758f9-67c7-455d-a24a-0e6f3224a168.png" 
+              src="/lovable-uploads/d7990538-4e18-4b76-bb29-4e16e74bf512.png" 
               alt="Sat-shop" 
               className="h-12 w-auto"
             />
-            <span className="text-black font-bold text-2xl">Sat-shop</span>
           </Link>
           
           <div className="hidden md:flex items-center space-x-8">
