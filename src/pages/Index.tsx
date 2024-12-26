@@ -11,6 +11,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { useEffect } from "react";
+import useEmblaCarousel from 'embla-carousel-react';
 
 const Index = () => {
   const slides = [
@@ -28,6 +30,18 @@ const Index = () => {
     },
   ];
 
+  const [api] = useEmblaCarousel({ loop: true });
+
+  useEffect(() => {
+    if (api) {
+      const intervalId = setInterval(() => {
+        api.scrollNext();
+      }, 5000); // Change slide every 5 seconds
+
+      return () => clearInterval(intervalId);
+    }
+  }, [api]);
+
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -35,11 +49,11 @@ const Index = () => {
       {/* Carousel Section */}
       <section className="w-full py-12 bg-white">
         <div className="container mx-auto px-4">
-          <Carousel className="w-full max-w-5xl mx-auto">
+          <Carousel className="w-full max-w-5xl mx-auto" setApi={api}>
             <CarouselContent>
               {slides.map((slide, index) => (
                 <CarouselItem key={index}>
-                  <div className="relative h-[500px] w-full overflow-hidden rounded-xl">
+                  <div className="relative h-[600px] w-full overflow-hidden rounded-xl">
                     <div className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent opacity-60`} />
                     <img
                       src={slide.image}
