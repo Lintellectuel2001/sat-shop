@@ -29,10 +29,10 @@ const Footer = () => {
 
           <div className="col-span-1">
             <nav className="space-y-4">
-              <h3 className="font-semibold mb-4">Support</h3>
+              <h3 className="font-semibold mb-4">Soutien</h3>
               <ul className="space-y-2 text-accent">
-                <li><Link to="/">Help Center</Link></li>
-                <li><Link to="/">Privacy Policy</Link></li>
+                <li><Link to="/">Centre d'aide</Link></li>
+                <li><Link to="/">Politique de confidentialité</Link></li>
               </ul>
             </nav>
           </div>
