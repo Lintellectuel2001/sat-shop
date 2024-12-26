@@ -53,31 +53,29 @@ const Index = () => {
       <Navbar />
 
       {/* Carousel Section */}
-      <section className="w-full py-12 bg-white">
-        <div className="container mx-auto px-4">
-          <Carousel className="w-full max-w-5xl mx-auto" setApi={onApiChange}>
-            <CarouselContent>
-              {slides.map((slide, index) => (
-                <CarouselItem key={index}>
-                  <div className="relative h-[600px] w-full overflow-hidden rounded-xl">
-                    <div className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent opacity-60`} />
-                    <img
-                      src={slide.image}
-                      alt={slide.title}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute bottom-0 left-0 p-8 text-white">
-                      <h3 className="text-2xl font-bold mb-2">{slide.title}</h3>
-                      <p className="text-lg">{slide.description}</p>
-                    </div>
+      <section className="w-full bg-white">
+        <Carousel className="w-full" setApi={onApiChange}>
+          <CarouselContent>
+            {slides.map((slide, index) => (
+              <CarouselItem key={index}>
+                <div className="relative h-[calc(100vh-64px)] w-full overflow-hidden">
+                  <div className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent opacity-60`} />
+                  <img
+                    src={slide.image}
+                    alt={slide.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute bottom-0 left-0 p-8 text-white">
+                    <h3 className="text-2xl font-bold mb-2">{slide.title}</h3>
+                    <p className="text-lg">{slide.description}</p>
                   </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="left-4" />
-            <CarouselNext className="right-4" />
-          </Carousel>
-        </div>
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="left-4" />
+          <CarouselNext className="right-4" />
+        </Carousel>
       </section>
 
       <HeroSection />
