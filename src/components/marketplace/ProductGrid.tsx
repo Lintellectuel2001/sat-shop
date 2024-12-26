@@ -9,13 +9,21 @@ interface ProductGridProps {
 }
 
 const ProductGrid = ({ products, onProductClick }: ProductGridProps) => {
+  const handleProductClick = (product: Product) => {
+    if (product.paymentLink) {
+      window.location.href = product.paymentLink;
+    } else {
+      onProductClick(product.id);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {products.map((product) => (
         <Card 
           key={product.id} 
           className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-          onClick={() => onProductClick(product.id)}
+          onClick={() => handleProductClick(product)}
         >
           <div className="aspect-square overflow-hidden bg-white p-4">
             <img

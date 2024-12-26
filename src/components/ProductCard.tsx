@@ -1,5 +1,4 @@
 import { Star } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 interface ProductCardProps {
   id?: number;
@@ -8,15 +7,20 @@ interface ProductCardProps {
   image: string;
   rating: number;
   reviews: number;
+  paymentLink?: string;
 }
 
-const ProductCard = ({ id = 1, name, price, image, rating, reviews }: ProductCardProps) => {
-  const navigate = useNavigate();
+const ProductCard = ({ id = 1, name, price, image, rating, reviews, paymentLink }: ProductCardProps) => {
+  const handleClick = () => {
+    if (paymentLink) {
+      window.location.href = paymentLink;
+    }
+  };
 
   return (
     <div 
       className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
-      onClick={() => navigate(`/product/${id}`)}
+      onClick={handleClick}
     >
       <div className="aspect-square overflow-hidden">
         <img

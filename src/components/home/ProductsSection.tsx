@@ -16,6 +16,7 @@ const ProductsSection = () => {
               image={product.image}
               rating={product.rating}
               reviews={product.reviews}
+              paymentLink={product.paymentLink}
             />
           ))}
         </div>
