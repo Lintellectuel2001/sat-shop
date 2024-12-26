@@ -30,6 +30,16 @@ const products = [
     image: "/lovable-uploads/ad1e441d-a579-4cf0-8c19-cf22e405d74b.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9ymfmt12rezgtbqt7abyftt",
     category: "sharing"
+  },
+  {
+    id: 4,
+    name: "GOGO IPTV",
+    price: "3000 DA",
+    rating: 5,
+    reviews: 0,
+    image: "/lovable-uploads/ac2683f4-4da0-488c-ba1f-4d0478e9a991.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01j9ymxw0sg2szb0a987dhx9y1",
+    category: "iptv"
   }
 ];
 
