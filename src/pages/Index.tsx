@@ -12,7 +12,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { useEffect } from "react";
-import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react';
+import useEmblaCarousel, { type UseEmblaCarouselType } from 'embla-carousel-react';
 
 const Index = () => {
   const slides = [
@@ -42,7 +42,7 @@ const Index = () => {
     }
   }, [emblaApi]);
 
-  const onApiChange = React.useCallback((api: EmblaCarouselType) => {
+  const onApiChange = React.useCallback((api: UseEmblaCarouselType[1]) => {
     if (api) {
       console.log('Carousel initialized');
     }
