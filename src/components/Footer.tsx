@@ -42,8 +42,8 @@ const Footer = () => {
               <h3 className="font-semibold mb-4">Entrer en contact</h3>
               <p className="text-accent mb-4">
                 Pour toute demande de renseignements, contactez-nous au
-                <a href="mailto:contact@ezshop.com" className="text-primary block mt-2">
-                  contact@ezshop.com
+                <a href="mailto:mehalli.rabie@gmail.com" className="text-primary block mt-2">
+                  mehalli.rabie@gmail.com
                 </a>
               </p>
               <div className="flex gap-4">
