@@ -4,7 +4,6 @@ import Footer from "../components/Footer";
 import HeroSection from "../components/home/HeroSection";
 import NewsletterSection from "../components/home/NewsletterSection";
 import ProductsSection from "../components/home/ProductsSection";
-import ComparisonTable from "../components/home/ComparisonTable";
 import {
   Carousel,
   CarouselContent,
@@ -77,7 +76,6 @@ const Index = () => {
 
       <HeroSection />
       <ProductsSection />
-      <ComparisonTable />
       <NewsletterSection />
       <Footer />
     </div>
