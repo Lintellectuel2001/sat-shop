@@ -30,23 +30,19 @@ const Index = () => {
     },
   ];
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+  const [api, setApi] = React.useState<UseEmblaCarouselType[1] | null>(null);
 
   useEffect(() => {
-    if (emblaApi) {
-      const intervalId = setInterval(() => {
-        emblaApi.scrollNext();
-      }, 5000); // Changed from 10000 to 5000 for 5 second interval
+    if (!api) return;
 
-      return () => clearInterval(intervalId);
-    }
-  }, [emblaApi]);
+    const autoplay = setInterval(() => {
+      api.scrollNext();
+    }, 5000);
 
-  const onApiChange = React.useCallback((api: UseEmblaCarouselType[1]) => {
-    if (api) {
-      console.log('Carousel initialized');
-    }
-  }, []);
+    return () => {
+      clearInterval(autoplay);
+    };
+  }, [api]);
 
   return (
     <div className="min-h-screen">
@@ -54,7 +50,7 @@ const Index = () => {
 
       {/* Carousel Section */}
       <section className="w-full bg-white pt-4">
-        <Carousel className="w-full" setApi={onApiChange}>
+        <Carousel className="w-full" setApi={setApi}>
           <CarouselContent>
             {slides.map((slide, index) => (
               <CarouselItem key={index}>
