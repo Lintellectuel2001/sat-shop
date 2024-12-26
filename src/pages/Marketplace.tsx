@@ -65,6 +65,16 @@ const products = [
     image: "/lovable-uploads/66304b90-e140-4a42-b75d-d8938d8d11c6.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9ymyx1ev9sh162mj67qa59q",
     category: "iptv"
+  },
+  {
+    id: 7,
+    name: "POP IPTV",
+    price: "3000 DA",
+    rating: 5,
+    reviews: 0,
+    image: "/lovable-uploads/96c11b10-32d5-42e0-8182-4b7a9ba2154d.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01j9yn026m076hjmhd1mev9rjs",
+    category: "iptv"
   }
 ];
 
