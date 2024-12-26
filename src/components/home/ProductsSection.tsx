@@ -8,7 +8,8 @@ const products = [
     rating: 5,
     reviews: 124,
     image: "/lovable-uploads/c5a3c89d-432f-4cef-a538-75a6da43c7e0.png",
-    paymentLink: "https://pay.chargily.com/payment-links/01j9xhxpv4k98rp4mhbpbcrk6z"
+    paymentLink: "https://pay.chargily.com/payment-links/01j9xhxpv4k98rp4mhbpbcrk6z",
+    category: "iptv"
   },
   {
     id: 2,
@@ -17,7 +18,8 @@ const products = [
     rating: 5,
     reviews: 98,
     image: "/lovable-uploads/36762d97-5db1-4e2c-9796-0de62a32cfde.png",
-    paymentLink: "https://pay.chargily.com/payment-links/01j9ymqj9fbpggyvfjdcwxhfjq"
+    paymentLink: "https://pay.chargily.com/payment-links/01j9ymqj9fbpggyvfjdcwxhfjq",
+    category: "iptv"
   },
   {
     id: 3,
