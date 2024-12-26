@@ -70,6 +70,16 @@ const products = [
     image: "/lovable-uploads/96c11b10-32d5-42e0-8182-4b7a9ba2154d.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9yn026m076hjmhd1mev9rjs",
     category: "iptv"
+  },
+  {
+    id: 8,
+    name: "DREAM IPTV",
+    price: "3000 DA",
+    rating: 5,
+    reviews: 0,
+    image: "/lovable-uploads/5ff839f5-dc44-4d86-98da-9b6d5b041e81.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01j9ymsckhqd8qqcgr35tyr4gc",
+    category: "iptv"
   }
 ];
 
