@@ -13,7 +13,7 @@ const Navbar = () => {
               alt="Sat-shop" 
               className="h-12 w-auto"
             />
-            <span className="text-[#ea384c] font-bold text-2xl">SAT-SHOP</span>
+            <span className="text-black font-bold text-2xl">SAT-SHOP</span>
           </Link>
           
           <div className="hidden md:flex items-center space-x-8">
