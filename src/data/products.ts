@@ -127,7 +127,7 @@ export const products: Product[] = [
     rating: 5,
     reviews: 0,
     image: "/lovable-uploads/4eb70ddd-f939-43e6-a24f-4a9228a2bd9a.png",
-    paymentLink: "https://pay.chargily.dz/checkouts/01jg1gfmfhcrd5krhq41b24352/pay",
+    paymentLink: "https://pay.chargily.com/payment-links/01j9ymd31dz7fdg4bepa5vrf2c",
     category: "sharing"
   }
 ];
