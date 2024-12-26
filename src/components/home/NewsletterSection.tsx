@@ -20,8 +20,8 @@ const NewsletterSection = () => {
         </div>
         <div className="lg:w-1/2">
           <img 
-            src="/lovable-uploads/e3c1a7ee-dc3a-4a53-854e-683d7af9da46.png"
-            alt="VOD Interface"
+            src="/lovable-uploads/4f809d8c-2ceb-427e-ab7b-cc701210868b.png"
+            alt="TV Remote Control"
             className="rounded-lg object-cover w-full h-[400px]"
           />
         </div>
