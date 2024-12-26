@@ -2,7 +2,9 @@ import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from "../components/Navbar";
 import { Button } from "@/components/ui/button";
-import { Star } from "lucide-react";
+import ProductHeader from "@/components/product/ProductHeader";
+import ProductFeatures from "@/components/product/ProductFeatures";
+import ProductDescription from "@/components/product/ProductDescription";
 
 const products = {
   1: {
@@ -10,7 +12,7 @@ const products = {
     price: "3500 DA",
     rating: 5,
     reviews: 124,
-    description: "Service IPTV premium avec accès à des milliers de chaînes et contenus VOD.",
+    description: "IRON IPTV is one of the best online TV you can rely on,\n\nSubscription Period: 2-day test code\n\nItalian, Spain, Portugal, USA, Germany, Arabic OSN – MBC – ROTANA – ART, Poland, Indi, Latino, African, Albanian, Hungarian, Sweden, Norway, Denmark, Serbia, Croatia, Bosnia, India, and more.\n\nIncluded Packs C-sat – RMC – Bei*n Sports channels …DS*TV) latest films and series with box office channels",
     features: [
       "Accès à plus de 10000 chaînes TV",
       "Bibliothèque VOD extensive",
@@ -18,6 +20,20 @@ const products = {
       "Support technique 24/7",
       "Compatible avec tous les appareils"
     ],
+    downloadInfo: {
+      ironTvPro: {
+        directLinks: ["https://ironiptv.net/iron-pro.apk", "aftv.news/272540"],
+        downloaderCodes: ["272540", "635983"]
+      },
+      ironTvMax: {
+        directLinks: ["aftv.news/486041", "aftv.news/557293"],
+        downloaderCodes: ["486041", "965085", "557293"]
+      },
+      noxPro: {
+        directLink: "aftv.news/542064",
+        downloaderCode: "542064"
+      }
+    },
     image: "/lovable-uploads/c5a3c89d-432f-4cef-a538-75a6da43c7e0.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9xhxpv4k98rp4mhbpbcrk6z",
     category: "iptv"
@@ -250,35 +266,19 @@ const ProductDetails = () => {
 
           {/* Product Info */}
           <div className="space-y-6">
-            <h1 className="text-4xl font-bold">{product.name}</h1>
-            <div className="flex items-center gap-4">
-              <span className="text-2xl font-semibold text-primary">{product.price}</span>
-              <div className="flex items-center gap-1">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star
-                    key={i}
-                    className="w-4 h-4 fill-[#ffd700] text-[#ffd700]"
-                  />
-                ))}
-                <span className="text-sm text-accent ml-2">
-                  ({product.reviews} avis)
-                </span>
-              </div>
-            </div>
+            <ProductHeader
+              name={product.name}
+              price={product.price}
+              rating={product.rating}
+              reviews={product.reviews}
+            />
 
-            <p className="text-lg text-accent">{product.description}</p>
+            <ProductDescription 
+              description={product.description}
+              downloadInfo={product.downloadInfo}
+            />
 
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold">Caractéristiques:</h3>
-              <ul className="space-y-2">
-                {product.features.map((feature, index) => (
-                  <li key={index} className="flex items-center gap-2">
-                    <span className="text-primary">•</span>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <ProductFeatures features={product.features} />
 
             <Button 
               onClick={handleOrder}
