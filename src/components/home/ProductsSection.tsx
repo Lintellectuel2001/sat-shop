@@ -90,6 +90,16 @@ const products = [
     image: "/lovable-uploads/1c875639-253e-4953-b461-1dba3e5aa8c4.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9ymwapfq0y9kjcsjway9xh9",
     category: "iptv"
+  },
+  {
+    id: 10,
+    name: "ES-PRO",
+    price: "3000 DA",
+    rating: 5,
+    reviews: 0,
+    image: "/lovable-uploads/abe758f9-67c7-455d-a24a-0e6f3224a168.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01j9ymtvhx6xam5dk7vksej0yw",
+    category: "iptv"
   }
 ];
 
