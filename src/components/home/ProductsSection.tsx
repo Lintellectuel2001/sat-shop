@@ -25,7 +25,7 @@ const products = [
     price: "1800 DA",
     rating: 5,
     reviews: 0,
-    image: "/lovable-uploads/36762d97-5db1-4e2c-9796-0de62a32cfde.png", // Using existing image as placeholder
+    image: "/lovable-uploads/ad1e441d-a579-4cf0-8c19-cf22e405d74b.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9ymfmt12rezgtbqt7abyftt",
     category: "sharing"
   }

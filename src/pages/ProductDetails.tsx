@@ -50,7 +50,7 @@ const products = {
       "Mise à jour régulière",
       "Prix compétitif"
     ],
-    image: "/lovable-uploads/36762d97-5db1-4e2c-9796-0de62a32cfde.png",
+    image: "/lovable-uploads/ad1e441d-a579-4cf0-8c19-cf22e405d74b.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9ymfmt12rezgtbqt7abyftt",
     category: "sharing"
   }
