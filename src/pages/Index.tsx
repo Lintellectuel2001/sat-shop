@@ -50,7 +50,7 @@ const Index = () => {
 
       {/* Carousel Section */}
       <section className="w-full bg-white pt-4">
-        <Carousel className="w-full" setApi={setApi}>
+        <Carousel className="w-full" setApi={setApi} opts={{ loop: true }}>
           <CarouselContent>
             {slides.map((slide, index) => (
               <CarouselItem key={index}>
