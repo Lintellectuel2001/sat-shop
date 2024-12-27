@@ -223,6 +223,78 @@ const productDetails = {
     image: "/lovable-uploads/4eb70ddd-f939-43e6-a24f-4a9228a2bd9a.png",
     paymentLink: "https://pay.chargily.dz/checkouts/01jg1gfmfhcrd5krhq41b24352/pay",
     category: "sharing"
+  },
+  13: {
+    name: "KDMAX VOD",
+    price: "5000 DA",
+    rating: 5,
+    reviews: 0,
+    description: "KDMAX VOD est votre passerelle vers un univers de divertissement illimité.\n\nProfitez d'une expérience de streaming exceptionnelle avec notre service VOD premium qui vous donne accès à :\n\n- Une bibliothèque massive de films et séries\n- Des contenus en qualité HD/4K\n- Des mises à jour régulières avec les dernières sorties\n- Une interface utilisateur intuitive et facile à naviguer",
+    features: [
+      "Plus de 50,000 films et séries",
+      "Qualité HD/4K garantie",
+      "Mise à jour hebdomadaire",
+      "Support multilingue",
+      "Compatible avec tous les appareils",
+      "Pas de publicité",
+      "Support technique 24/7"
+    ],
+    image: "/lovable-uploads/17e06898-b337-4bcf-9a97-0b7d8470131b.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01jg3nn6q4ntympfp7fjcfrvqe"
+  },
+  14: {
+    name: "STRONG",
+    price: "7000 DA",
+    rating: 5,
+    reviews: 0,
+    description: "STRONG IPTV offre une solution premium pour tous vos besoins en streaming.\n\nNotre service se distingue par :\n\n- Une stabilité exceptionnelle\n- Une qualité d'image supérieure\n- Un large choix de chaînes internationales\n- Des fonctionnalités avancées pour une expérience utilisateur optimale",
+    features: [
+      "Plus de 15,000 chaînes en direct",
+      "Bibliothèque VOD extensive",
+      "Qualité HD/4K",
+      "Support EPG complet",
+      "Compatibilité multi-appareils",
+      "Bande passante illimitée",
+      "Support technique premium"
+    ],
+    image: "/lovable-uploads/fac26b9d-f35d-48b9-80a9-52532bfd2b7d.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01jg3nrvgvj0866k3nrkgeeqtk"
+  },
+  15: {
+    name: "FOREVER",
+    price: "3800 DA",
+    rating: 5,
+    reviews: 0,
+    description: "FOREVER est votre solution de partage premium pour un accès illimité au divertissement.\n\nNos services incluent :\n\n- Accès à des chaînes premium\n- Service de partage stable et fiable\n- Support technique réactif\n- Mise à jour régulière des contenus",
+    features: [
+      "Service de partage haute performance",
+      "Installation simple et rapide",
+      "Support technique disponible",
+      "Accès aux chaînes premium",
+      "Stabilité garantie",
+      "Prix compétitif",
+      "Mises à jour régulières"
+    ],
+    image: "/lovable-uploads/4cc51239-9c88-4de2-a963-9ef404192fbd.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01jg3rgcvpyz45gjt6pccdqg4b"
+  },
+  16: {
+    name: "DAR IPTV",
+    price: "3500 DA",
+    rating: 5,
+    reviews: 0,
+    description: "DAR IPTV vous offre une expérience de streaming complète et personnalisée.\n\nDécouvrez :\n\n- Une sélection premium de chaînes TV\n- Des contenus VOD régulièrement mis à jour\n- Une interface utilisateur intuitive\n- Un service client attentif à vos besoins",
+    features: [
+      "Plus de 12,000 chaînes en direct",
+      "Bibliothèque VOD riche",
+      "Qualité HD/FHD/4K",
+      "Guide des programmes électronique",
+      "Compatible avec tous les appareils",
+      "Support technique réactif",
+      "Mises à jour continues"
+    ],
+    image: "/lovable-uploads/12c93610-15eb-477e-9b8f-34182fdedaae.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01jg3ry0bth7g4qs6381gdzc22"
   }
 };
 
