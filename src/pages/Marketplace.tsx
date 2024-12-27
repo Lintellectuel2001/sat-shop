@@ -12,12 +12,7 @@ const Marketplace = () => {
   const [category, setCategory] = useState("all");
 
   const handleProductClick = (productId: number) => {
-    const product = products.find(p => p.id === productId);
-    if (product?.paymentLink) {
-      window.location.href = product.paymentLink;
-    } else {
-      navigate(`/product/${productId}`);
-    }
+    navigate(`/product/${productId}`);
   };
 
   const filteredProducts = products.filter(product => 
