@@ -149,5 +149,15 @@ export const products: Product[] = [
     image: "/lovable-uploads/fac26b9d-f35d-48b9-80a9-52532bfd2b7d.png",
     paymentLink: "https://pay.chargily.com/payment-links/01jg3nrvgvj0866k3nrkgeeqtk",
     category: "iptv"
+  },
+  {
+    id: 15,
+    name: "FOREVER",
+    price: "3800 DA",
+    rating: 5,
+    reviews: 0,
+    image: "/lovable-uploads/81415125-6a50-4a7c-a614-e424715eecb7.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01jg3rgcvpyz45gjt6pccdqg4b",
+    category: "sharing"
   }
 ];
