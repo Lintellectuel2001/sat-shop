@@ -119,5 +119,15 @@ export const products: Product[] = [
     image: "/lovable-uploads/9e1bdf86-f879-4165-a2ac-ec025ed3d82c.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9xj2mgn28nnajwa5jbm1yhe",
     category: "sharing"
+  },
+  {
+    id: 12,
+    name: "AROMA VOD",
+    price: "3500 DA",
+    rating: 5,
+    reviews: 0,
+    image: "/lovable-uploads/44e8e9d8-54b5-4a66-bd3a-3532ba01ba4a.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01jg3njrh0zgahz0b18ht7t1fr",
+    category: "vod"
   }
 ];
