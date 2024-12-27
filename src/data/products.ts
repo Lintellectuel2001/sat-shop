@@ -129,5 +129,15 @@ export const products: Product[] = [
     image: "/lovable-uploads/44e8e9d8-54b5-4a66-bd3a-3532ba01ba4a.png",
     paymentLink: "https://pay.chargily.com/payment-links/01jg3njrh0zgahz0b18ht7t1fr",
     category: "vod"
+  },
+  {
+    id: 13,
+    name: "KDMAX VOD",
+    price: "5000 DA",
+    rating: 5,
+    reviews: 0,
+    image: "/lovable-uploads/17e06898-b337-4bcf-9a97-0b7d8470131b.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01jg3nn6q4ntympfp7fjcfrvqe",
+    category: "vod"
   }
 ];
