@@ -11,6 +11,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 const slides = [
   {
@@ -28,17 +29,28 @@ const slides = [
 ];
 
 const Index = () => {
+  const plugin = React.useMemo(
+    () =>
+      Autoplay({
+        delay: 8000,
+        stopOnInteraction: false,
+      }),
+    []
+  );
+
   return (
     <div className="min-h-screen">
       <Navbar />
       
       {/* Carousel Section */}
       <section className="w-full bg-white pt-16">
-        <Carousel className="w-full" opts={{ 
-          loop: true,
-          duration: 8000,
-          autoplay: true
-        }}>
+        <Carousel 
+          className="w-full" 
+          opts={{ 
+            loop: true,
+          }}
+          plugins={[plugin]}
+        >
           <CarouselContent>
             {slides.map((slide, index) => (
               <CarouselItem key={index}>
