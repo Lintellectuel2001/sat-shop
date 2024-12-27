@@ -19,10 +19,6 @@ interface ProductDescriptionProps {
       directLink: string;
       downloaderCode: string;
     };
-    atlasProMax?: {
-      directLink: string;
-      downloaderCode: string;
-    };
   };
 }
 
@@ -76,16 +72,6 @@ const ProductDescription = ({ description, downloadInfo }: ProductDescriptionPro
                 <ul>
                   <li>Lien direct : <a href={downloadInfo.atlasPro.directLink} className="text-primary hover:underline">{downloadInfo.atlasPro.directLink}</a></li>
                   <li>Code Downloader : {downloadInfo.atlasPro.downloaderCode}</li>
-                </ul>
-              </>
-            )}
-
-            {downloadInfo.atlasProMax && (
-              <>
-                <h4 className="font-semibold mt-4">Atlas Pro Max :</h4>
-                <ul>
-                  <li>Lien direct : <a href={downloadInfo.atlasProMax.directLink} className="text-primary hover:underline">{downloadInfo.atlasProMax.directLink}</a></li>
-                  <li>Code Downloader : {downloadInfo.atlasProMax.downloaderCode}</li>
                 </ul>
               </>
             )}
