@@ -208,21 +208,22 @@ const productDetails = {
     category: "sharing"
   },
   12: {
-    name: "G-SHAIRE",
-    price: "2500 DA",
+    name: "AROMA VOD",
+    price: "3500 DA",
     rating: 5,
     reviews: 0,
-    description: "Service de sharing premium avec une excellente stabilité.",
+    description: "AROMA VOD est votre destination ultime pour le divertissement à la demande.\n\nDécouvrez une expérience de streaming exceptionnelle avec :\n\n- Une vaste collection de films et séries\n- Des contenus en haute qualité\n- Des mises à jour régulières\n- Une interface simple et intuitive\n- Un accès illimité à tout moment",
     features: [
-      "Sharing haute performance",
-      "Installation guidée",
-      "Support technique inclus",
-      "Service fiable",
-      "Mises à jour régulières"
+      "Plus de 30,000 films et séries",
+      "Qualité HD/4K disponible",
+      "Mise à jour quotidienne",
+      "Support multilingue",
+      "Compatible avec tous les appareils",
+      "Sans publicité",
+      "Support technique disponible"
     ],
-    image: "/lovable-uploads/4eb70ddd-f939-43e6-a24f-4a9228a2bd9a.png",
-    paymentLink: "https://pay.chargily.dz/checkouts/01jg1gfmfhcrd5krhq41b24352/pay",
-    category: "sharing"
+    image: "/lovable-uploads/44e8e9d8-54b5-4a66-bd3a-3532ba01ba4a.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01jg3njrh0zgahz0b18ht7t1fr"
   },
   13: {
     name: "KDMAX VOD",
