@@ -34,7 +34,11 @@ const Index = () => {
       
       {/* Carousel Section */}
       <section className="w-full bg-white pt-16">
-        <Carousel className="w-full" opts={{ loop: true }}>
+        <Carousel className="w-full" opts={{ 
+          loop: true,
+          duration: 8000,
+          autoplay: true
+        }}>
           <CarouselContent>
             {slides.map((slide, index) => (
               <CarouselItem key={index}>
