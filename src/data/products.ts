@@ -159,5 +159,15 @@ export const products: Product[] = [
     image: "/lovable-uploads/4cc51239-9c88-4de2-a963-9ef404192fbd.png",
     paymentLink: "https://pay.chargily.com/payment-links/01jg3rgcvpyz45gjt6pccdqg4b",
     category: "sharing"
+  },
+  {
+    id: 16,
+    name: "DAR IPTV",
+    price: "3500 DA",
+    rating: 5,
+    reviews: 0,
+    image: "/lovable-uploads/12c93610-15eb-477e-9b8f-34182fdedaae.png",
+    paymentLink: "https://pay.chargily.com/payment-links/01jg3ry0bth7g4qs6381gdzc22",
+    category: "iptv"
   }
 ];
