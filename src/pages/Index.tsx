@@ -11,46 +11,30 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { useEffect } from "react";
-import useEmblaCarousel, { type UseEmblaCarouselType } from 'embla-carousel-react';
+
+const slides = [
+  {
+    title: "Moments en famille",
+    description: "Partagez des moments inoubliables avec vos proches",
+    image: "/lovable-uploads/d5a2fef2-4158-4ee4-b25e-8492028478d8.png",
+    color: "from-pink-500",
+  },
+  {
+    title: "Divertissement à la maison",
+    description: "Profitez du meilleur du divertissement depuis votre canapé",
+    image: "/lovable-uploads/93f4a4d3-0266-4de9-adcb-0b83e06ef79a.png",
+    color: "from-green-500",
+  },
+];
 
 const Index = () => {
-  const slides = [
-    {
-      title: "Moments en famille",
-      description: "Partagez des moments inoubliables avec vos proches",
-      image: "/lovable-uploads/d5a2fef2-4158-4ee4-b25e-8492028478d8.png",
-      color: "from-pink-500",
-    },
-    {
-      title: "Divertissement à la maison",
-      description: "Profitez du meilleur du divertissement depuis votre canapé",
-      image: "/lovable-uploads/93f4a4d3-0266-4de9-adcb-0b83e06ef79a.png",
-      color: "from-green-500",
-    },
-  ];
-
-  const [api, setApi] = React.useState<UseEmblaCarouselType[1] | null>(null);
-
-  useEffect(() => {
-    if (!api) return;
-
-    const autoplay = setInterval(() => {
-      api.scrollNext();
-    }, 5000);
-
-    return () => {
-      clearInterval(autoplay);
-    };
-  }, [api]);
-
   return (
     <div className="min-h-screen">
       <Navbar />
-
+      
       {/* Carousel Section */}
-      <section className="w-full bg-white pt-4">
-        <Carousel className="w-full" setApi={setApi} opts={{ loop: true }}>
+      <section className="w-full bg-white pt-16">
+        <Carousel className="w-full" opts={{ loop: true }}>
           <CarouselContent>
             {slides.map((slide, index) => (
               <CarouselItem key={index}>
