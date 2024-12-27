@@ -1,18 +1,16 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from "../components/Navbar";
-import { Button } from "@/components/ui/button";
-import ProductHeader from "@/components/product/ProductHeader";
-import ProductFeatures from "@/components/product/ProductFeatures";
-import ProductDescription from "@/components/product/ProductDescription";
+import ProductGallery from "@/components/product/ProductGallery";
+import ProductInfo from "@/components/product/ProductInfo";
 
-const products = {
+const productDetails = {
   1: {
     name: "IRON TV PRO",
     price: "3500 DA",
     rating: 5,
     reviews: 124,
-    description: "IRON IPTV is one of the best online TV you can rely on,\n\nSubscription Period: 2-day test code\n\nItalian, Spain, Portugal, USA, Germany, Arabic OSN – MBC – ROTANA – ART, Poland, Indi, Latino, African, Albanian, Hungarian, Sweden, Norway, Denmark, Serbia, Croatia, Bosnia, India, and more.\n\nIncluded Packs C-sat – RMC – Bei*n Sports channels …DS*TV) latest films and series with box office channels",
+    description: "IRON IPTV est l'un des meilleurs services de TV en ligne sur lequel vous pouvez compter.\n\nPériode d'abonnement : code test de 2 jours\n\nChaînes disponibles : Italie, Espagne, Portugal, USA, Allemagne, Arabes OSN – MBC – ROTANA – ART, Pologne, Inde, Latino, Afrique, Albanie, Hongrie, Suède, Norvège, Danemark, Serbie, Croatie, Bosnie, et plus encore.\n\nPacks inclus : C-sat – RMC – Bei*n Sports ... DS*TV, derniers films et séries avec chaînes box-office",
     features: [
       "Accès à plus de 10000 chaînes TV",
       "Bibliothèque VOD extensive",
@@ -28,22 +26,17 @@ const products = {
       ironTvMax: {
         directLinks: ["aftv.news/486041", "aftv.news/557293"],
         downloaderCodes: ["486041", "965085", "557293"]
-      },
-      noxPro: {
-        directLink: "aftv.news/542064",
-        downloaderCode: "542064"
       }
     },
     image: "/lovable-uploads/c5a3c89d-432f-4cef-a538-75a6da43c7e0.png",
-    paymentLink: "https://pay.chargily.com/payment-links/01j9xhxpv4k98rp4mhbpbcrk6z",
-    category: "iptv"
+    paymentLink: "https://pay.chargily.com/payment-links/01j9xhxpv4k98rp4mhbpbcrk6z"
   },
   2: {
     name: "ATLAS PRO",
     price: "3000 DA",
     rating: 5,
     reviews: 98,
-    description: "ABONNEMENT IPTV ATLAS PRO ONTV \n\nATLAS PRO ONTV à travers son application officielle vous offre l'accès à la TV et à la VOD (séries et films) ainsi qu'au replay (rediffusion)\n\nABONNEMENT IPTV, STABLE ET RAPIDE\n\nL'abonnement IPTV Atlas iptv pro ontv vous offre : \n\nChaînes disponibles : France, Belgique, Suisse, Algérie, Maroc, Tunisie.\nAutres pays : Espagne, Portugal, Italie, Allemagne, Pays-Bas, Arabe, UK, Latino, Turquie, USA, Canada, Afrique, etc.\nNotre contenu est diversifié, riche et stable.\nNous avons mis à votre disposition environ 7000 chaines TV, 30000 films et 563 séries.\n107 Chaines en replay disponible pour 15 jours passés.\nIl y a environ 188 canaux français disponibles en plusieurs qualités FHD / UHD, HD ou SD.\nNotre Video-on-demand est en Full HD pour la plupart et en multilingue.\nVOD : L'application vous permet de poursuivre le film ou l'épisode d'une série la ou vous l'avez arrêté précédemment même si vous éteignez la TV.",
+    description: "ABONNEMENT IPTV ATLAS PRO ONTV\n\nATLAS PRO ONTV à travers son application officielle vous offre l'accès à la TV et à la VOD (séries et films) ainsi qu'au replay (rediffusion)\n\nABONNEMENT IPTV, STABLE ET RAPIDE\n\nL'abonnement IPTV Atlas iptv pro ontv vous offre :\n\nChaînes disponibles : France, Belgique, Suisse, Algérie, Maroc, Tunisie.\nAutres pays : Espagne, Portugal, Italie, Allemagne, Pays-Bas, Arabe, UK, Latino, Turquie, USA, Canada, Afrique, etc.",
     features: [
       "Plus de 7000 chaînes TV",
       "30000 films et 563 séries",
@@ -56,15 +49,10 @@ const products = {
       atlasPro: {
         directLink: "https://atlaspro.tv/soft/ATLAS%20PRO%20ONTV%283.0%29.apk",
         downloaderCode: "727750"
-      },
-      atlasProMax: {
-        directLink: "https://atlaspro.tv/soft/ATLAS-PRO-MAX.apk",
-        downloaderCode: "537400"
       }
     },
     image: "/lovable-uploads/36762d97-5db1-4e2c-9796-0de62a32cfde.png",
-    paymentLink: "https://pay.chargily.com/payment-links/01j9ymqj9fbpggyvfjdcwxhfjq",
-    category: "iptv"
+    paymentLink: "https://pay.chargily.com/payment-links/01j9ymqj9fbpggyvfjdcwxhfjq"
   },
   3: {
     name: "FUNCAM",
@@ -243,12 +231,12 @@ const ProductDetails = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    if (!products[Number(id)]) {
+    if (!productDetails[Number(id)]) {
       navigate('/');
     }
   }, [id, navigate]);
 
-  const product = products[Number(id)];
+  const product = productDetails[Number(id)];
 
   if (!product) {
     return null;
@@ -264,47 +252,21 @@ const ProductDetails = () => {
       
       <main className="container mx-auto px-4 pt-32 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Product Image */}
-          <div className="space-y-4">
-            <div className="aspect-square overflow-hidden rounded-lg bg-white p-8">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full h-full object-contain"
-              />
-            </div>
-          </div>
+          <ProductGallery 
+            image={product.image}
+            name={product.name}
+          />
 
-          {/* Product Info */}
-          <div className="space-y-6">
-            <ProductHeader
-              name={product.name}
-              price={product.price}
-              rating={product.rating}
-              reviews={product.reviews}
-            />
-
-            <ProductDescription 
-              description={product.description}
-              downloadInfo={product.downloadInfo}
-            />
-
-            <ProductFeatures features={product.features} />
-
-            <Button 
-              onClick={handleOrder}
-              className="w-full lg:w-auto text-lg py-6 bg-primary hover:bg-primary/90"
-            >
-              Commander Maintenant
-            </Button>
-
-            <div className="bg-muted p-4 rounded-lg mt-8">
-              <h3 className="font-semibold mb-2">Paiement sécurisé</h3>
-              <p className="text-sm text-accent">
-                Paiement sécurisé via Chargily. Livraison immédiate après confirmation du paiement.
-              </p>
-            </div>
-          </div>
+          <ProductInfo
+            name={product.name}
+            price={product.price}
+            rating={product.rating}
+            reviews={product.reviews}
+            description={product.description}
+            features={product.features}
+            downloadInfo={product.downloadInfo}
+            onOrder={handleOrder}
+          />
         </div>
       </main>
     </div>
