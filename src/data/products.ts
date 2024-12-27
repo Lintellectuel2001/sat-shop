@@ -146,7 +146,7 @@ export const products: Product[] = [
     price: "7000 DA",
     rating: 5,
     reviews: 0,
-    image: "/lovable-uploads/4eb70ddd-f939-43e6-a24f-4a9228a2bd9a.png",
+    image: "/lovable-uploads/fac26b9d-f35d-48b9-80a9-52532bfd2b7d.png",
     paymentLink: "https://pay.chargily.com/payment-links/01jg3nrvgvj0866k3nrkgeeqtk",
     category: "iptv"
   }
