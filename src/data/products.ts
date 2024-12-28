@@ -126,7 +126,7 @@ export const products: Product[] = [
     price: "3500 DA",
     rating: 5,
     reviews: 0,
-    image: "/lovable-uploads/44e8e9d8-54b5-4a66-bd3a-3532ba01ba4a.png",
+    image: "/lovable-uploads/e5afcd08-509b-4908-a29d-4b17c15cc78f.png",
     paymentLink: "https://pay.chargily.com/payment-links/01jg3njrh0zgahz0b18ht7t1fr",
     category: "vod"
   },
