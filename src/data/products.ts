@@ -116,7 +116,7 @@ export const products: Product[] = [
     price: "1200 DA",
     rating: 5,
     reviews: 0,
-    image: "/lovable-uploads/9e1bdf86-f879-4165-a2ac-ec025ed3d82c.png",
+    image: "/lovable-uploads/693e9dff-74bd-44ee-9d23-ab487242037a.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9xj2mgn28nnajwa5jbm1yhe",
     category: "sharing"
   },
