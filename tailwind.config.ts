@@ -28,38 +28,31 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#141413",
-          foreground: "#FAFAF8",
+          DEFAULT: "#1A1F2C",
+          foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "#E6E4DD",
-          foreground: "#141413",
+          DEFAULT: "#F1F0FB",
+          foreground: "#1A1F2C",
         },
         accent: {
-          DEFAULT: "#828179",
-          foreground: "#FAFAF8",
+          DEFAULT: "#8B5CF6",
+          foreground: "#FFFFFF",
         },
         muted: {
-          DEFAULT: "#F0EFEA",
-          foreground: "#828179",
+          DEFAULT: "#F8F9FA",
+          foreground: "#64748B",
         },
-        subtle: "#C4C3BB",
-        card: "#FAFAF8",
-        mint: "#e6ffe6",
+        subtle: "#E5DEFF",
+        card: "#FFFFFF",
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
-      keyframes: {
-        "fade-up": {
-          "0%": { opacity: "0", transform: "translateY(10px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
-        },
-      },
-      animation: {
-        "fade-up": "fade-up 0.5s ease-out",
+      boxShadow: {
+        'elegant': '0 4px 20px rgba(0, 0, 0, 0.05)',
       },
     },
   },

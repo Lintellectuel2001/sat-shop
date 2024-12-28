@@ -8,23 +8,27 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-    --radius: 0.5rem;
+    --radius: 1rem;
   }
 
   body {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    @apply bg-[#FAFAF8] text-primary antialiased;
+    @apply bg-muted text-primary antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
   }
 }
 
 @layer components {
   .nav-link {
-    @apply relative px-4 py-2 text-accent hover:text-primary transition-colors;
+    @apply relative px-4 py-2 text-primary/80 hover:text-accent transition-colors duration-300;
   }
 
   .nav-link::after {
     content: '';
-    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300;
+    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-accent transition-all duration-300;
   }
 
   .nav-link:hover::after {
@@ -32,6 +36,6 @@
   }
 
   .glass-effect {
-    @apply bg-white/70 backdrop-blur-md border border-white/20;
+    @apply bg-white/90 backdrop-blur-md border border-white/20 shadow-elegant;
   }
 }
