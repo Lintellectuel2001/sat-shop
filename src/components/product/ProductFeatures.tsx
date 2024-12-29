@@ -1,14 +1,10 @@
 import React from 'react';
 
 interface ProductFeaturesProps {
-  features?: string[];
+  features: string[];
 }
 
 const ProductFeatures = ({ features }: ProductFeaturesProps) => {
-  if (!features || features.length === 0) {
-    return null;
-  }
-
   return (
     <div className="space-y-4">
       <h3 className="text-xl font-semibold">Caractéristiques :</h3>
