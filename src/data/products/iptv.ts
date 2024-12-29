@@ -38,7 +38,7 @@ export const iptvProducts: Product[] = [
     reviews: 98,
     image: "/lovable-uploads/36762d97-5db1-4e2c-9796-0de62a32cfde.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9ymqj9fbpggyvfjdcwxhfjq",
-    paypalLink: "https://www.paypal.com/ncp/payment/87J6M7NS5SUP6",
+    paypalLink: "https://www.paypal.com/ncp/payment/ATKMFDHD6GZ3Y",
     category: "iptv"
   },
   {
