@@ -8,6 +8,26 @@ export interface Product {
   paymentLink: string;
   paypalLink?: string;
   category: "iptv" | "sharing" | "vod";
+  description?: string;
+  features?: string[];
+  downloadInfo?: {
+    ironTvPro?: {
+      directLinks: string[];
+      downloaderCodes: string[];
+    };
+    ironTvMax?: {
+      directLinks: string[];
+      downloaderCodes: string[];
+    };
+    noxPro?: {
+      directLink: string;
+      downloaderCode: string;
+    };
+    atlasPro?: {
+      directLink: string;
+      downloaderCode: string;
+    };
+  };
 }
 
 export const products: Product[] = [
@@ -20,7 +40,25 @@ export const products: Product[] = [
     image: "/lovable-uploads/c5a3c89d-432f-4cef-a538-75a6da43c7e0.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9xhxpv4k98rp4mhbpbcrk6z",
     paypalLink: "https://www.paypal.com/ncp/payment/87J6M7NS5SUP6",
-    category: "iptv"
+    category: "iptv",
+    description: "IRON TV PRO est une application IPTV premium qui vous offre un accès à plus de 15000 chaînes TV et VOD du monde entier. Profitez d'une qualité d'image HD/4K et d'une expérience de visionnage fluide.",
+    features: [
+      "Plus de 15000 chaînes TV en direct",
+      "Bibliothèque VOD extensive",
+      "Qualité HD/4K",
+      "Compatible avec tous les appareils",
+      "Support technique 24/7",
+      "Mise à jour régulière des contenus"
+    ],
+    downloadInfo: {
+      ironTvPro: {
+        directLinks: [
+          "https://iron.tv/download/pro",
+          "https://iron.tv/download/pro/alt"
+        ],
+        downloaderCodes: ["IRON2024", "IRONPRO"]
+      }
+    }
   },
   {
     id: 2,

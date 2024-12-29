@@ -32,8 +32,8 @@ const ProductDetails = () => {
             price={product.price}
             rating={product.rating}
             reviews={product.reviews}
-            description={product.description}
-            features={product.features}
+            description={product.description || ""}
+            features={product.features || []}
             downloadInfo={product.downloadInfo}
             onOrder={() => {}}
             paymentLink={product.paymentLink}
