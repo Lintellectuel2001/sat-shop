@@ -315,10 +315,6 @@ const ProductDetails = () => {
     return null;
   }
 
-  const handleOrder = () => {
-    window.location.href = product.paymentLink;
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -338,7 +334,8 @@ const ProductDetails = () => {
             description={product.description}
             features={product.features}
             downloadInfo={product.downloadInfo}
-            onOrder={handleOrder}
+            onOrder={() => {}}
+            paymentLink={product.paymentLink}
           />
         </div>
       </main>
