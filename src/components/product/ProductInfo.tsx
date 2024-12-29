@@ -23,6 +23,7 @@ interface ProductInfoProps {
   downloadInfo?: any;
   onOrder: () => void;
   paymentLink: string;
+  paypalLink?: string;
 }
 
 const ProductInfo = ({ 
@@ -33,7 +34,8 @@ const ProductInfo = ({
   description, 
   features, 
   downloadInfo,
-  paymentLink 
+  paymentLink,
+  paypalLink 
 }: ProductInfoProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"chargily" | "paypal">("chargily");
@@ -42,8 +44,7 @@ const ProductInfo = ({
     if (paymentMethod === "chargily") {
       window.location.href = paymentLink;
     } else {
-      // Replace with your PayPal payment link when available
-      window.location.href = paymentLink.replace("chargily", "paypal");
+      window.location.href = paypalLink || paymentLink.replace("chargily", "paypal");
     }
     setIsDialogOpen(false);
   };

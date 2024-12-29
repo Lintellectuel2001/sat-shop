@@ -6,6 +6,7 @@ export interface Product {
   reviews: number;
   image: string;
   paymentLink: string;
+  paypalLink?: string;
   category: "iptv" | "sharing" | "vod";
 }
 
@@ -18,6 +19,7 @@ export const products: Product[] = [
     reviews: 124,
     image: "/lovable-uploads/c5a3c89d-432f-4cef-a538-75a6da43c7e0.png",
     paymentLink: "https://pay.chargily.com/payment-links/01j9xhxpv4k98rp4mhbpbcrk6z",
+    paypalLink: "https://www.paypal.com/ncp/payment/87J6M7NS5SUP6",
     category: "iptv"
   },
   {
