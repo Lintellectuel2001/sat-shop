@@ -45,7 +45,7 @@ const Index = () => {
       {/* Carousel Section */}
       <section className="w-full bg-white pt-16">
         <Carousel 
-          className="w-full" 
+          className="w-full max-w-[2000px] mx-auto" 
           opts={{ 
             loop: true,
           }}
@@ -54,7 +54,7 @@ const Index = () => {
           <CarouselContent>
             {slides.map((slide, index) => (
               <CarouselItem key={index}>
-                <div className="relative h-[65vh] max-h-[450px] sm:h-[calc(100vh-4rem)] w-full overflow-hidden">
+                <div className="relative h-[75vh] max-h-[600px] w-full overflow-hidden">
                   <div className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent opacity-60`} />
                   <img
                     src={slide.image}
