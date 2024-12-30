@@ -12,7 +12,7 @@ interface ProductInfoProps {
   description: string;
   features: string[];
   downloadInfo?: any;
-  onOrder: () => void;
+  paymentLink: string;  // Added paymentLink prop
 }
 
 const ProductInfo = ({ 
@@ -23,8 +23,12 @@ const ProductInfo = ({
   description, 
   features, 
   downloadInfo,
-  onOrder 
+  paymentLink  // Added paymentLink to destructuring
 }: ProductInfoProps) => {
+  const handleOrder = () => {
+    window.location.href = paymentLink;
+  };
+
   return (
     <div className="space-y-6">
       <ProductHeader
@@ -42,7 +46,7 @@ const ProductInfo = ({
       <ProductFeatures features={features} />
 
       <Button 
-        onClick={onOrder}
+        onClick={handleOrder}
         className="w-full lg:w-auto text-lg py-6 bg-primary hover:bg-primary/90"
       >
         Commander Maintenant

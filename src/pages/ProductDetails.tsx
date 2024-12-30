@@ -279,24 +279,6 @@ const productDetails = {
     image: "/lovable-uploads/4cc51239-9c88-4de2-a963-9ef404192fbd.png",
     paymentLink: "https://pay.chargily.com/payment-links/01jg3rgcvpyz45gjt6pccdqg4b"
   },
-  16: {
-    name: "DAR IPTV",
-    price: "3500 DA",
-    rating: 5,
-    reviews: 0,
-    description: "DAR IPTV vous offre une expérience de streaming complète et personnalisée.\n\nDécouvrez :\n\n- Une sélection premium de chaînes TV\n- Des contenus VOD régulièrement mis à jour\n- Une interface utilisateur intuitive\n- Un service client attentif à vos besoins",
-    features: [
-      "Plus de 12,000 chaînes en direct",
-      "Bibliothèque VOD riche",
-      "Qualité HD/FHD/4K",
-      "Guide des programmes électronique",
-      "Compatible avec tous les appareils",
-      "Support technique réactif",
-      "Mises à jour continues"
-    ],
-    image: "/lovable-uploads/12c93610-15eb-477e-9b8f-34182fdedaae.png",
-    paymentLink: "https://pay.chargily.com/payment-links/01jg3ry0bth7g4qs6381gdzc22"
-  }
 };
 
 const ProductDetails = () => {
@@ -314,10 +296,6 @@ const ProductDetails = () => {
   if (!product) {
     return null;
   }
-
-  const handleOrder = () => {
-    window.location.href = product.paymentLink;
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -338,7 +316,7 @@ const ProductDetails = () => {
             description={product.description}
             features={product.features}
             downloadInfo={product.downloadInfo}
-            onOrder={handleOrder}
+            paymentLink={product.paymentLink}
           />
         </div>
       </main>
