@@ -99,6 +99,14 @@ const Contact = () => {
               </div>
             </div>
           </div>
+
+          <div className="mt-16">
+            <img 
+              src="/lovable-uploads/22390200-5f55-4644-a2a3-1332ebd6642e.png" 
+              alt="Sports fans watching game"
+              className="w-full rounded-lg shadow-md"
+            />
+          </div>
         </div>
       </main>
 
