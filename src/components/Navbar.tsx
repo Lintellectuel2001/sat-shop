@@ -1,48 +1,35 @@
-import React from "react";
 import { Link } from "react-router-dom";
-import { ShoppingCart } from "lucide-react";
+import { Button } from "./ui/button";
 
 const Navbar = () => {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-effect">
-      <div className="container mx-auto">
-        <div className="flex items-center justify-between h-20 px-4">
-          <Link to="/" className="flex items-center gap-3">
-            <img 
-              src="/lovable-uploads/d7990538-4e18-4b76-bb29-4e16e74bf512.png" 
-              alt="Sat-shop" 
-              className="h-12 w-auto"
-            />
+    <nav className="bg-white shadow-elegant">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center h-16">
+          <Link to="/" className="text-xl font-bold text-primary">
+            Sat-shop
           </Link>
           
-          <div className="hidden md:flex items-center space-x-8">
-            <Link 
-              to="/" 
-              className="nav-link font-medium"
-            >
+          <div className="hidden md:flex space-x-4">
+            <Link to="/" className="text-gray-600 hover:text-primary">
               Accueil
             </Link>
-            <Link 
-              to="/marketplace" 
-              className="nav-link font-medium"
-            >
+            <Link to="/marketplace" className="text-gray-600 hover:text-primary">
               Marketplace
             </Link>
-            <Link 
-              to="/contact" 
-              className="nav-link font-medium"
-            >
+            <Link to="/contact" className="text-gray-600 hover:text-primary">
               Contactez-nous
             </Link>
           </div>
 
-          <Link 
-            to="/cart" 
-            className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
-          >
-            <ShoppingCart className="w-6 h-6" />
-            <span className="font-medium">Panier</span>
-          </Link>
+          <div className="flex items-center space-x-4">
+            <Link to="/register">
+              <Button variant="outline">S'inscrire</Button>
+            </Link>
+            <Link to="/login">
+              <Button>Se connecter</Button>
+            </Link>
+          </div>
         </div>
       </div>
     </nav>
