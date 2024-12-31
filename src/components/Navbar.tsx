@@ -1,7 +1,39 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Check current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast.success("Déconnexion réussie");
+      navigate("/");
+    } catch (error) {
+      toast.error("Erreur lors de la déconnexion");
+    }
+  };
+
   return (
     <nav className="bg-white shadow-elegant">
       <div className="container mx-auto px-4">
@@ -23,12 +55,20 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center space-x-4">
-            <Link to="/register">
-              <Button variant="outline">S'inscrire</Button>
-            </Link>
-            <Link to="/login">
-              <Button>Se connecter</Button>
-            </Link>
+            {user ? (
+              <Button variant="outline" onClick={handleLogout}>
+                Se déconnecter
+              </Button>
+            ) : (
+              <>
+                <Link to="/register">
+                  <Button variant="outline">S'inscrire</Button>
+                </Link>
+                <Link to="/login">
+                  <Button>Se connecter</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
