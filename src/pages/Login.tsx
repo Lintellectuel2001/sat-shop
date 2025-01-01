@@ -1,30 +1,44 @@
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export default function Login() {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate("/");
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log("Initial session check:", session);
+        if (session?.user) {
+          console.log("User already logged in, redirecting...");
+          toast.success("Vous êtes déjà connecté");
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("Session check error:", error);
+        toast.error("Erreur lors de la vérification de la session");
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    checkUser();
+    checkSession();
 
-    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed:", event, session);
+      console.log("Auth state changed in Login:", event, session);
+      
       if (event === "SIGNED_IN" && session) {
+        console.log("Sign in detected, redirecting...");
         toast.success("Connexion réussie !");
-        navigate("/");
+        navigate("/", { replace: true });
+      } else if (event === "SIGNED_OUT") {
+        console.log("Sign out detected");
+        toast.info("Déconnexion effectuée");
       }
     });
 
@@ -32,6 +46,14 @@ export default function Login() {
       subscription.unsubscribe();
     };
   }, [navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="container max-w-md mx-auto py-10">

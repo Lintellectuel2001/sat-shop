@@ -7,15 +7,23 @@ import { toast } from "sonner";
 const Navbar = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check current session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log("Current session:", session);
-      setUser(session?.user ?? null);
-    });
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log("Current session in Navbar:", session);
+        setUser(session?.user ?? null);
+      } catch (error) {
+        console.error("Session check error in Navbar:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    // Listen for auth changes
+    checkSession();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed in Navbar:", event, session);
       setUser(session?.user ?? null);
@@ -28,12 +36,18 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      setIsLoading(true);
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      console.log("Logout successful");
       toast.success("Déconnexion réussie");
       navigate("/");
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("Erreur lors de la déconnexion");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -58,9 +72,15 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center space-x-4">
-            {user ? (
-              <Button variant="outline" onClick={handleLogout}>
-                Se déconnecter
+            {isLoading ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+            ) : user ? (
+              <Button 
+                variant="outline" 
+                onClick={handleLogout}
+                disabled={isLoading}
+              >
+                {isLoading ? "..." : "Se déconnecter"}
               </Button>
             ) : (
               <>
