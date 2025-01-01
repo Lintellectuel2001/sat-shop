@@ -11,11 +11,13 @@ const Navbar = () => {
   useEffect(() => {
     // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Current session:", session);
       setUser(session?.user ?? null);
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed in Navbar:", event, session);
       setUser(session?.user ?? null);
     });
 
@@ -30,6 +32,7 @@ const Navbar = () => {
       toast.success("Déconnexion réussie");
       navigate("/");
     } catch (error) {
+      console.error("Logout error:", error);
       toast.error("Erreur lors de la déconnexion");
     }
   };

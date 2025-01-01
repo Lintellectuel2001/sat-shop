@@ -3,6 +3,7 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -20,7 +21,9 @@ export default function Login() {
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event, session);
       if (event === "SIGNED_IN" && session) {
+        toast.success("Connexion réussie !");
         navigate("/");
       }
     });
@@ -58,11 +61,17 @@ export default function Login() {
                 email_label: "Adresse e-mail",
                 password_label: "Mot de passe",
                 button_label: "Se connecter",
+                loading_button_label: "Connexion en cours...",
+                email_input_placeholder: "Votre adresse e-mail",
+                password_input_placeholder: "Votre mot de passe",
               },
               sign_up: {
                 email_label: "Adresse e-mail",
                 password_label: "Mot de passe",
                 button_label: "S'inscrire",
+                loading_button_label: "Inscription en cours...",
+                email_input_placeholder: "Votre adresse e-mail",
+                password_input_placeholder: "Choisissez un mot de passe",
               },
             }
           }}
