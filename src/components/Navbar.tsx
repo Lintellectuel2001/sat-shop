@@ -10,15 +10,25 @@ const Navbar = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     const checkSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) throw error;
+        
         console.log("Current session in Navbar:", session);
-        setUser(session?.user ?? null);
+        
+        if (mounted) {
+          setUser(session?.user ?? null);
+        }
       } catch (error) {
         console.error("Session check error in Navbar:", error);
       } finally {
-        setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -26,10 +36,13 @@ const Navbar = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed in Navbar:", event, session);
-      setUser(session?.user ?? null);
+      if (mounted) {
+        setUser(session?.user ?? null);
+      }
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
@@ -42,7 +55,7 @@ const Navbar = () => {
       
       console.log("Logout successful");
       toast.success("Déconnexion réussie");
-      navigate("/");
+      navigate("/", { replace: true });
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("Erreur lors de la déconnexion");

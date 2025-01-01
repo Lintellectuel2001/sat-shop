@@ -10,39 +10,45 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     const checkSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log("Initial session check:", session);
-        if (session?.user) {
-          console.log("User already logged in, redirecting...");
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) throw error;
+        
+        console.log("Initial session check in Login:", session);
+        
+        if (session?.user && mounted) {
+          console.log("User already logged in, redirecting to home...");
           toast.success("Vous êtes déjà connecté");
-          navigate("/");
+          navigate("/", { replace: true });
         }
       } catch (error) {
-        console.error("Session check error:", error);
+        console.error("Session check error in Login:", error);
         toast.error("Erreur lors de la vérification de la session");
       } finally {
-        setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed in Login:", event, session);
       
-      if (event === "SIGNED_IN" && session) {
-        console.log("Sign in detected, redirecting...");
+      if (event === "SIGNED_IN" && session && mounted) {
+        console.log("Sign in detected, redirecting to home...");
         toast.success("Connexion réussie !");
         navigate("/", { replace: true });
-      } else if (event === "SIGNED_OUT") {
-        console.log("Sign out detected");
-        toast.info("Déconnexion effectuée");
       }
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [navigate]);
