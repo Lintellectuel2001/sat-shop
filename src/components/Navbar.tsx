@@ -63,40 +63,26 @@ const Navbar = () => {
     try {
       setIsLoading(true);
       
-      // First check if we have a valid session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.warn("Session check error:", sessionError);
-        // Clear local state and redirect even if session check fails
-        setUser(null);
-        toast.success("Déconnexion réussie");
-        navigate("/", { replace: true });
-        return;
-      }
-      
-      if (!session) {
-        // No valid session, just clear local state and redirect
-        setUser(null);
-        toast.success("Déconnexion réussie");
-        navigate("/", { replace: true });
-        return;
-      }
-      
-      // We have a valid session, attempt to sign out
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.warn("Logout error:", error);
-      }
-      
-      // Always clear local state and redirect
+      // Clear local state first
       setUser(null);
+      
+      // Clear any stored session data
+      await supabase.auth.clearSession();
+      
+      // Attempt to sign out (this might fail but we don't care)
+      try {
+        await supabase.auth.signOut();
+      } catch (signOutError) {
+        console.warn("Non-critical sign out error:", signOutError);
+      }
+      
+      // Always show success and redirect
       toast.success("Déconnexion réussie");
       navigate("/", { replace: true });
+      
     } catch (error) {
       console.warn("Unexpected logout error:", error);
-      // Still clear local state and redirect
-      setUser(null);
+      // Still redirect since we've cleared everything
       toast.success("Déconnexion réussie");
       navigate("/", { replace: true });
     } finally {
