@@ -1,4 +1,5 @@
 import React from 'react';
+import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import HeroSection from "../components/home/HeroSection";
 import NewsletterSection from "../components/home/NewsletterSection";
@@ -39,6 +40,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
+      <Navbar />
+      
       {/* Carousel Section */}
       <section className="w-full bg-white pt-16">
         <Carousel 
