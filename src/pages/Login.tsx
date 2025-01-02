@@ -3,7 +3,7 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/use-toast";
 import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 
 export default function Login() {
@@ -27,12 +27,19 @@ export default function Login() {
         
         if (session?.user && mounted) {
           console.log("Active session found, redirecting to home");
-          toast.success("Vous êtes déjà connecté");
+          toast({
+            title: "Succès",
+            description: "Vous êtes déjà connecté"
+          });
           navigate("/", { replace: true });
         }
       } catch (error) {
         console.error("Auth error:", error);
-        toast.error("Erreur lors de la vérification de la session");
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Erreur lors de la vérification de la session"
+        });
       } finally {
         if (mounted) {
           setIsLoading(false);
@@ -49,7 +56,10 @@ export default function Login() {
 
       if (event === 'SIGNED_IN' && session) {
         console.log("Sign in detected, redirecting to home");
-        toast.success("Connexion réussie !");
+        toast({
+          title: "Succès",
+          description: "Connexion réussie !"
+        });
         navigate("/", { replace: true });
       }
 
@@ -63,20 +73,6 @@ export default function Login() {
       subscription?.unsubscribe();
     };
   }, [navigate]);
-
-  const handleError = (error: any) => {
-    console.error("Authentication error:", error);
-    
-    try {
-      const errorBody = JSON.parse(error.message);
-      if (errorBody.message === "Invalid login credentials") {
-        toast.error("Email ou mot de passe incorrect");
-        return;
-      }
-    } catch (e) {
-      toast.error("Erreur lors de la connexion. Veuillez réessayer.");
-    }
-  };
 
   if (isLoading) {
     return (
@@ -129,7 +125,6 @@ export default function Login() {
             }
           }}
           providers={[]}
-          onError={handleError}
         />
       </div>
     </div>
