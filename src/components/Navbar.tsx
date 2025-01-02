@@ -66,30 +66,20 @@ const Navbar = () => {
       // First clear the local state
       setUser(null);
       
-      // Then attempt to sign out from Supabase
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        // Check for both possible session not found error messages
-        if (error.message.includes("session_not_found") || 
-            error.message.includes("Session from session_id claim in JWT does not exist")) {
-          console.log("Session already cleared");
-          toast.success("Déconnexion réussie");
-          navigate("/", { replace: true });
-          return;
-        }
+      try {
+        // Attempt to sign out from Supabase
+        const { error } = await supabase.auth.signOut();
         
-        // For other errors, throw them to be caught below
-        throw error;
+        if (error) {
+          // Log the error but don't throw it
+          console.warn("Logout warning:", error);
+        }
+      } catch (error) {
+        // Log any unexpected errors but don't throw them
+        console.warn("Unexpected logout error:", error);
       }
       
-      console.log("Logout successful");
-      toast.success("Déconnexion réussie");
-      navigate("/", { replace: true });
-    } catch (error) {
-      console.error("Logout error:", error);
-      // Even if there's an error, we want to clear the local state and redirect
-      setUser(null);
+      // Always show success and redirect, even if there were errors
       toast.success("Déconnexion réussie");
       navigate("/", { replace: true });
     } finally {
