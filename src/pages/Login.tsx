@@ -51,6 +51,17 @@ export default function Login() {
         toast.success("Connexion réussie !");
         navigate("/", { replace: true });
       }
+
+      if (event === "USER_DELETED") {
+        console.log("User deleted");
+        toast.error("Compte supprimé");
+        navigate("/register", { replace: true });
+      }
+
+      // Handle specific authentication errors
+      if (event === "SIGNED_OUT") {
+        console.log("User signed out");
+      }
     });
 
     return () => {
@@ -58,6 +69,22 @@ export default function Login() {
       subscription?.unsubscribe();
     };
   }, [navigate]);
+
+  const handleAuthError = (error: Error) => {
+    console.error("Authentication error:", error);
+    
+    // Parse the error message if it's a JSON string
+    try {
+      const errorBody = JSON.parse(error.message);
+      if (errorBody.message === "Invalid login credentials") {
+        toast.error("Email ou mot de passe incorrect");
+        return;
+      }
+    } catch (e) {
+      // If parsing fails, show the original error message
+      toast.error("Erreur lors de la connexion. Veuillez réessayer.");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -110,6 +137,7 @@ export default function Login() {
             }
           }}
           providers={[]}
+          onError={handleAuthError}
         />
       </div>
     </div>
