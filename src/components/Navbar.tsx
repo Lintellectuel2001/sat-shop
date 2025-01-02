@@ -63,33 +63,40 @@ const Navbar = () => {
     try {
       setIsLoading(true);
       
-      // Clear local state first
-      setUser(null);
-      
-      // Check current session before attempting logout
+      // First check if we have a valid session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
-        console.warn("Session check error during logout:", sessionError);
+        console.warn("Session check error:", sessionError);
+        // Clear local state and redirect even if session check fails
+        setUser(null);
+        toast.success("Déconnexion réussie");
+        navigate("/", { replace: true });
+        return;
       }
       
-      // Only attempt to sign out if we have a session
-      if (session) {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-          // If it's a session_not_found error, we can ignore it
-          if (!error.message.includes("session_not_found")) {
-            console.warn("Non-critical logout error:", error);
-          }
-        }
+      if (!session) {
+        // No valid session, just clear local state and redirect
+        setUser(null);
+        toast.success("Déconnexion réussie");
+        navigate("/", { replace: true });
+        return;
       }
       
-      // Always show success message and redirect
+      // We have a valid session, attempt to sign out
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.warn("Logout error:", error);
+      }
+      
+      // Always clear local state and redirect
+      setUser(null);
       toast.success("Déconnexion réussie");
       navigate("/", { replace: true });
     } catch (error) {
       console.warn("Unexpected logout error:", error);
-      // Still redirect and show success since we've cleared local state
+      // Still clear local state and redirect
+      setUser(null);
       toast.success("Déconnexion réussie");
       navigate("/", { replace: true });
     } finally {
