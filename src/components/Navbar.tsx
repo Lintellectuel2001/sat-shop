@@ -46,6 +46,7 @@ const Navbar = () => {
       
       if (event === "SIGNED_OUT") {
         console.log("Sign out detected in Navbar");
+        navigate("/", { replace: true });
       }
     });
 
@@ -53,21 +54,38 @@ const Navbar = () => {
       mounted = false;
       subscription?.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   const handleLogout = async () => {
     try {
       setIsLoading(true);
+      
+      // First clear the local session
+      setUser(null);
+      
+      // Then attempt to sign out from Supabase
       const { error } = await supabase.auth.signOut();
       
-      if (error) throw error;
+      if (error) {
+        // If there's an error but it's just that the session wasn't found, we can ignore it
+        if (error.message.includes("session_not_found")) {
+          console.log("Session already cleared");
+          toast.success("Déconnexion réussie");
+          navigate("/", { replace: true });
+          return;
+        }
+        throw error;
+      }
       
       console.log("Logout successful");
       toast.success("Déconnexion réussie");
       navigate("/", { replace: true });
     } catch (error) {
       console.error("Logout error:", error);
-      toast.error("Erreur lors de la déconnexion");
+      // Even if there's an error, we want to clear the local state
+      setUser(null);
+      toast.success("Déconnexion réussie");
+      navigate("/", { replace: true });
     } finally {
       setIsLoading(false);
     }
