@@ -31,8 +31,19 @@ const ProductDetails = () => {
       <main className="container mx-auto px-4 py-24">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <ProductGallery images={product.images} />
-            <ProductInfo product={product} />
+            <ProductGallery 
+              image={product.image}
+              name={product.name}
+            />
+            <ProductInfo 
+              name={product.name}
+              price={product.price}
+              rating={product.rating}
+              reviews={product.reviews}
+              description={product.description}
+              features={product.features}
+              paymentLink={product.paymentLink}
+            />
           </div>
 
           <div className="mt-16 space-y-12">
