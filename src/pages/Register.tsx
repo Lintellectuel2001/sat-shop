@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 
 import {
   Form,
@@ -51,51 +50,17 @@ export default function Register() {
   const onSubmit = async (data: RegisterForm) => {
     setIsLoading(true);
     try {
-      console.log("Starting registration process with data:", { ...data, password: "[REDACTED]" });
+      // TODO: Implement actual registration logic here
+      console.log("Form data:", data);
       
-      const { data: authData, error: signUpError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: {
-            full_name: data.fullName,
-          },
-        },
-      });
-
-      if (signUpError) {
-        console.error("Signup error:", signUpError);
-        throw signUpError;
-      }
-
-      console.log("Auth data after signup:", authData);
-
-      if (authData.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([
-            {
-              id: authData.user.id,
-              full_name: data.fullName,
-              email: data.email,
-              phone: data.phone || null,
-              address: data.address || null,
-            }
-          ]);
-
-        if (profileError) {
-          console.error("Profile creation error:", profileError);
-          throw profileError;
-        }
-
-        toast.success("Inscription réussie ! Redirection vers la page de connexion...");
-        setTimeout(() => {
-          navigate("/login");
-        }, 2000);
-      }
+      toast.success("Inscription réussie ! Redirection vers la page de connexion...");
+      
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
     } catch (error) {
-      console.error("Registration error:", error);
-      toast.error(error.message || "Une erreur est survenue lors de l'inscription");
+      toast.error("Une erreur est survenue lors de l'inscription");
     } finally {
       setIsLoading(false);
     }

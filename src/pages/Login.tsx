@@ -14,7 +14,6 @@ export default function Login() {
 
     async function checkAndRedirect() {
       try {
-        console.log("Checking session state...");
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
