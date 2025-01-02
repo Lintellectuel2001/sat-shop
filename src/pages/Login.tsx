@@ -12,41 +12,36 @@ export default function Login() {
   useEffect(() => {
     let mounted = true;
 
-    async function checkAndRedirect() {
+    const checkSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
-        if (error) {
-          console.error("Session check error:", error);
-          throw error;
-        }
+        if (error) throw error;
         
-        console.log("Current session state:", session);
+        console.log("Initial session check in Login:", session);
         
         if (session?.user && mounted) {
-          console.log("Active session found, redirecting to home");
+          console.log("User already logged in, redirecting to home...");
           toast.success("Vous êtes déjà connecté");
           navigate("/", { replace: true });
         }
       } catch (error) {
-        console.error("Auth error:", error);
+        console.error("Session check error in Login:", error);
         toast.error("Erreur lors de la vérification de la session");
       } finally {
         if (mounted) {
           setIsLoading(false);
         }
       }
-    }
+    };
 
-    checkAndRedirect();
+    checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed:", event, session);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed in Login:", event, session);
       
-      if (!mounted) return;
-
-      if (event === "SIGNED_IN" && session) {
-        console.log("Sign in detected, redirecting to home");
+      if (event === "SIGNED_IN" && session && mounted) {
+        console.log("Sign in detected, redirecting to home...");
         toast.success("Connexion réussie !");
         navigate("/", { replace: true });
       }
@@ -54,7 +49,7 @@ export default function Login() {
 
     return () => {
       mounted = false;
-      subscription?.unsubscribe();
+      subscription.unsubscribe();
     };
   }, [navigate]);
 

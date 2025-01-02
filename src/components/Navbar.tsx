@@ -12,46 +12,38 @@ const Navbar = () => {
   useEffect(() => {
     let mounted = true;
 
-    async function checkSession() {
+    const checkSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
-        if (error) {
-          console.error("Session check error:", error);
-          throw error;
-        }
+        if (error) throw error;
         
-        console.log("Current session state in Navbar:", session);
+        console.log("Current session in Navbar:", session);
         
         if (mounted) {
           setUser(session?.user ?? null);
         }
       } catch (error) {
-        console.error("Auth error in Navbar:", error);
+        console.error("Session check error in Navbar:", error);
       } finally {
         if (mounted) {
           setIsLoading(false);
         }
       }
-    }
+    };
 
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed in Navbar:", event, session);
-      
-      if (!mounted) return;
-      
-      setUser(session?.user ?? null);
-      
-      if (event === "SIGNED_OUT") {
-        console.log("Sign out detected in Navbar");
+      if (mounted) {
+        setUser(session?.user ?? null);
       }
     });
 
     return () => {
       mounted = false;
-      subscription?.unsubscribe();
+      subscription.unsubscribe();
     };
   }, []);
 
@@ -59,7 +51,6 @@ const Navbar = () => {
     try {
       setIsLoading(true);
       const { error } = await supabase.auth.signOut();
-      
       if (error) throw error;
       
       console.log("Logout successful");
