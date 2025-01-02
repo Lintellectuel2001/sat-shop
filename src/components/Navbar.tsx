@@ -66,14 +66,12 @@ const Navbar = () => {
       // Clear local state first
       setUser(null);
       
-      // Clear any stored session data
-      await supabase.auth.clearSession();
+      // Attempt to sign out
+      const { error } = await supabase.auth.signOut();
       
-      // Attempt to sign out (this might fail but we don't care)
-      try {
-        await supabase.auth.signOut();
-      } catch (signOutError) {
-        console.warn("Non-critical sign out error:", signOutError);
+      if (error) {
+        console.warn("Sign out error:", error);
+        // Even if there's an error, we'll continue with the logout flow
       }
       
       // Always show success and redirect
@@ -82,7 +80,7 @@ const Navbar = () => {
       
     } catch (error) {
       console.warn("Unexpected logout error:", error);
-      // Still redirect since we've cleared everything
+      // Still redirect since we've cleared the local state
       toast.success("Déconnexion réussie");
       navigate("/", { replace: true });
     } finally {
