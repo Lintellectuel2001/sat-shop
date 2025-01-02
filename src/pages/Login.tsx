@@ -64,7 +64,7 @@ export default function Login() {
     };
   }, [navigate]);
 
-  const handleError = (error: Error) => {
+  const handleError = (error: any) => {
     console.error("Authentication error:", error);
     
     try {
