@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { AuthChangeEvent } from "@supabase/supabase-js";
+import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ export default function Login() {
 
     checkAndRedirect();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
       console.log("Auth state changed:", event, session);
       
       if (!mounted) return;
@@ -53,7 +53,7 @@ export default function Login() {
         navigate("/", { replace: true });
       }
 
-      if (event === 'DELETED') {
+      if (event === 'USER_DELETED') {
         console.log("User deleted");
         toast.error("Compte supprimé");
         navigate("/register", { replace: true });
