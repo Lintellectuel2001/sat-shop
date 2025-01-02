@@ -25,11 +25,12 @@ const Navbar = () => {
         
         if (mounted) {
           setUser(session?.user ?? null);
+          setIsLoading(false);
         }
       } catch (error) {
         console.error("Auth error in Navbar:", error);
-      } finally {
         if (mounted) {
+          setUser(null);
           setIsLoading(false);
         }
       }
@@ -37,17 +38,18 @@ const Navbar = () => {
 
     checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed in Navbar:", event, session);
       
       if (!mounted) return;
       
-      setUser(session?.user ?? null);
-      
-      if (event === "SIGNED_OUT") {
-        console.log("Sign out detected in Navbar");
+      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+        setUser(null);
         navigate("/", { replace: true });
+        return;
       }
+      
+      setUser(session?.user ?? null);
     });
 
     return () => {
@@ -60,7 +62,7 @@ const Navbar = () => {
     try {
       setIsLoading(true);
       
-      // First clear the local session
+      // First clear the local state
       setUser(null);
       
       // Then attempt to sign out from Supabase
@@ -68,7 +70,7 @@ const Navbar = () => {
       
       if (error) {
         // If there's an error but it's just that the session wasn't found, we can ignore it
-        if (error.message.includes("session_not_found")) {
+        if (error.message.includes("session_not_found") || error.message.includes("Session from session_id claim in JWT does not exist")) {
           console.log("Session already cleared");
           toast.success("Déconnexion réussie");
           navigate("/", { replace: true });
@@ -82,7 +84,7 @@ const Navbar = () => {
       navigate("/", { replace: true });
     } catch (error) {
       console.error("Logout error:", error);
-      // Even if there's an error, we want to clear the local state
+      // Even if there's an error, we want to clear the local state and redirect
       setUser(null);
       toast.success("Déconnexion réussie");
       navigate("/", { replace: true });
