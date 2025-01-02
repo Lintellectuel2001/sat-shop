@@ -129,7 +129,7 @@ export default function Login() {
             }
           }}
           providers={[]}
-          onError={handleAuthError}
+          onAuthError={handleAuthError}
         />
       </div>
     </div>
