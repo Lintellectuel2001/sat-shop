@@ -53,12 +53,6 @@ export default function Login() {
         navigate("/", { replace: true });
       }
 
-      if (event === 'USER_DELETED') {
-        console.log("User deleted");
-        toast.error("Compte supprimé");
-        navigate("/register", { replace: true });
-      }
-
       if (event === 'SIGNED_OUT') {
         console.log("User signed out");
       }
