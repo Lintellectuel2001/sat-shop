@@ -3,10 +3,11 @@ import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { AuthError, Session, User, AuthChangeEvent } from "@supabase/supabase-js";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -38,12 +39,12 @@ const Navbar = () => {
 
     checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
       console.log("Auth state changed in Navbar:", event, session);
       
       if (!mounted) return;
       
-      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+      if (event === 'SIGNED_OUT') {
         setUser(null);
         navigate("/", { replace: true });
         return;
@@ -69,13 +70,16 @@ const Navbar = () => {
       const { error } = await supabase.auth.signOut();
       
       if (error) {
-        // If there's an error but it's just that the session wasn't found, we can ignore it
-        if (error.message.includes("session_not_found") || error.message.includes("Session from session_id claim in JWT does not exist")) {
+        // Check for both possible session not found error messages
+        if (error.message.includes("session_not_found") || 
+            error.message.includes("Session from session_id claim in JWT does not exist")) {
           console.log("Session already cleared");
           toast.success("Déconnexion réussie");
           navigate("/", { replace: true });
           return;
         }
+        
+        // For other errors, throw them to be caught below
         throw error;
       }
       
