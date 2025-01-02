@@ -63,15 +63,20 @@ const Navbar = () => {
     try {
       setIsLoading(true);
       
+      // First check if we have a session
+      const { data: { session } } = await supabase.auth.getSession();
+      
       // Clear local state first
       setUser(null);
       
-      // Attempt to sign out
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.warn("Sign out error:", error);
-        // Even if there's an error, we'll continue with the logout flow
+      // Only attempt to sign out if we have a session
+      if (session) {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+          console.warn("Sign out error:", error);
+        }
+      } else {
+        console.log("No active session found during logout");
       }
       
       // Always show success and redirect
