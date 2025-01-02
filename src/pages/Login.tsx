@@ -46,20 +46,19 @@ export default function Login() {
       
       if (!mounted) return;
 
-      if (event === "SIGNED_IN" && session) {
+      if (event === 'SIGNED_IN' && session) {
         console.log("Sign in detected, redirecting to home");
         toast.success("Connexion réussie !");
         navigate("/", { replace: true });
       }
 
-      if (event === "USER_DELETED") {
+      if (event === 'USER_DELETED') {
         console.log("User deleted");
         toast.error("Compte supprimé");
         navigate("/register", { replace: true });
       }
 
-      // Handle specific authentication errors
-      if (event === "SIGNED_OUT") {
+      if (event === 'SIGNED_OUT') {
         console.log("User signed out");
       }
     });
@@ -73,7 +72,6 @@ export default function Login() {
   const handleAuthError = (error: Error) => {
     console.error("Authentication error:", error);
     
-    // Parse the error message if it's a JSON string
     try {
       const errorBody = JSON.parse(error.message);
       if (errorBody.message === "Invalid login credentials") {
@@ -81,7 +79,6 @@ export default function Login() {
         return;
       }
     } catch (e) {
-      // If parsing fails, show the original error message
       toast.error("Erreur lors de la connexion. Veuillez réessayer.");
     }
   };
@@ -137,7 +134,7 @@ export default function Login() {
             }
           }}
           providers={[]}
-          onError={handleAuthError}
+          onAuthError={handleAuthError}
         />
       </div>
     </div>
