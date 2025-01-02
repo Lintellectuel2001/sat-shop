@@ -63,23 +63,30 @@ const Navbar = () => {
     try {
       setIsLoading(true);
       
-      // First clear the local state
+      // Check current session before attempting logout
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      // Clear local state first
       setUser(null);
       
-      try {
-        // Attempt to sign out from Supabase
+      // Only attempt to sign out if we have a session
+      if (session) {
         const { error } = await supabase.auth.signOut();
-        
         if (error) {
-          // Log the error but don't throw it
-          console.warn("Logout warning:", error);
+          // If it's a session_not_found error, we can ignore it
+          if (!error.message.includes("session_not_found")) {
+            console.warn("Non-critical logout error:", error);
+          }
         }
-      } catch (error) {
-        // Log any unexpected errors but don't throw them
-        console.warn("Unexpected logout error:", error);
       }
       
-      // Always show success and redirect, even if there were errors
+      // Always show success message and redirect
+      toast.success("Déconnexion réussie");
+      navigate("/", { replace: true });
+    } catch (error) {
+      // Log any unexpected errors but don't throw them
+      console.warn("Unexpected logout error:", error);
+      // Still redirect and show success since we've cleared local state
       toast.success("Déconnexion réussie");
       navigate("/", { replace: true });
     } finally {
