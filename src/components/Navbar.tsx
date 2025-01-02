@@ -97,13 +97,18 @@ const Navbar = () => {
             {isLoading ? (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
             ) : user ? (
-              <Button 
-                variant="outline" 
-                onClick={handleLogout}
-                disabled={isLoading}
-              >
-                {isLoading ? "..." : "Se déconnecter"}
-              </Button>
+              <div className="flex items-center space-x-4">
+                <Link to="/profile">
+                  <Button variant="ghost">Mon Profil</Button>
+                </Link>
+                <Button 
+                  variant="outline" 
+                  onClick={handleLogout}
+                  disabled={isLoading}
+                >
+                  {isLoading ? "..." : "Se déconnecter"}
+                </Button>
+              </div>
             ) : (
               <>
                 <Link to="/register">
@@ -119,6 +124,6 @@ const Navbar = () => {
       </div>
     </nav>
   );
-};
+}
 
 export default Navbar;
