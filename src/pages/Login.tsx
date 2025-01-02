@@ -64,7 +64,7 @@ export default function Login() {
     };
   }, [navigate]);
 
-  const handleAuthError = (error: Error) => {
+  const handleError = (error: Error) => {
     console.error("Authentication error:", error);
     
     try {
@@ -129,7 +129,7 @@ export default function Login() {
             }
           }}
           providers={[]}
-          onAuthError={handleAuthError}
+          onError={handleError}
         />
       </div>
     </div>
