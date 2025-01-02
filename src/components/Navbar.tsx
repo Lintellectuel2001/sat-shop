@@ -19,6 +19,15 @@ const Navbar = () => {
         
         if (error) {
           console.error("Session check error:", error);
+          // If we get a refresh token error, clear state and redirect
+          if (error.message.includes('refresh_token')) {
+            if (mounted) {
+              setUser(null);
+              setIsLoading(false);
+              navigate("/", { replace: true });
+            }
+            return;
+          }
           throw error;
         }
         
@@ -44,10 +53,13 @@ const Navbar = () => {
       
       if (!mounted) return;
       
-      if (event === 'SIGNED_OUT') {
-        setUser(null);
-        navigate("/", { replace: true });
-        return;
+      if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+        // Handle both sign out and token refresh events
+        if (!session) {
+          setUser(null);
+          navigate("/", { replace: true });
+          return;
+        }
       }
       
       setUser(session?.user ?? null);
@@ -64,7 +76,18 @@ const Navbar = () => {
       setIsLoading(true);
       
       // First check if we have a session
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.warn("Session check error during logout:", sessionError);
+        // If it's a refresh token error, just clear local state
+        if (sessionError.message.includes('refresh_token')) {
+          setUser(null);
+          toast.success("Déconnexion réussie");
+          navigate("/", { replace: true });
+          return;
+        }
+      }
       
       // Clear local state first
       setUser(null);
