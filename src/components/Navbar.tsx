@@ -1,101 +1,68 @@
-import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { Button } from "./ui/button";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { User } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
-export function Navbar() {
+const Navbar = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
 
-    async function getInitialSession() {
+    async function checkSession() {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error("Session check error:", error);
-          // If we get a refresh token error, clear state and redirect
-          if (error.message.includes('refresh_token')) {
-            if (mounted) {
-              setUser(null);
-              setIsLoading(false);
-              navigate("/", { replace: true });
-            }
-            return;
-          }
           throw error;
         }
         
+        console.log("Current session state in Navbar:", session);
+        
         if (mounted) {
           setUser(session?.user ?? null);
-          setIsLoading(false);
         }
       } catch (error) {
-        console.error("Error checking session:", error);
+        console.error("Auth error in Navbar:", error);
+      } finally {
         if (mounted) {
-          setUser(null);
           setIsLoading(false);
         }
       }
     }
 
-    getInitialSession();
+    checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.info("Auth state changed in Navbar:", event, session);
-        console.info("Current session state in Navbar:", session);
-
-        if (!mounted) return;
-        
-        if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
-          // Handle both sign out and token refresh events
-          if (!session) {
-            setUser(null);
-            navigate("/", { replace: true });
-            return;
-          }
-        }
-        
-        setUser(session?.user ?? null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed in Navbar:", event, session);
+      
+      if (!mounted) return;
+      
+      setUser(session?.user ?? null);
+      
+      if (event === "SIGNED_OUT") {
+        console.log("Sign out detected in Navbar");
       }
-    );
+    });
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
-  }, [navigate]);
+  }, []);
 
   const handleLogout = async () => {
     try {
       setIsLoading(true);
-      
-      // First check if we have a session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.warn("Session check error during logout:", sessionError);
-        // If it's a refresh token error, just clear local state
-        if (sessionError.message.includes('refresh_token')) {
-          setUser(null);
-          toast.success("Déconnexion réussie");
-          navigate("/", { replace: true });
-          return;
-        }
-      }
-      
-      // Clear local state first
-      setUser(null);
-
-      // Then sign out from Supabase
       const { error } = await supabase.auth.signOut();
+      
       if (error) throw error;
-
+      
+      console.log("Logout successful");
       toast.success("Déconnexion réussie");
       navigate("/", { replace: true });
     } catch (error) {
@@ -108,58 +75,50 @@ export function Navbar() {
 
   return (
     <nav className="bg-white shadow-elegant">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex justify-between items-center">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center h-16">
           <Link to="/" className="text-xl font-bold text-primary">
             Sat-shop
           </Link>
-
-          <div className="flex items-center space-x-6">
-            <Link to="/" className="text-primary hover:text-accent transition-colors">
+          
+          <div className="hidden md:flex space-x-4">
+            <Link to="/" className="text-gray-600 hover:text-primary">
               Accueil
             </Link>
-            <Link to="/marketplace" className="text-primary hover:text-accent transition-colors">
+            <Link to="/marketplace" className="text-gray-600 hover:text-primary">
               Marketplace
             </Link>
-            <Link to="/contact" className="text-primary hover:text-accent transition-colors">
+            <Link to="/contact" className="text-gray-600 hover:text-primary">
               Contactez-nous
             </Link>
+          </div>
 
-            {user ? (
-              <div className="flex items-center space-x-4">
-                <Link 
-                  to="/profile" 
-                  className="text-primary hover:text-accent transition-colors"
-                >
-                  Mon Profil
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  disabled={isLoading}
-                  className="text-primary hover:text-accent transition-colors disabled:opacity-50"
-                >
-                  {isLoading ? "..." : "Déconnexion"}
-                </button>
-              </div>
+          <div className="flex items-center space-x-4">
+            {isLoading ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+            ) : user ? (
+              <Button 
+                variant="outline" 
+                onClick={handleLogout}
+                disabled={isLoading}
+              >
+                {isLoading ? "..." : "Se déconnecter"}
+              </Button>
             ) : (
-              <div className="flex items-center space-x-4">
-                <Link
-                  to="/login"
-                  className="text-primary hover:text-accent transition-colors"
-                >
-                  Connexion
+              <>
+                <Link to="/register">
+                  <Button variant="outline">S'inscrire</Button>
                 </Link>
-                <Link
-                  to="/register"
-                  className="bg-accent text-white px-4 py-2 rounded hover:bg-accent/90 transition-colors"
-                >
-                  Inscription
+                <Link to="/login">
+                  <Button>Se connecter</Button>
                 </Link>
-              </div>
+              </>
             )}
           </div>
         </div>
       </div>
     </nav>
   );
-}
+};
+
+export default Navbar;

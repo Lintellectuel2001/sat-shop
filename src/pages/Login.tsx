@@ -3,8 +3,7 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
-import { AuthChangeEvent, Session } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -27,19 +26,12 @@ export default function Login() {
         
         if (session?.user && mounted) {
           console.log("Active session found, redirecting to home");
-          toast({
-            title: "Succès",
-            description: "Vous êtes déjà connecté"
-          });
+          toast.success("Vous êtes déjà connecté");
           navigate("/", { replace: true });
         }
       } catch (error) {
         console.error("Auth error:", error);
-        toast({
-          variant: "destructive",
-          title: "Erreur",
-          description: "Erreur lors de la vérification de la session"
-        });
+        toast.error("Erreur lors de la vérification de la session");
       } finally {
         if (mounted) {
           setIsLoading(false);
@@ -49,22 +41,15 @@ export default function Login() {
 
     checkAndRedirect();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed:", event, session);
       
       if (!mounted) return;
 
-      if (event === 'SIGNED_IN' && session) {
+      if (event === "SIGNED_IN" && session) {
         console.log("Sign in detected, redirecting to home");
-        toast({
-          title: "Succès",
-          description: "Connexion réussie !"
-        });
+        toast.success("Connexion réussie !");
         navigate("/", { replace: true });
-      }
-
-      if (event === 'SIGNED_OUT') {
-        console.log("User signed out");
       }
     });
 

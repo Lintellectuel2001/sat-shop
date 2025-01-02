@@ -39,52 +39,39 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="flex flex-col lg:flex-row items-start gap-8 bg-white pt-8 px-4">
-        {/* Hero Section - Left side */}
-        <div className="lg:w-1/2 pt-8">
-          <h1 className="text-5xl font-bold leading-tight mb-6">
-            Découvrez l'excellence <br />
-            avec <span className="text-accent">Sat-shop</span>
-          </h1>
-          <p className="text-lg text-primary/80 leading-relaxed mb-8">
-            Explorez notre sélection premium de services IPTV, conçue pour 
-            transformer votre expérience de divertissement.
-          </p>
-        </div>
-
-        {/* Carousel Section - Right side */}
-        <div className="lg:w-1/2">
-          <Carousel 
-            className="w-full" 
-            opts={{ 
-              loop: true,
-            }}
-            plugins={[plugin]}
-          >
-            <CarouselContent>
-              {slides.map((slide, index) => (
-                <CarouselItem key={index}>
-                  <div className="relative h-[400px] w-full overflow-hidden rounded-2xl">
-                    <div className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent opacity-60`} />
-                    <img
-                      src={slide.image}
-                      alt={slide.title}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute bottom-0 left-0 p-8 text-white">
-                      <h3 className="text-2xl font-bold mb-2">{slide.title}</h3>
-                      <p className="text-lg">{slide.description}</p>
-                    </div>
+      {/* Carousel Section */}
+      <section className="w-full bg-white pt-16">
+        <Carousel 
+          className="w-full max-w-[2000px] mx-auto" 
+          opts={{ 
+            loop: true,
+          }}
+          plugins={[plugin]}
+        >
+          <CarouselContent>
+            {slides.map((slide, index) => (
+              <CarouselItem key={index}>
+                <div className="relative h-[85vh] max-h-[800px] w-full overflow-hidden">
+                  <div className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent opacity-60`} />
+                  <img
+                    src={slide.image}
+                    alt={slide.title}
+                    className="w-full h-full object-cover object-[50%_5%] sm:object-[50%_25%]"
+                  />
+                  <div className="absolute bottom-0 left-0 p-8 text-white">
+                    <h3 className="text-2xl font-bold mb-2">{slide.title}</h3>
+                    <p className="text-lg">{slide.description}</p>
                   </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="left-4" />
-            <CarouselNext className="right-4" />
-          </Carousel>
-        </div>
-      </div>
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="left-4" />
+          <CarouselNext className="right-4" />
+        </Carousel>
+      </section>
 
+      <HeroSection />
       <ProductsSection />
       <NewsletterSection />
       <Footer />
