@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
 
 const Profile = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -37,13 +38,19 @@ const Profile = () => {
               Gérez vos informations personnelles
             </p>
             {isAdmin && (
-              <Link 
-                to="/admin" 
-                className="inline-flex items-center gap-2 mt-4 text-accent hover:text-accent/80 transition-colors"
+              <Button 
+                asChild
+                variant="default"
+                className="mt-6 w-full bg-accent hover:bg-accent/90"
               >
-                Accéder au Panel Admin
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+                <Link 
+                  to="/admin" 
+                  className="inline-flex items-center justify-center gap-2"
+                >
+                  Accéder au Panel Admin
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </Button>
             )}
           </div>
           <ProfileManager />
