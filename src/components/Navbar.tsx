@@ -112,6 +112,13 @@ const Navbar = () => {
                   <span className="font-medium">Connexion</span>
                 </Link>
                 <Link 
+                  to="/register" 
+                  className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
+                >
+                  <User className="w-5 h-5" />
+                  <span className="font-medium">Inscription</span>
+                </Link>
+                <Link 
                   to="/cart" 
                   className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
                 >
