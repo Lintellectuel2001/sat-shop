@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const LoginPanel = () => {
@@ -19,6 +19,15 @@ const LoginPanel = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email || !password) {
+      toast({
+        title: "Champs requis",
+        description: "Veuillez remplir tous les champs",
+        variant: "destructive",
+      });
+      return;
+    }
     
     // Client-side validation
     if (!validateEmail(email)) {
@@ -42,39 +51,46 @@ const LoginPanel = () => {
     setLoading(true);
 
     try {
-      // First, sign in the user
-      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: email.toLowerCase().trim(),
         password,
       });
 
-      if (signInError) {
-        if (signInError.message.includes("Invalid login credentials")) {
-          throw new Error("Email ou mot de passe incorrect.");
-        }
-        throw signInError;
+      if (error) {
+        console.error("Login error:", error);
+        throw error;
       }
 
-      if (authData.user) {
+      if (data.user) {
         // Check if user is admin
-        const { data: adminData } = await supabase
+        const { data: adminData, error: adminError } = await supabase
           .from('admin_users')
           .select('id')
-          .eq('id', authData.user.id)
+          .eq('id', data.user.id)
           .single();
+
+        if (adminError) {
+          console.error("Admin check error:", adminError);
+        }
 
         toast({
           title: "Connexion réussie",
           description: adminData ? "Bienvenue administrateur !" : "Vous êtes maintenant connecté.",
         });
-      }
 
-      navigate("/");
+        navigate("/");
+      }
     } catch (error: any) {
       console.error("Login error:", error);
+      let errorMessage = "Une erreur est survenue lors de la connexion";
+      
+      if (error.message.includes("Invalid login credentials")) {
+        errorMessage = "Email ou mot de passe incorrect.";
+      }
+      
       toast({
         title: "Erreur de connexion",
-        description: error.message || "Une erreur est survenue lors de la connexion",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
