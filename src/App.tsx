@@ -9,8 +9,8 @@ import Cart from "@/pages/Cart";
 import Profile from "@/pages/Profile";
 import Admin from "@/pages/Admin";
 import ProductDetails from "@/pages/ProductDetails";
-import { LoginPanel } from "@/components/auth/LoginPanel";
-import { RegisterPanel } from "@/components/auth/RegisterPanel";
+import LoginPanel from "@/components/auth/LoginPanel";
+import RegisterPanel from "@/components/auth/RegisterPanel";
 
 function App() {
   return (
