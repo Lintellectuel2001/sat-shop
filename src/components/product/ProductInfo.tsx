@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import ProductHeader from "./ProductHeader";
 import ProductDescription from "./ProductDescription";
 import ProductFeatures from "./ProductFeatures";
+import { useNavigate } from 'react-router-dom';
 
 interface ProductInfoProps {
   name: string;
@@ -12,7 +13,7 @@ interface ProductInfoProps {
   description: string;
   features: string[];
   downloadInfo?: any;
-  paymentLink: string;  // Added paymentLink prop
+  paymentLink: string;
 }
 
 const ProductInfo = ({ 
@@ -23,10 +24,17 @@ const ProductInfo = ({
   description, 
   features, 
   downloadInfo,
-  paymentLink  // Added paymentLink to destructuring
+  paymentLink
 }: ProductInfoProps) => {
+  const navigate = useNavigate();
+
   const handleOrder = () => {
-    window.location.href = paymentLink;
+    navigate('/cart', {
+      state: {
+        product: { name, price },
+        paymentLink
+      }
+    });
   };
 
   return (
