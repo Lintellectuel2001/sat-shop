@@ -31,27 +31,30 @@ const Profile = () => {
     <div className="min-h-screen bg-gradient-to-br from-white to-secondary">
       <Navbar />
       <div className="container mx-auto max-w-md pt-32 pb-16 px-4">
+        {isAdmin && (
+          <div className="mb-8">
+            <Button 
+              asChild
+              variant="default"
+              size="lg"
+              className="w-full bg-accent hover:bg-accent/90 text-lg font-semibold shadow-elegant"
+            >
+              <Link 
+                to="/admin" 
+                className="inline-flex items-center justify-center gap-2 py-6"
+              >
+                Panel Administrateur
+                <ArrowRight className="w-6 h-6" />
+              </Link>
+            </Button>
+          </div>
+        )}
         <div className="bg-white rounded-2xl shadow-elegant p-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-primary mb-2">Mon Profil</h1>
             <p className="text-primary/60">
               Gérez vos informations personnelles
             </p>
-            {isAdmin && (
-              <Button 
-                asChild
-                variant="default"
-                className="mt-6 w-full bg-accent hover:bg-accent/90"
-              >
-                <Link 
-                  to="/admin" 
-                  className="inline-flex items-center justify-center gap-2"
-                >
-                  Accéder au Panel Admin
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </Button>
-            )}
           </div>
           <ProfileManager />
         </div>
