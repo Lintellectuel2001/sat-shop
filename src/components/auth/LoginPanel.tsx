@@ -42,22 +42,33 @@ const LoginPanel = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      // First, sign in the user
+      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email: email.toLowerCase().trim(),
         password,
       });
 
-      if (error) {
-        if (error.message.includes("Invalid login credentials")) {
+      if (signInError) {
+        if (signInError.message.includes("Invalid login credentials")) {
           throw new Error("Email ou mot de passe incorrect.");
         }
-        throw error;
+        throw signInError;
       }
 
-      toast({
-        title: "Connexion réussie",
-        description: "Vous êtes maintenant connecté.",
-      });
+      if (authData.user) {
+        // Check if user is admin
+        const { data: adminData } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('id', authData.user.id)
+          .single();
+
+        toast({
+          title: "Connexion réussie",
+          description: adminData ? "Bienvenue administrateur !" : "Vous êtes maintenant connecté.",
+        });
+      }
+
       navigate("/");
     } catch (error: any) {
       console.error("Login error:", error);
