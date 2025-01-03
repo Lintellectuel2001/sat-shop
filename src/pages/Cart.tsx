@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -11,14 +11,34 @@ const Cart = () => {
   const { toast } = useToast();
   const product = location.state?.product;
 
+  useEffect(() => {
+    checkSession();
+  }, []);
+
+  const checkSession = async () => {
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session) {
+      console.error('Session error:', sessionError);
+      toast({
+        title: "Session expirée",
+        description: "Veuillez vous reconnecter pour continuer",
+        variant: "destructive",
+      });
+      navigate('/login');
+      return;
+    }
+  };
+
   const handleOrder = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      if (!user) {
+      if (sessionError || !session) {
+        console.error('Session error:', sessionError);
         toast({
-          title: "Connexion requise",
-          description: "Veuillez vous connecter pour continuer",
+          title: "Session expirée",
+          description: "Veuillez vous reconnecter pour continuer",
           variant: "destructive",
         });
         navigate('/login');
@@ -28,7 +48,7 @@ const Cart = () => {
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user.id)
+        .eq('id', session.user.id)
         .single();
 
       if (!product || !product.price) {
@@ -43,8 +63,8 @@ const Cart = () => {
 
       const paymentData = {
         amount: parseFloat(product.price.replace(' DA', '')),
-        client_name: profile?.full_name || user.email,
-        client_email: user.email,
+        client_name: profile?.full_name || session.user.email,
+        client_email: session.user.email,
         client_phone: profile?.phone || '',
         back_url: window.location.origin + '/profile',
         webhook_url: window.location.origin + '/webhook-payment',
@@ -80,7 +100,7 @@ const Cart = () => {
       const { error: historyError } = await supabase
         .from('cart_history')
         .insert({
-          user_id: user.id,
+          user_id: session.user.id,
           action_type: 'payment_initiated',
           product_id: product.name
         });
