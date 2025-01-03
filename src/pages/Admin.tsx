@@ -31,12 +31,10 @@ const Admin = () => {
         return;
       }
 
-      // Vérification des droits admin
-      const { data: adminData, error } = await supabase
+      const { count, error } = await supabase
         .from('admin_users')
-        .select('id')
-        .eq('id', session.user.id)
-        .single();
+        .select('*', { count: 'exact', head: true })
+        .eq('id', session.user.id);
 
       if (error) {
         console.error("Erreur lors de la vérification des droits admin:", error);
@@ -49,7 +47,7 @@ const Admin = () => {
         return;
       }
 
-      if (!adminData) {
+      if (count === 0) {
         toast({
           title: "Accès refusé",
           description: "Vous n'avez pas les droits d'administration",
