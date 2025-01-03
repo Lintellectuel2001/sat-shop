@@ -1,15 +1,23 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Star } from "lucide-react";
-import { Product } from '@/data/products';
 import { useNavigate } from 'react-router-dom';
+
+interface Product {
+  id: string;
+  name: string;
+  price: string;
+  rating: number;
+  reviews: number;
+  image: string;
+  category: string;
+}
 
 interface ProductGridProps {
   products: Product[];
-  onProductClick: (productId: number) => void;
 }
 
-const ProductGrid = ({ products, onProductClick }: ProductGridProps) => {
+const ProductGrid = ({ products }: ProductGridProps) => {
   const navigate = useNavigate();
 
   const handleProductClick = (product: Product) => {

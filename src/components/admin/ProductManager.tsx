@@ -39,100 +39,145 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
     image: '',
     payment_link: '',
   });
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const handleProductCreate = async () => {
-    if (!newProduct.name || !newProduct.price || !newProduct.category || !newProduct.image || !newProduct.payment_link) {
+    try {
+      console.log('Creating product:', newProduct);
+
+      if (!newProduct.name || !newProduct.price || !newProduct.category || !newProduct.image || !newProduct.payment_link) {
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Tous les champs obligatoires doivent être remplis",
+        });
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('products')
+        .insert([{
+          name: newProduct.name,
+          price: newProduct.price,
+          category: newProduct.category,
+          image: newProduct.image,
+          payment_link: newProduct.payment_link,
+          description: newProduct.description,
+          features: newProduct.features,
+        }])
+        .select();
+
+      if (error) {
+        console.error('Error creating product:', error);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Impossible de créer le produit: " + error.message,
+        });
+        return;
+      }
+
+      console.log('Product created successfully:', data);
+      
+      toast({
+        title: "Succès",
+        description: "Produit créé avec succès",
+      });
+      
+      onProductsChange();
+      setIsDialogOpen(false);
+      setNewProduct({
+        id: '',
+        name: '',
+        price: '',
+        category: '',
+        image: '',
+        payment_link: '',
+      });
+    } catch (error) {
+      console.error('Unexpected error creating product:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Tous les champs obligatoires doivent être remplis",
+        description: "Une erreur inattendue s'est produite",
       });
-      return;
     }
-
-    const { error } = await supabase
-      .from('products')
-      .insert([newProduct]);
-
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de créer le produit",
-      });
-      return;
-    }
-
-    toast({
-      title: "Succès",
-      description: "Produit créé avec succès",
-    });
-    
-    onProductsChange();
-    setNewProduct({
-      id: '',
-      name: '',
-      price: '',
-      category: '',
-      image: '',
-      payment_link: '',
-    });
   };
 
   const handleProductUpdate = async (updatedProduct: Product) => {
-    if (!updatedProduct.name || !updatedProduct.price || !updatedProduct.category || !updatedProduct.image || !updatedProduct.payment_link) {
+    try {
+      if (!updatedProduct.name || !updatedProduct.price || !updatedProduct.category || !updatedProduct.image || !updatedProduct.payment_link) {
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Tous les champs obligatoires doivent être remplis",
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('products')
+        .update(updatedProduct)
+        .eq('id', updatedProduct.id);
+
+      if (error) {
+        console.error('Error updating product:', error);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Impossible de mettre à jour le produit: " + error.message,
+        });
+        return;
+      }
+
+      toast({
+        title: "Succès",
+        description: "Produit mis à jour avec succès",
+      });
+      
+      onProductsChange();
+    } catch (error) {
+      console.error('Unexpected error updating product:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Tous les champs obligatoires doivent être remplis",
+        description: "Une erreur inattendue s'est produite",
       });
-      return;
     }
-
-    const { error } = await supabase
-      .from('products')
-      .update(updatedProduct)
-      .eq('id', updatedProduct.id);
-
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de mettre à jour le produit",
-      });
-      return;
-    }
-
-    toast({
-      title: "Succès",
-      description: "Produit mis à jour avec succès",
-    });
-    
-    onProductsChange();
   };
 
   const handleProductDelete = async (id: string) => {
-    const { error } = await supabase
-      .from('products')
-      .delete()
-      .eq('id', id);
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id);
 
-    if (error) {
+      if (error) {
+        console.error('Error deleting product:', error);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Impossible de supprimer le produit: " + error.message,
+        });
+        return;
+      }
+
+      toast({
+        title: "Succès",
+        description: "Produit supprimé avec succès",
+      });
+      
+      onProductsChange();
+    } catch (error) {
+      console.error('Unexpected error deleting product:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Impossible de supprimer le produit",
+        description: "Une erreur inattendue s'est produite",
       });
-      return;
     }
-
-    toast({
-      title: "Succès",
-      description: "Produit supprimé avec succès",
-    });
-    
-    onProductsChange();
   };
 
   return (
@@ -145,7 +190,7 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
             {products.length} articles
           </span>
         </div>
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
