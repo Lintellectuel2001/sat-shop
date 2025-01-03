@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/hooks/useAuth';
 
 interface OrderButtonProps {
@@ -17,12 +17,12 @@ const OrderButton = ({ paymentLink, downloadInfo }: OrderButtonProps) => {
   const handleOrder = () => {
     if (!user) {
       toast({
-        title: "Connexion requise",
-        description: "Veuillez vous connecter ou vous inscrire pour commander",
+        title: "Inscription requise",
+        description: "Veuillez vous inscrire pour commander",
       });
-      navigate('/login', { 
+      navigate('/register', { 
         state: { 
-          redirectTo: window.location.pathname,
+          redirectTo: '/cart',
           paymentLink,
           downloadInfo
         } 
@@ -30,8 +30,13 @@ const OrderButton = ({ paymentLink, downloadInfo }: OrderButtonProps) => {
       return;
     }
 
-    // Si l'utilisateur est connecté, rediriger vers le lien de paiement
-    window.location.href = paymentLink;
+    // Si l'utilisateur est connecté, rediriger vers le panier
+    navigate('/cart', {
+      state: {
+        paymentLink,
+        downloadInfo
+      }
+    });
   };
 
   return (

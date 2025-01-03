@@ -11,6 +11,7 @@ import Contact from "./pages/Contact";
 import LoginPanel from "./components/auth/LoginPanel";
 import RegisterPanel from "./components/auth/RegisterPanel";
 import Profile from "./pages/Profile";
+import Cart from "./pages/Cart";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => {
               <Route path="/login" element={<LoginPanel />} />
               <Route path="/register" element={<RegisterPanel />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/cart" element={<Cart />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
