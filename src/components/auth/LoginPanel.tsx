@@ -1,150 +1,57 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useNavigate } from "react-router-dom";
+import { Auth } from '@supabase/auth-ui-react';
+import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { supabase } from '@/integrations/supabase/client';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 const LoginPanel = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  const { redirectTo, paymentLink } = location.state || {};
 
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-    return emailRegex.test(email);
-  };
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Client-side validation
-    if (!validateEmail(email)) {
-      toast({
-        title: "Format d'email invalide",
-        description: "Veuillez entrer une adresse email valide.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (password.length < 6) {
-      toast({
-        title: "Mot de passe trop court",
-        description: "Le mot de passe doit contenir au moins 6 caractères.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.toLowerCase().trim(),
-        password,
-      });
-
-      if (error) {
-        if (error.message.includes("Invalid login credentials")) {
-          throw new Error("Email ou mot de passe incorrect.");
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') {
+        toast({
+          title: "Connexion réussie",
+          description: "Vous allez être redirigé...",
+        });
+        
+        if (redirectTo && paymentLink) {
+          // Si on vient d'une page produit, rediriger vers le lien de paiement
+          window.location.href = paymentLink;
+        } else {
+          // Sinon, rediriger vers la page d'accueil
+          navigate('/');
         }
-        throw error;
       }
+    });
 
-      toast({
-        title: "Connexion réussie",
-        description: "Vous êtes maintenant connecté.",
-      });
-      navigate("/");
-    } catch (error: any) {
-      console.error("Login error:", error);
-      toast({
-        title: "Erreur de connexion",
-        description: error.message || "Une erreur est survenue lors de la connexion",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    return () => subscription.unsubscribe();
+  }, [navigate, redirectTo, paymentLink]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-secondary pt-32 pb-16 px-4">
-      <div className="container mx-auto max-w-md">
-        <div className="bg-white rounded-2xl shadow-elegant p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-primary mb-2">Connexion</h1>
-            <p className="text-primary/60">
-              Accédez à votre compte Sat-shop
-            </p>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-primary">
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="votre@email.com"
-                className="w-full"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium text-primary">
-                Mot de passe
-              </label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full"
-                required
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <label className="flex items-center space-x-2 text-sm">
-                <input type="checkbox" className="rounded border-gray-300" />
-                <span className="text-primary/80">Se souvenir de moi</span>
-              </label>
-              <button
-                type="button"
-                className="text-sm text-accent hover:text-accent/80 transition-colors"
-              >
-                Mot de passe oublié ?
-              </button>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-accent hover:bg-accent/90 text-white"
-              disabled={loading}
-            >
-              {loading ? "Connexion en cours..." : "Se connecter"}
-            </Button>
-
-            <div className="text-center text-sm text-primary/60">
-              Pas encore de compte ?{" "}
-              <button
-                type="button"
-                onClick={() => navigate("/register")}
-                className="text-accent hover:text-accent/80 transition-colors"
-              >
-                S'inscrire
-              </button>
-            </div>
-          </form>
+    <div className="min-h-screen bg-background pt-32">
+      <div className="container mx-auto px-4">
+        <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-elegant">
+          <h1 className="text-2xl font-bold text-center mb-6">Connexion</h1>
+          <Auth
+            supabaseClient={supabase}
+            appearance={{
+              theme: ThemeSupa,
+              variables: {
+                default: {
+                  colors: {
+                    brand: '#8B5CF6',
+                    brandAccent: '#7C3AED',
+                  },
+                },
+              },
+            }}
+            providers={[]}
+          />
         </div>
       </div>
     </div>
