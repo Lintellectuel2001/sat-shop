@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Plus } from "lucide-react";
+import { Plus, FileText } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -138,19 +138,25 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-semibold">Gestion des Produits</h2>
+        <div className="flex items-center space-x-2">
+          <FileText className="h-6 w-6" />
+          <h2 className="text-2xl font-semibold">Gestion des Articles</h2>
+          <span className="bg-gray-100 px-2 py-1 rounded-full text-sm">
+            {products.length} articles
+          </span>
+        </div>
         <Dialog>
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Nouveau Produit
+              Nouvel Article
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Ajouter un Produit</DialogTitle>
+              <DialogTitle>Ajouter un Article</DialogTitle>
               <DialogDescription>
-                Remplissez les informations pour créer un nouveau produit.
+                Remplissez les informations pour créer un nouvel article.
               </DialogDescription>
             </DialogHeader>
             <ProductForm
@@ -165,7 +171,7 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {products.map((product) => (
           <ProductCard
             key={product.id}
