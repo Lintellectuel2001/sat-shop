@@ -31,15 +31,15 @@ serve(async (req) => {
       throw new Error('Configuration de paiement manquante')
     }
 
+    // Log key information for debugging (safely)
+    console.log('API Key present:', !!secretKey, 'Length:', secretKey.length)
+    console.log('Using Chargily API URL:', chargilyApiUrl)
+
     // Validate required fields
     if (!amount || !client_name || !client_email) {
       console.error('Missing required fields')
       throw new Error('Informations de paiement incomplètes')
     }
-
-    // Log key information for debugging (safely)
-    console.log('API Key present:', !!secretKey, 'Length:', secretKey.length)
-    console.log('Using Chargily API URL:', chargilyApiUrl)
 
     const cleanAmount = parseFloat(amount.toString().replace(' DA', '').trim())
     console.log('Cleaned amount:', cleanAmount)
