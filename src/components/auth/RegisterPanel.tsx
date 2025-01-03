@@ -20,6 +20,7 @@ const RegisterPanel = () => {
     setLoading(true);
 
     try {
+      // First, create the auth user
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -33,6 +34,7 @@ const RegisterPanel = () => {
       if (signUpError) throw signUpError;
 
       if (authData.user) {
+        // Then create the profile with the same ID as the auth user
         const { error: profileError } = await supabase
           .from('profiles')
           .insert([
@@ -54,6 +56,7 @@ const RegisterPanel = () => {
         navigate("/");
       }
     } catch (error: any) {
+      console.error("Registration error:", error);
       toast({
         title: "Erreur lors de l'inscription",
         description: error.message,
