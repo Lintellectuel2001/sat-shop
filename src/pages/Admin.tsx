@@ -31,18 +31,24 @@ const Admin = () => {
         return;
       }
 
-      console.log("Checking admin status for user:", session.user.id);
-
       const { data: adminData, error: adminError } = await supabase
         .from('admin_users')
-        .select('id')
+        .select('*')
         .eq('id', session.user.id)
         .single();
 
-      console.log("Admin check result:", { adminData, adminError });
+      if (adminError) {
+        console.error("Erreur lors de la vérification des droits admin:", adminError);
+        toast({
+          title: "Erreur",
+          description: "Une erreur est survenue lors de la vérification des droits",
+          variant: "destructive",
+        });
+        navigate('/');
+        return;
+      }
 
-      if (adminError || !adminData) {
-        console.error("Admin check failed:", adminError);
+      if (!adminData) {
         toast({
           title: "Accès refusé",
           description: "Vous n'avez pas les droits d'administration",
@@ -54,7 +60,7 @@ const Admin = () => {
 
       setIsAdmin(true);
     } catch (error) {
-      console.error('Error checking admin status:', error);
+      console.error('Erreur lors de la vérification des droits admin:', error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la vérification des droits",
