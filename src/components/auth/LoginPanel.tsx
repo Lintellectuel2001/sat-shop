@@ -42,28 +42,41 @@ const LoginPanel = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: email.toLowerCase().trim(),
         password,
       });
 
       if (error) {
         if (error.message.includes("Invalid login credentials")) {
-          throw new Error("Email ou mot de passe incorrect.");
+          toast({
+            title: "Erreur de connexion",
+            description: "Email ou mot de passe incorrect. Si vous n'avez pas de compte, veuillez vous inscrire.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Erreur de connexion",
+            description: "Une erreur est survenue lors de la connexion. Veuillez réessayer.",
+            variant: "destructive",
+          });
         }
-        throw error;
+        console.error("Login error:", error);
+        return;
       }
 
-      toast({
-        title: "Connexion réussie",
-        description: "Vous êtes maintenant connecté.",
-      });
-      navigate("/");
+      if (data.user) {
+        toast({
+          title: "Connexion réussie",
+          description: "Vous êtes maintenant connecté.",
+        });
+        navigate("/");
+      }
     } catch (error: any) {
       console.error("Login error:", error);
       toast({
         title: "Erreur de connexion",
-        description: error.message || "Une erreur est survenue lors de la connexion",
+        description: "Une erreur inattendue est survenue. Veuillez réessayer.",
         variant: "destructive",
       });
     } finally {
