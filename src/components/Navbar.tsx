@@ -1,22 +1,50 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, User, UserCog, LogOut } from "lucide-react";
+import { ShoppingCart, User, UserCog, LogOut, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check initial auth state
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Check initial auth state and admin status
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       setIsLoggedIn(!!session);
-    });
+      
+      if (session) {
+        // Check if user is admin
+        const { data: adminUser } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('id', session.user.id)
+          .single();
+        
+        setIsAdmin(!!adminUser);
+      }
+    };
+    
+    checkAuth();
 
     // Subscribe to auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setIsLoggedIn(!!session);
+      
+      if (session) {
+        // Check if user is admin
+        const { data: adminUser } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('id', session.user.id)
+          .single();
+        
+        setIsAdmin(!!adminUser);
+      } else {
+        setIsAdmin(false);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -78,6 +106,16 @@ const Navbar = () => {
           <div className="flex items-center gap-6">
             {isLoggedIn ? (
               <>
+                {isAdmin && (
+                  <Link 
+                    to="/admin" 
+                    className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
+                    title="Panel Administrateur"
+                  >
+                    <Settings className="w-5 h-5" />
+                    <span className="font-medium">Admin</span>
+                  </Link>
+                )}
                 <Link 
                   to="/profile" 
                   className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
