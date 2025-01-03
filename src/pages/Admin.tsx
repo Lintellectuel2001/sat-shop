@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Pencil, Plus, Upload } from "lucide-react";
+import { Trash2, Pencil, Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +22,7 @@ interface Product {
   image: string;
   category: string;
   features?: string[];
+  payment_link: string;
 }
 
 interface Slide {
@@ -37,8 +38,18 @@ const Admin = () => {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editingSlide, setEditingSlide] = useState<Slide | null>(null);
-  const [newProduct, setNewProduct] = useState<Partial<Product>>({});
-  const [newSlide, setNewSlide] = useState<Partial<Slide>>({});
+  const [newProduct, setNewProduct] = useState<Partial<Product>>({
+    name: '',
+    price: '',
+    category: '',
+    image: '',
+    payment_link: ''
+  });
+  const [newSlide, setNewSlide] = useState<Partial<Slide>>({
+    title: '',
+    color: '',
+    image: ''
+  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -106,9 +117,27 @@ const Admin = () => {
   };
 
   const handleProductCreate = async () => {
+    // Check if all required fields are present
+    if (!newProduct.name || !newProduct.price || !newProduct.category || !newProduct.image || !newProduct.payment_link) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Tous les champs obligatoires doivent être remplis",
+      });
+      return;
+    }
+
     const { error } = await supabase
       .from('products')
-      .insert([newProduct]);
+      .insert([{
+        name: newProduct.name,
+        price: newProduct.price,
+        category: newProduct.category,
+        image: newProduct.image,
+        payment_link: newProduct.payment_link,
+        description: newProduct.description,
+        features: newProduct.features
+      }]);
 
     if (error) {
       toast({
@@ -125,11 +154,27 @@ const Admin = () => {
     });
     
     fetchProducts();
-    setNewProduct({});
+    setNewProduct({
+      name: '',
+      price: '',
+      category: '',
+      image: '',
+      payment_link: ''
+    });
   };
 
   const handleProductUpdate = async (id: string) => {
     if (!editingProduct) return;
+
+    // Check if all required fields are present
+    if (!editingProduct.name || !editingProduct.price || !editingProduct.category || !editingProduct.image || !editingProduct.payment_link) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Tous les champs obligatoires doivent être remplis",
+      });
+      return;
+    }
 
     const { error } = await supabase
       .from('products')
@@ -178,9 +223,24 @@ const Admin = () => {
   };
 
   const handleSlideCreate = async () => {
+    // Check if all required fields are present
+    if (!newSlide.title || !newSlide.color || !newSlide.image) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Tous les champs obligatoires doivent être remplis",
+      });
+      return;
+    }
+
     const { error } = await supabase
       .from('slides')
-      .insert([newSlide]);
+      .insert([{
+        title: newSlide.title,
+        color: newSlide.color,
+        image: newSlide.image,
+        description: newSlide.description
+      }]);
 
     if (error) {
       toast({
@@ -197,11 +257,25 @@ const Admin = () => {
     });
     
     fetchSlides();
-    setNewSlide({});
+    setNewSlide({
+      title: '',
+      color: '',
+      image: ''
+    });
   };
 
   const handleSlideUpdate = async (id: string) => {
     if (!editingSlide) return;
+
+    // Check if all required fields are present
+    if (!editingSlide.title || !editingSlide.color || !editingSlide.image) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Tous les champs obligatoires doivent être remplis",
+      });
+      return;
+    }
 
     const { error } = await supabase
       .from('slides')
@@ -289,6 +363,11 @@ const Admin = () => {
                     value={newProduct.category || ''}
                     onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
                   />
+                  <Input
+                    placeholder="Lien de paiement"
+                    value={newProduct.payment_link || ''}
+                    onChange={(e) => setNewProduct({ ...newProduct, payment_link: e.target.value })}
+                  />
                   <Textarea
                     placeholder="Description"
                     value={newProduct.description || ''}
@@ -343,6 +422,11 @@ const Admin = () => {
                           placeholder="Catégorie"
                           value={editingProduct?.category || product.category}
                           onChange={(e) => setEditingProduct({ ...editingProduct, category: e.target.value })}
+                        />
+                        <Input
+                          placeholder="Lien de paiement"
+                          value={editingProduct?.payment_link || product.payment_link}
+                          onChange={(e) => setEditingProduct({ ...editingProduct, payment_link: e.target.value })}
                         />
                         <Textarea
                           placeholder="Description"
