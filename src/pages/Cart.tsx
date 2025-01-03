@@ -31,22 +31,21 @@ const Cart = () => {
         .eq('id', user.id)
         .single();
 
-      const response = await fetch('/api/create-payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('create-payment', {
+        body: {
           amount: parseFloat(product.price.replace('DA', '')),
           client_name: profile?.full_name || user.email,
           client_email: user.email,
           client_phone: profile?.phone || '',
-          back_url: window.location.origin + '/profile',
-          webhook_url: window.location.origin + '/api/webhook-payment',
-        }),
+          back_url: `${window.location.origin}/profile`,
+          webhook_url: `${window.location.origin}/api/webhook-payment`,
+        },
       });
 
-      const data = await response.json();
+      if (error) {
+        console.error('Payment creation error:', error);
+        throw new Error('Erreur lors de la création du paiement');
+      }
 
       if (data.checkout_url) {
         // Enregistrer l'action dans l'historique
