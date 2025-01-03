@@ -14,7 +14,7 @@ serve(async (req) => {
   try {
     const { amount, client_name, client_email, client_phone, back_url, webhook_url } = await req.json()
 
-    console.log('Received payment request:', {
+    console.log('Payment request received:', {
       amount,
       client_name,
       client_email,
@@ -28,13 +28,23 @@ serve(async (req) => {
 
     if (!secretKey) {
       console.error('Missing CHARGILY_SECRET_KEY')
-      throw new Error('Configuration de paiement manquante')
+      return new Response(
+        JSON.stringify({ 
+          error: 'Configuration de paiement manquante',
+          details: 'Clé API Chargily non configurée'
+        }), 
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      )
     }
 
-    const response = await fetch(chargilyApiUrl, {
+    const paymentResponse = await fetch(chargilyApiUrl, {
       method: 'POST',
       headers: {
         'X-Authorization': secretKey,
+        'Accept': 'application/json',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -50,29 +60,58 @@ serve(async (req) => {
       }),
     })
 
-    if (!response.ok) {
-      const errorData = await response.json()
-      console.error('Chargily API error:', errorData)
-      throw new Error('Erreur lors de la communication avec le service de paiement')
+    console.log('Chargily API response status:', paymentResponse.status)
+
+    if (!paymentResponse.ok) {
+      const errorText = await paymentResponse.text()
+      console.error('Chargily API error response:', errorText)
+      
+      let errorMessage = 'Erreur lors de la communication avec le service de paiement'
+      if (paymentResponse.status === 401) {
+        errorMessage = 'Erreur d\'authentification avec le service de paiement'
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          error: errorMessage,
+          details: errorText
+        }), 
+        {
+          status: paymentResponse.status,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      )
     }
 
-    const data = await response.json()
-    console.log('Chargily API response:', data)
+    const data = await paymentResponse.json()
+    console.log('Chargily API success response:', data)
 
     if (!data.checkout_url) {
       console.error('Missing checkout_url in response:', data)
-      throw new Error('URL de paiement non reçue du service')
+      return new Response(
+        JSON.stringify({ 
+          error: 'URL de paiement non reçue du service',
+          details: data
+        }), 
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      )
     }
 
-    return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
+    return new Response(
+      JSON.stringify(data), 
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    )
   } catch (error) {
     console.error('Error in create-payment function:', error)
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'Une erreur est survenue',
-        details: error instanceof Error ? error.stack : undefined
+        error: 'Une erreur est survenue lors du traitement de la demande',
+        details: error instanceof Error ? error.message : 'Erreur inconnue'
       }), 
       {
         status: 500,
