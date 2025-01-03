@@ -38,7 +38,7 @@ const Cart = () => {
           client_email: user.email,
           client_phone: profile?.phone || '',
           back_url: `${window.location.origin}/profile`,
-          webhook_url: `${window.location.origin}/api/webhook-payment`,
+          webhook_url: `${window.location.origin}/webhook-payment`,
         },
       });
 
@@ -47,7 +47,7 @@ const Cart = () => {
         throw new Error('Erreur lors de la création du paiement');
       }
 
-      if (data.checkout_url) {
+      if (data?.checkout_url) {
         // Enregistrer l'action dans l'historique
         await supabase
           .from('cart_history')
@@ -59,7 +59,7 @@ const Cart = () => {
 
         window.location.href = data.checkout_url;
       } else {
-        throw new Error('Erreur lors de la création du paiement');
+        throw new Error('URL de paiement non reçue');
       }
     } catch (error) {
       console.error('Error:', error);
