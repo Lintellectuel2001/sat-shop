@@ -31,28 +31,34 @@ const Cart = () => {
         .eq('id', user.id)
         .single();
 
-      console.log('Creating payment with data:', {
+      if (!product || !product.price) {
+        console.error('Invalid product data:', product);
+        toast({
+          title: "Erreur de produit",
+          description: "Les informations du produit sont invalides",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const paymentData = {
         amount: parseFloat(product.price.replace('DA', '')),
         client_name: profile?.full_name || user.email,
         client_email: user.email,
+        client_phone: profile?.phone || '',
         back_url: window.location.origin + '/profile',
         webhook_url: window.location.origin + '/webhook-payment',
-      });
+      };
+
+      console.log('Creating payment with data:', paymentData);
 
       const { data, error } = await supabase.functions.invoke('create-payment', {
-        body: {
-          amount: parseFloat(product.price.replace('DA', '')),
-          client_name: profile?.full_name || user.email,
-          client_email: user.email,
-          client_phone: profile?.phone || '',
-          back_url: window.location.origin + '/profile',
-          webhook_url: window.location.origin + '/webhook-payment',
-        },
+        body: paymentData,
       });
 
       if (error) {
         console.error('Payment creation error:', error);
-        throw new Error('Erreur lors de la création du paiement. Veuillez réessayer.');
+        throw new Error('Erreur lors de la création du paiement');
       }
 
       if (!data) {
@@ -62,10 +68,10 @@ const Cart = () => {
 
       if (!data.checkout_url) {
         console.error('No checkout URL in response:', data);
-        throw new Error('URL de paiement non reçue du service');
+        throw new Error('URL de paiement non reçue');
       }
 
-      // Enregistrer l'action dans l'historique
+      // Save to cart history before redirecting
       const { error: historyError } = await supabase
         .from('cart_history')
         .insert({
@@ -82,7 +88,7 @@ const Cart = () => {
       // Redirect to payment page
       window.location.href = data.checkout_url;
     } catch (error) {
-      console.error('Payment creation error:', error);
+      console.error('Payment process error:', error);
       toast({
         title: "Erreur de paiement",
         description: error instanceof Error ? error.message : "Une erreur est survenue lors du traitement du paiement",
@@ -103,7 +109,7 @@ const Cart = () => {
               <h2 className="text-xl font-semibold">Récapitulatif de la commande</h2>
             </div>
             
-            {product && (
+            {product ? (
               <div className="border-b pb-4 mb-4">
                 <div className="flex justify-between items-center">
                   <div>
@@ -112,14 +118,18 @@ const Cart = () => {
                   </div>
                 </div>
               </div>
+            ) : (
+              <p className="text-gray-600">Votre panier est vide</p>
             )}
 
-            <Button 
-              onClick={handleOrder}
-              className="w-full lg:w-auto text-lg py-6 bg-primary hover:bg-primary/90"
-            >
-              Procéder au paiement
-            </Button>
+            {product && (
+              <Button 
+                onClick={handleOrder}
+                className="w-full lg:w-auto text-lg py-6 bg-primary hover:bg-primary/90"
+              >
+                Procéder au paiement
+              </Button>
+            )}
           </div>
         </div>
       </main>
