@@ -42,27 +42,37 @@ serve(async (req) => {
     const cleanAmount = parseFloat(amount.toString().replace(' DA', '').trim())
     console.log('Cleaned amount:', cleanAmount)
 
-    // Create payment using the SDK
-    const response = await client.createPayment({
-      amount: cleanAmount,
-      name: client_name,
-      email: client_email,
-      phone: client_phone || '',
-      mode: 'CIB',
-      redirectUrl: back_url,
-      webhookUrl: webhook_url,
-      description: 'Paiement Sat-shop',
+    // Create checkout using the SDK's createCheckout method
+    const response = await client.createCheckout({
+      items: [{
+        name: 'Sat-shop Service',
+        amount: cleanAmount,
+        quantity: 1
+      }],
+      success_url: back_url,
+      failure_url: back_url,
+      webhook_url: webhook_url,
+      customer: {
+        name: client_name,
+        email: client_email,
+        phone: client_phone || ''
+      },
+      payment_method: 'CIB',
+      locale: 'fr',
+      metadata: {
+        source: 'sat-shop'
+      }
     })
 
-    console.log('Chargily payment created:', response)
+    console.log('Chargily checkout created:', response)
 
-    if (!response.checkoutUrl) {
-      console.error('Missing checkoutUrl in response:', response)
+    if (!response.checkout_url) {
+      console.error('Missing checkout_url in response:', response)
       throw new Error('URL de paiement non reçue')
     }
 
     return new Response(
-      JSON.stringify({ checkout_url: response.checkoutUrl }),
+      JSON.stringify({ checkout_url: response.checkout_url }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
