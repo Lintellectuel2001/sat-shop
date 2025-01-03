@@ -1,8 +1,25 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ShoppingCart, User } from "lucide-react";
+import { ShoppingCart, User, UserCog } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Navbar = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Check initial auth state
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass-effect">
       <div className="container mx-auto">
@@ -37,20 +54,42 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-6">
-            <Link 
-              to="/login" 
-              className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
-            >
-              <User className="w-5 h-5" />
-              <span className="font-medium">Connexion</span>
-            </Link>
-            <Link 
-              to="/cart" 
-              className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
-            >
-              <ShoppingCart className="w-5 h-5" />
-              <span className="font-medium">Panier</span>
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <Link 
+                  to="/profile" 
+                  className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
+                  title="Gérer mon profil"
+                >
+                  <UserCog className="w-5 h-5" />
+                  <span className="font-medium">Mon Profil</span>
+                </Link>
+                <Link 
+                  to="/cart" 
+                  className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  <span className="font-medium">Panier</span>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link 
+                  to="/login" 
+                  className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
+                >
+                  <User className="w-5 h-5" />
+                  <span className="font-medium">Connexion</span>
+                </Link>
+                <Link 
+                  to="/cart" 
+                  className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  <span className="font-medium">Panier</span>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
