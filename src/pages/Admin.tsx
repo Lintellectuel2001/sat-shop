@@ -35,20 +35,30 @@ const Admin = () => {
   }, []);
 
   const fetchProducts = async () => {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*');
-    
-    if (error) {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Impossible de charger les produits",
+        });
+        return;
+      }
+      
+      setProducts(data || []);
+    } catch (error) {
+      console.error('Error fetching products:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Impossible de charger les produits",
+        description: "Une erreur est survenue lors du chargement des produits",
       });
-      return;
     }
-    
-    setProducts(data);
   };
 
   const fetchSlides = async () => {
