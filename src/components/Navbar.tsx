@@ -24,13 +24,16 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
       toast({
         title: "Déconnexion réussie",
         description: "À bientôt !",
       });
       navigate('/');
     } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error);
       toast({
         title: "Erreur lors de la déconnexion",
         description: "Veuillez réessayer",
