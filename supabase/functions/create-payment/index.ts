@@ -37,13 +37,18 @@ serve(async (req) => {
       throw new Error('Informations de paiement incomplètes')
     }
 
-    console.log('Using Chargily API with URL and validated key:', chargilyApiUrl, 'Key length:', secretKey.length)
+    // Log key information for debugging (safely)
+    console.log('API Key present:', !!secretKey, 'Length:', secretKey.length)
+    console.log('Using Chargily API URL:', chargilyApiUrl)
+
+    const cleanAmount = parseFloat(amount.toString().replace(' DA', '').trim())
+    console.log('Cleaned amount:', cleanAmount)
 
     const paymentData = {
       client: client_name,
       client_email: client_email,
       client_phone: client_phone || '',
-      amount: parseFloat(amount.toString().replace(' DA', '').trim()),
+      amount: cleanAmount,
       discount: 0,
       mode: 'CIB',
       back_url: back_url,
@@ -51,7 +56,10 @@ serve(async (req) => {
       comment: 'Paiement Sat-shop',
     }
 
-    console.log('Attempting to create payment with data:', paymentData)
+    console.log('Attempting payment creation with data:', {
+      ...paymentData,
+      client_email: '***@***.***' // Mask email for security
+    })
 
     const paymentResponse = await fetch(chargilyApiUrl, {
       method: 'POST',
@@ -72,12 +80,18 @@ serve(async (req) => {
       let errorMessage = 'Erreur lors de la création du paiement'
       
       if (paymentResponse.status === 401) {
-        console.error('Authentication failed with Chargily API. Please verify the API key.')
+        console.error('Authentication failed with Chargily API')
         console.error('Response:', responseText)
+        console.error('Headers sent:', {
+          'X-Authorization': 'present',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        })
         errorMessage = 'Erreur d\'authentification avec le service de paiement'
       } else if (paymentResponse.status === 400) {
-        console.error('Bad request to Chargily API. Please verify the payment data.')
+        console.error('Bad request to Chargily API')
         console.error('Response:', responseText)
+        console.error('Request data:', JSON.stringify(paymentData, null, 2))
         errorMessage = 'Données de paiement invalides'
       }
 
@@ -97,7 +111,10 @@ serve(async (req) => {
       throw new Error('URL de paiement non reçue')
     }
 
-    console.log('Payment created successfully:', data)
+    console.log('Payment created successfully:', {
+      checkout_url: data.checkout_url,
+      status: 'success'
+    })
 
     return new Response(
       JSON.stringify(data),
