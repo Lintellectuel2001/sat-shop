@@ -3,20 +3,41 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const LoginPanel = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement login logic with Supabase
-    toast({
-      title: "Connexion en cours de développement",
-      description: "Cette fonctionnalité sera bientôt disponible.",
-    });
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Connexion réussie",
+        description: "Vous êtes maintenant connecté.",
+      });
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        title: "Erreur de connexion",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -77,8 +98,9 @@ const LoginPanel = () => {
             <Button
               type="submit"
               className="w-full bg-accent hover:bg-accent/90 text-white"
+              disabled={loading}
             >
-              Se connecter
+              {loading ? "Connexion en cours..." : "Se connecter"}
             </Button>
 
             <div className="text-center text-sm text-primary/60">

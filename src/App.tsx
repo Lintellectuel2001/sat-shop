@@ -9,6 +9,7 @@ import Marketplace from "./pages/Marketplace";
 import ProductDetails from "./pages/ProductDetails";
 import Contact from "./pages/Contact";
 import LoginPanel from "./components/auth/LoginPanel";
+import RegisterPanel from "./components/auth/RegisterPanel";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => {
               <Route path="/product/:id" element={<ProductDetails />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/login" element={<LoginPanel />} />
+              <Route path="/register" element={<RegisterPanel />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
