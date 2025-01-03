@@ -1,5 +1,6 @@
 import { ProfileManager } from "@/components/profile/ProfileManager";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const Profile = () => {
   return (
@@ -16,6 +17,7 @@ const Profile = () => {
           <ProfileManager />
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
