@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { ShoppingCart, User, UserCog } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ShoppingCart, User, UserCog, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Check initial auth state
@@ -19,6 +21,23 @@ const Navbar = () => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Déconnexion réussie",
+        description: "À bientôt !",
+      });
+      navigate('/');
+    } catch (error) {
+      toast({
+        title: "Erreur lors de la déconnexion",
+        description: "Veuillez réessayer",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass-effect">
@@ -64,6 +83,14 @@ const Navbar = () => {
                   <UserCog className="w-5 h-5" />
                   <span className="font-medium">Mon Profil</span>
                 </Link>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
+                  title="Se déconnecter"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span className="font-medium">Déconnexion</span>
+                </button>
                 <Link 
                   to="/cart" 
                   className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
