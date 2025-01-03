@@ -1,12 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Index from "@/pages/Index";
+import Contact from "@/pages/Contact";
+import Cart from "@/pages/Cart";
+import Profile from "@/pages/Profile";
+import Marketplace from "@/pages/Marketplace";
+import ProductDetails from "@/pages/ProductDetails";
+import Admin from "@/pages/Admin";
 import { Toaster } from "@/components/ui/toaster";
-import Index from "./pages/Index";
-import Contact from "./pages/Contact";
-import Profile from "./pages/Profile";
-import ProductDetails from "./pages/ProductDetails";
-import Marketplace from "./pages/Marketplace";
-import Cart from "./pages/Cart";
-import LoginPanel from "./components/auth/LoginPanel";
 
 function App() {
   return (
@@ -14,11 +14,11 @@ function App() {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/product/:id" element={<ProductDetails />} />
-        <Route path="/marketplace" element={<Marketplace />} />
         <Route path="/cart" element={<Cart />} />
-        <Route path="/login" element={<LoginPanel />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/marketplace" element={<Marketplace />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
       <Toaster />
     </Router>
