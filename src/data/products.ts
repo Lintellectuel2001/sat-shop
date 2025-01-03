@@ -1,5 +1,5 @@
 export interface Product {
-  id: number;
+  id: string;
   name: string;
   price: string;
   rating: number;
@@ -11,7 +11,7 @@ export interface Product {
 
 export const products: Product[] = [
   {
-    id: 1,
+    id: "1",
     name: "IRON TV PRO",
     price: "3500 DA",
     rating: 5,
@@ -21,7 +21,7 @@ export const products: Product[] = [
     category: "iptv"
   },
   {
-    id: 2,
+    id: "2",
     name: "ATLAS PRO",
     price: "3000 DA",
     rating: 5,
@@ -31,7 +31,7 @@ export const products: Product[] = [
     category: "iptv"
   },
   {
-    id: 3,
+    id: "3",
     name: "FUNCAM",
     price: "1800 DA",
     rating: 5,
@@ -41,7 +41,7 @@ export const products: Product[] = [
     category: "sharing"
   },
   {
-    id: 4,
+    id: "4",
     name: "GOGO IPTV",
     price: "3000 DA",
     rating: 5,
@@ -51,7 +51,7 @@ export const products: Product[] = [
     category: "iptv"
   },
   {
-    id: 5,
+    id: "5",
     name: "MY HD",
     price: "2000 DA",
     rating: 5,
@@ -61,7 +61,7 @@ export const products: Product[] = [
     category: "iptv"
   },
   {
-    id: 6,
+    id: "6",
     name: "ORCA PRO",
     price: "3500 DA",
     rating: 5,
@@ -71,7 +71,7 @@ export const products: Product[] = [
     category: "iptv"
   },
   {
-    id: 7,
+    id: "7",
     name: "POP IPTV",
     price: "3000 DA",
     rating: 5,
@@ -81,7 +81,7 @@ export const products: Product[] = [
     category: "iptv"
   },
   {
-    id: 8,
+    id: "8",
     name: "DREAM IPTV",
     price: "3000 DA",
     rating: 5,
@@ -91,7 +91,7 @@ export const products: Product[] = [
     category: "iptv"
   },
   {
-    id: 9,
+    id: "9",
     name: "IRON TV",
     price: "3000 DA",
     rating: 5,
@@ -101,7 +101,7 @@ export const products: Product[] = [
     category: "iptv"
   },
   {
-    id: 10,
+    id: "10",
     name: "ES-PRO",
     price: "3000 DA",
     rating: 5,
@@ -111,7 +111,7 @@ export const products: Product[] = [
     category: "iptv"
   },
   {
-    id: 11,
+    id: "11",
     name: "VANNILLA",
     price: "1200 DA",
     rating: 5,
@@ -121,7 +121,7 @@ export const products: Product[] = [
     category: "sharing"
   },
   {
-    id: 12,
+    id: "12",
     name: "AROMA VOD",
     price: "3500 DA",
     rating: 5,
@@ -131,7 +131,7 @@ export const products: Product[] = [
     category: "vod"
   },
   {
-    id: 13,
+    id: "13",
     name: "KDMAX VOD",
     price: "5000 DA",
     rating: 5,
@@ -141,7 +141,7 @@ export const products: Product[] = [
     category: "vod"
   },
   {
-    id: 14,
+    id: "14",
     name: "STRONG",
     price: "7000 DA",
     rating: 5,
@@ -151,7 +151,7 @@ export const products: Product[] = [
     category: "iptv"
   },
   {
-    id: 15,
+    id: "15",
     name: "FOREVER",
     price: "3800 DA",
     rating: 5,
@@ -161,7 +161,7 @@ export const products: Product[] = [
     category: "sharing"
   },
   {
-    id: 16,
+    id: "16",
     name: "DAR IPTV",
     price: "3500 DA",
     rating: 5,
