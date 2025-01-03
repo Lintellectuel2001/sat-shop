@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const RegisterPanel = () => {
@@ -13,11 +13,10 @@ const RegisterPanel = () => {
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
-  const { redirectTo, paymentLink, downloadInfo } = location.state || {};
 
   const validateEmail = (email: string) => {
+    // Stricter email validation that matches Supabase's requirements
     const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
     return emailRegex.test(email);
   };
@@ -27,12 +26,14 @@ const RegisterPanel = () => {
     setLoading(true);
 
     try {
+      // Validate email before sending to Supabase
       if (!validateEmail(email)) {
         throw new Error("L'adresse email n'est pas valide. Veuillez utiliser une adresse email valide.");
       }
 
+      // First, create the auth user
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
-        email: email.toLowerCase().trim(),
+        email: email.toLowerCase().trim(), // Normalize email
         password,
         options: {
           data: {
@@ -49,6 +50,7 @@ const RegisterPanel = () => {
       }
 
       if (authData.user) {
+        // Then create the profile with the same ID as the auth user
         const { error: profileError } = await supabase
           .from('profiles')
           .insert([
@@ -67,13 +69,7 @@ const RegisterPanel = () => {
           title: "Inscription réussie",
           description: "Votre compte a été créé avec succès.",
         });
-
-        // Rediriger vers le panier si spécifié, sinon vers la page d'accueil
-        if (redirectTo) {
-          navigate(redirectTo, { state: { paymentLink, downloadInfo } });
-        } else {
-          navigate("/");
-        }
+        navigate("/");
       }
     } catch (error: any) {
       console.error("Registration error:", error);
