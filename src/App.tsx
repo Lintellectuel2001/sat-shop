@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Marketplace from "./pages/Marketplace";
 import ProductDetails from "./pages/ProductDetails";
 import Contact from "./pages/Contact";
+import LoginPanel from "./components/auth/LoginPanel";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => {
               <Route path="/marketplace" element={<Marketplace />} />
               <Route path="/product/:id" element={<ProductDetails />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/login" element={<LoginPanel />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
