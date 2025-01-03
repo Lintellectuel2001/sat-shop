@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 interface Slide {
@@ -37,28 +38,39 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
   const { toast } = useToast();
 
   const handleImageUpload = async (file: File) => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random()}.${fileExt}`;
-    const filePath = `${fileName}`;
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from('profiles')
-      .upload(filePath, file);
+      const { error: uploadError, data } = await supabase.storage
+        .from('profiles')
+        .upload(filePath, file);
 
-    if (uploadError) {
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Impossible d'uploader l'image",
+        });
+        return null;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('profiles')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error in handleImageUpload:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Impossible d'uploader l'image",
+        description: "Une erreur est survenue lors de l'upload",
       });
       return null;
     }
-
-    const { data } = supabase.storage
-      .from('profiles')
-      .getPublicUrl(filePath);
-
-    return data.publicUrl;
   };
 
   const handleSlideCreate = async () => {
@@ -170,6 +182,9 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Ajouter un Slide</DialogTitle>
+              <DialogDescription>
+                Remplissez les informations pour créer un nouveau slide.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <Input
@@ -189,6 +204,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
               />
               <Input
                 type="file"
+                accept="image/*"
                 onChange={async (e) => {
                   if (e.target.files?.[0]) {
                     const url = await handleImageUpload(e.target.files[0]);
@@ -220,6 +236,9 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Modifier le Slide</DialogTitle>
+                    <DialogDescription>
+                      Modifiez les informations du slide.
+                    </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4">
                     <Input
@@ -239,6 +258,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
                     />
                     <Input
                       type="file"
+                      accept="image/*"
                       onChange={async (e) => {
                         if (e.target.files?.[0]) {
                           const url = await handleImageUpload(e.target.files[0]);

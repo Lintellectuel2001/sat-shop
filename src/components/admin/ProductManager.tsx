@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 interface Product {
@@ -42,28 +43,39 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
   const { toast } = useToast();
 
   const handleImageUpload = async (file: File) => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random()}.${fileExt}`;
-    const filePath = `${fileName}`;
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from('profiles')
-      .upload(filePath, file);
+      const { error: uploadError, data } = await supabase.storage
+        .from('profiles')
+        .upload(filePath, file);
 
-    if (uploadError) {
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Impossible d'uploader l'image",
+        });
+        return null;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('profiles')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error in handleImageUpload:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Impossible d'uploader l'image",
+        description: "Une erreur est survenue lors de l'upload",
       });
       return null;
     }
-
-    const { data } = supabase.storage
-      .from('profiles')
-      .getPublicUrl(filePath);
-
-    return data.publicUrl;
   };
 
   const handleProductCreate = async () => {
@@ -177,6 +189,9 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Ajouter un Produit</DialogTitle>
+              <DialogDescription>
+                Remplissez les informations pour créer un nouveau produit.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <Input
@@ -206,6 +221,7 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
               />
               <Input
                 type="file"
+                accept="image/*"
                 onChange={async (e) => {
                   if (e.target.files?.[0]) {
                     const url = await handleImageUpload(e.target.files[0]);
@@ -237,6 +253,9 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Modifier le Produit</DialogTitle>
+                    <DialogDescription>
+                      Modifiez les informations du produit.
+                    </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4">
                     <Input
@@ -266,6 +285,7 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
                     />
                     <Input
                       type="file"
+                      accept="image/*"
                       onChange={async (e) => {
                         if (e.target.files?.[0]) {
                           const url = await handleImageUpload(e.target.files[0]);
