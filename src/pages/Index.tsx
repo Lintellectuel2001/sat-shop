@@ -1,21 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import HeroSection from "../components/home/HeroSection";
 import NewsletterSection from "../components/home/NewsletterSection";
 import ProductsSection from "../components/home/ProductsSection";
-import { Settings } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
 import {
   Carousel,
   CarouselContent,
@@ -41,11 +29,6 @@ const slides = [
 ];
 
 const Index = () => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [adminCode, setAdminCode] = useState("");
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  
   const plugin = React.useMemo(
     () =>
       Autoplay({
@@ -55,57 +38,8 @@ const Index = () => {
     []
   );
 
-  const handleAdminAccess = () => {
-    if (adminCode === "852654") {
-      setIsDialogOpen(false);
-      navigate("/admin");
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Code incorrect",
-        description: "Le code d'accès administrateur est invalide.",
-      });
-    }
-    setAdminCode("");
-  };
-
   return (
     <div className="min-h-screen">
-      {/* Admin Icon */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <button
-          onClick={() => setIsDialogOpen(true)}
-          className="p-3 bg-primary/10 hover:bg-primary/20 rounded-full transition-colors duration-200"
-          aria-label="Accès administrateur"
-        >
-          <Settings className="w-6 h-6 text-primary" />
-        </button>
-      </div>
-
-      {/* Admin Access Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Accès Administrateur</DialogTitle>
-            <DialogDescription>
-              Veuillez entrer le code d'accès administrateur
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              type="password"
-              placeholder="Code d'accès"
-              value={adminCode}
-              onChange={(e) => setAdminCode(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleAdminAccess()}
-            />
-            <Button onClick={handleAdminAccess} className="w-full">
-              Accéder
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
       <Navbar />
       
       {/* Carousel Section */}
