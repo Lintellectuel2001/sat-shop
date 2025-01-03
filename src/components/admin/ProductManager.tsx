@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Pencil, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +11,8 @@ import {
   DialogTrigger,
   DialogDescription,
 } from "@/components/ui/dialog";
+import ProductForm from './products/ProductForm';
+import ProductCard from './products/ProductCard';
 
 interface Product {
   id: string;
@@ -31,7 +31,6 @@ interface ProductManagerProps {
 }
 
 const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => {
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [newProduct, setNewProduct] = useState<Product>({
     id: '',
     name: '',
@@ -41,42 +40,6 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
     payment_link: '',
   });
   const { toast } = useToast();
-
-  const handleImageUpload = async (file: File) => {
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      const { error: uploadError, data } = await supabase.storage
-        .from('profiles')
-        .upload(filePath, file);
-
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        toast({
-          variant: "destructive",
-          title: "Erreur",
-          description: "Impossible d'uploader l'image",
-        });
-        return null;
-      }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('profiles')
-        .getPublicUrl(filePath);
-
-      return publicUrl;
-    } catch (error) {
-      console.error('Error in handleImageUpload:', error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Une erreur est survenue lors de l'upload",
-      });
-      return null;
-    }
-  };
 
   const handleProductCreate = async () => {
     if (!newProduct.name || !newProduct.price || !newProduct.category || !newProduct.image || !newProduct.payment_link) {
@@ -117,10 +80,8 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
     });
   };
 
-  const handleProductUpdate = async (id: string) => {
-    if (!editingProduct) return;
-
-    if (!editingProduct.name || !editingProduct.price || !editingProduct.category || !editingProduct.image || !editingProduct.payment_link) {
+  const handleProductUpdate = async (updatedProduct: Product) => {
+    if (!updatedProduct.name || !updatedProduct.price || !updatedProduct.category || !updatedProduct.image || !updatedProduct.payment_link) {
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -131,8 +92,8 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
 
     const { error } = await supabase
       .from('products')
-      .update(editingProduct)
-      .eq('id', id);
+      .update(updatedProduct)
+      .eq('id', updatedProduct.id);
 
     if (error) {
       toast({
@@ -149,7 +110,6 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
     });
     
     onProductsChange();
-    setEditingProduct(null);
   };
 
   const handleProductDelete = async (id: string) => {
@@ -193,121 +153,26 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
                 Remplissez les informations pour créer un nouveau produit.
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4">
-              <Input
-                placeholder="Nom"
-                value={newProduct.name}
-                onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-              />
-              <Input
-                placeholder="Prix"
-                value={newProduct.price}
-                onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-              />
-              <Input
-                placeholder="Catégorie"
-                value={newProduct.category}
-                onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-              />
-              <Input
-                placeholder="Lien de paiement"
-                value={newProduct.payment_link}
-                onChange={(e) => setNewProduct({ ...newProduct, payment_link: e.target.value })}
-              />
-              <Textarea
-                placeholder="Description"
-                value={newProduct.description || ''}
-                onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-              />
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={async (e) => {
-                  if (e.target.files?.[0]) {
-                    const url = await handleImageUpload(e.target.files[0]);
-                    if (url) {
-                      setNewProduct({ ...newProduct, image: url });
-                    }
-                  }
-                }}
-              />
-              <Button onClick={handleProductCreate}>Créer</Button>
-            </div>
+            <ProductForm
+              product={newProduct}
+              onProductChange={(field, value) => 
+                setNewProduct({ ...newProduct, [field]: value })
+              }
+              onSubmit={handleProductCreate}
+              submitLabel="Créer"
+            />
           </DialogContent>
         </Dialog>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((product) => (
-          <div key={product.id} className="border rounded-lg p-4 space-y-4">
-            <img src={product.image} alt={product.name} className="w-full h-48 object-cover rounded" />
-            <h3 className="font-semibold">{product.name}</h3>
-            <p>{product.price}</p>
-            <div className="flex gap-2">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="icon">
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Modifier le Produit</DialogTitle>
-                    <DialogDescription>
-                      Modifiez les informations du produit.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <Input
-                      placeholder="Nom"
-                      value={editingProduct?.name || product.name}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
-                    />
-                    <Input
-                      placeholder="Prix"
-                      value={editingProduct?.price || product.price}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })}
-                    />
-                    <Input
-                      placeholder="Catégorie"
-                      value={editingProduct?.category || product.category}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, category: e.target.value })}
-                    />
-                    <Input
-                      placeholder="Lien de paiement"
-                      value={editingProduct?.payment_link || product.payment_link}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, payment_link: e.target.value })}
-                    />
-                    <Textarea
-                      placeholder="Description"
-                      value={editingProduct?.description || product.description}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
-                    />
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={async (e) => {
-                        if (e.target.files?.[0]) {
-                          const url = await handleImageUpload(e.target.files[0]);
-                          if (url) {
-                            setEditingProduct({ ...editingProduct, image: url });
-                          }
-                        }
-                      }}
-                    />
-                    <Button onClick={() => handleProductUpdate(product.id)}>Mettre à jour</Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-              <Button
-                variant="destructive"
-                size="icon"
-                onClick={() => handleProductDelete(product.id)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+          <ProductCard
+            key={product.id}
+            product={product}
+            onEdit={handleProductUpdate}
+            onDelete={handleProductDelete}
+          />
         ))}
       </div>
     </div>
