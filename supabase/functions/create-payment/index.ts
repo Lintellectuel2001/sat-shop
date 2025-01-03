@@ -31,13 +31,19 @@ serve(async (req) => {
       throw new Error('Configuration de paiement manquante')
     }
 
-    console.log('Using Chargily API with URL:', chargilyApiUrl)
+    // Validate required fields
+    if (!amount || !client_name || !client_email) {
+      console.error('Missing required fields')
+      throw new Error('Informations de paiement incomplètes')
+    }
+
+    console.log('Using Chargily API with URL and validated key:', chargilyApiUrl, 'Key length:', secretKey.length)
 
     const paymentData = {
       client: client_name,
       client_email: client_email,
       client_phone: client_phone || '',
-      amount: amount,
+      amount: parseFloat(amount.toString().replace(' DA', '').trim()),
       discount: 0,
       mode: 'CIB',
       back_url: back_url,
@@ -67,9 +73,11 @@ serve(async (req) => {
       
       if (paymentResponse.status === 401) {
         console.error('Authentication failed with Chargily API. Please verify the API key.')
+        console.error('Response:', responseText)
         errorMessage = 'Erreur d\'authentification avec le service de paiement'
       } else if (paymentResponse.status === 400) {
         console.error('Bad request to Chargily API. Please verify the payment data.')
+        console.error('Response:', responseText)
         errorMessage = 'Données de paiement invalides'
       }
 
