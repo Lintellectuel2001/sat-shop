@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Plus, Pencil, Trash2 } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, Save } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -40,6 +40,8 @@ const AdminProducts = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   useEffect(() => {
     checkAdminStatus();
@@ -109,7 +111,51 @@ const AdminProducts = () => {
     }
   };
 
+  const handleEdit = (product: Product) => {
+    setEditingProduct(product);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!editingProduct) return;
+
+    try {
+      const { error } = await supabase
+        .from('products')
+        .update({
+          name: editingProduct.name,
+          price: editingProduct.price,
+          category: editingProduct.category,
+          payment_link: editingProduct.payment_link,
+          description: editingProduct.description,
+        })
+        .eq('id', editingProduct.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Succès",
+        description: "Produit modifié avec succès",
+      });
+      
+      setIsEditDialogOpen(false);
+      fetchProducts();
+    } catch (error) {
+      console.error('Erreur lors de la modification:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de modifier le produit",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleDelete = async (id: string) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")) {
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('products')
@@ -174,7 +220,6 @@ const AdminProducts = () => {
                 <DialogHeader>
                   <DialogTitle>Ajouter un nouveau produit</DialogTitle>
                 </DialogHeader>
-                {/* Formulaire d'ajout à implémenter */}
                 <form className="space-y-4">
                   <div>
                     <Label htmlFor="name">Nom</Label>
@@ -226,9 +271,7 @@ const AdminProducts = () => {
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => {
-                          // Implémenter la modification
-                        }}
+                        onClick={() => handleEdit(product)}
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -248,6 +291,60 @@ const AdminProducts = () => {
         </div>
       </main>
       <Footer />
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modifier le produit</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSaveEdit} className="space-y-4">
+            <div>
+              <Label htmlFor="edit-name">Nom</Label>
+              <Input
+                id="edit-name"
+                value={editingProduct?.name || ''}
+                onChange={(e) => setEditingProduct(prev => prev ? {...prev, name: e.target.value} : null)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-price">Prix</Label>
+              <Input
+                id="edit-price"
+                value={editingProduct?.price || ''}
+                onChange={(e) => setEditingProduct(prev => prev ? {...prev, price: e.target.value} : null)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-category">Catégorie</Label>
+              <Input
+                id="edit-category"
+                value={editingProduct?.category || ''}
+                onChange={(e) => setEditingProduct(prev => prev ? {...prev, category: e.target.value} : null)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-payment-link">Lien de paiement</Label>
+              <Input
+                id="edit-payment-link"
+                value={editingProduct?.payment_link || ''}
+                onChange={(e) => setEditingProduct(prev => prev ? {...prev, payment_link: e.target.value} : null)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-description">Description</Label>
+              <Textarea
+                id="edit-description"
+                value={editingProduct?.description || ''}
+                onChange={(e) => setEditingProduct(prev => prev ? {...prev, description: e.target.value} : null)}
+              />
+            </div>
+            <Button type="submit">
+              <Save className="mr-2 h-4 w-4" />
+              Enregistrer les modifications
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
