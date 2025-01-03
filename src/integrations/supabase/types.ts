@@ -9,6 +9,21 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          created_at: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       cart_history: {
         Row: {
           action_type: string
@@ -30,6 +45,54 @@ export type Database = {
           id?: string
           product_id?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          download_info: Json | null
+          features: string[] | null
+          id: string
+          image: string
+          name: string
+          payment_link: string
+          price: string
+          rating: number | null
+          reviews: number | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          download_info?: Json | null
+          features?: string[] | null
+          id?: string
+          image: string
+          name: string
+          payment_link: string
+          price: string
+          rating?: number | null
+          reviews?: number | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          download_info?: Json | null
+          features?: string[] | null
+          id?: string
+          image?: string
+          name?: string
+          payment_link?: string
+          price?: string
+          rating?: number | null
+          reviews?: number | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -71,6 +134,36 @@ export type Database = {
           subscription_start_date?: string | null
           subscription_status?: string | null
           subscription_type?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      slides: {
+        Row: {
+          color: string
+          created_at: string
+          description: string | null
+          id: string
+          image: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          color: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image?: string
+          title?: string
           updated_at?: string
         }
         Relationships: []
