@@ -3,23 +3,72 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Cart = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const paymentLink = location.state?.paymentLink;
+  const product = location.state?.product;
 
-  const handleOrder = () => {
-    if (paymentLink) {
-      window.location.href = paymentLink;
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Lien de paiement non trouvé",
+  const handleOrder = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Connexion requise",
+          description: "Veuillez vous connecter pour continuer",
+          variant: "destructive",
+        });
+        navigate('/login');
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      const response = await fetch('/api/create-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: parseFloat(product.price.replace('DA', '')),
+          client_name: profile?.full_name || user.email,
+          client_email: user.email,
+          client_phone: profile?.phone || '',
+          back_url: window.location.origin + '/profile',
+          webhook_url: window.location.origin + '/api/webhook-payment',
+        }),
       });
-      navigate('/');
+
+      const data = await response.json();
+
+      if (data.checkout_url) {
+        // Enregistrer l'action dans l'historique
+        await supabase
+          .from('cart_history')
+          .insert({
+            user_id: user.id,
+            action_type: 'payment_initiated',
+            product_id: product.name
+          });
+
+        window.location.href = data.checkout_url;
+      } else {
+        throw new Error('Erreur lors de la création du paiement');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors du traitement du paiement",
+        variant: "destructive",
+      });
     }
   };
 
@@ -35,12 +84,12 @@ const Cart = () => {
               <h2 className="text-xl font-semibold">Récapitulatif de la commande</h2>
             </div>
             
-            {location.state?.product && (
+            {product && (
               <div className="border-b pb-4 mb-4">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="font-medium">{location.state.product.name}</h3>
-                    <p className="text-sm text-gray-600">{location.state.product.price}</p>
+                    <h3 className="font-medium">{product.name}</h3>
+                    <p className="text-sm text-gray-600">{product.price}</p>
                   </div>
                 </div>
               </div>
@@ -50,7 +99,7 @@ const Cart = () => {
               onClick={handleOrder}
               className="w-full lg:w-auto text-lg py-6 bg-primary hover:bg-primary/90"
             >
-              Commander Maintenant
+              Procéder au paiement
             </Button>
           </div>
         </div>
