@@ -1,123 +1,25 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 const Cart = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const product = location.state?.product;
+  const paymentLink = location.state?.paymentLink;
 
-  useEffect(() => {
-    checkSession();
-  }, []);
-
-  const checkSession = async () => {
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
-    if (sessionError || !session) {
-      console.error('Session error:', sessionError);
+  const handleOrder = () => {
+    if (paymentLink) {
+      window.location.href = paymentLink;
+    } else {
       toast({
-        title: "Session expirée",
-        description: "Veuillez vous reconnecter pour continuer",
         variant: "destructive",
+        title: "Erreur",
+        description: "Lien de paiement non trouvé",
       });
-      navigate('/login');
-      return;
-    }
-  };
-
-  const handleOrder = async () => {
-    try {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session) {
-        console.error('Session error:', sessionError);
-        toast({
-          title: "Session expirée",
-          description: "Veuillez vous reconnecter pour continuer",
-          variant: "destructive",
-        });
-        navigate('/login');
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
-
-      if (!product || !product.price) {
-        console.error('Invalid product data:', product);
-        toast({
-          title: "Erreur de produit",
-          description: "Les informations du produit sont invalides",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const paymentData = {
-        amount: parseFloat(product.price.replace(' DA', '')),
-        client_name: profile?.full_name || session.user.email,
-        client_email: session.user.email,
-        client_phone: profile?.phone || '',
-        back_url: window.location.origin + '/profile',
-        webhook_url: window.location.origin + '/webhook-payment',
-      };
-
-      console.log('Creating payment with data:', paymentData);
-
-      const { data, error } = await supabase.functions.invoke('create-payment', {
-        body: paymentData,
-      });
-
-      if (error) {
-        console.error('Payment creation error:', error);
-        toast({
-          title: "Erreur de paiement",
-          description: "Une erreur est survenue lors de la création du paiement. Veuillez réessayer.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (!data || !data.checkout_url) {
-        console.error('Invalid response from payment service:', data);
-        toast({
-          title: "Erreur de paiement",
-          description: "Le service de paiement n'a pas répondu correctement. Veuillez réessayer.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Save to cart history before redirecting
-      const { error: historyError } = await supabase
-        .from('cart_history')
-        .insert({
-          user_id: session.user.id,
-          action_type: 'payment_initiated',
-          product_id: product.name
-        });
-
-      if (historyError) {
-        console.error('Error saving to cart history:', historyError);
-      }
-
-      // Redirect to payment page
-      window.location.href = data.checkout_url;
-    } catch (error) {
-      console.error('Payment process error:', error);
-      toast({
-        title: "Erreur de paiement",
-        description: error instanceof Error ? error.message : "Une erreur est survenue lors du traitement du paiement",
-        variant: "destructive",
-      });
+      navigate('/');
     }
   };
 
@@ -133,27 +35,23 @@ const Cart = () => {
               <h2 className="text-xl font-semibold">Récapitulatif de la commande</h2>
             </div>
             
-            {product ? (
+            {location.state?.product && (
               <div className="border-b pb-4 mb-4">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="font-medium">{product.name}</h3>
-                    <p className="text-sm text-gray-600">{product.price}</p>
+                    <h3 className="font-medium">{location.state.product.name}</h3>
+                    <p className="text-sm text-gray-600">{location.state.product.price}</p>
                   </div>
                 </div>
               </div>
-            ) : (
-              <p className="text-gray-600">Votre panier est vide</p>
             )}
 
-            {product && (
-              <Button 
-                onClick={handleOrder}
-                className="w-full lg:w-auto text-lg py-6 bg-primary hover:bg-primary/90"
-              >
-                Procéder au paiement
-              </Button>
-            )}
+            <Button 
+              onClick={handleOrder}
+              className="w-full lg:w-auto text-lg py-6 bg-primary hover:bg-primary/90"
+            >
+              Commander Maintenant
+            </Button>
           </div>
         </div>
       </main>
