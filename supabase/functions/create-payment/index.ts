@@ -24,10 +24,10 @@ serve(async (req) => {
     })
 
     const chargilyApiUrl = 'https://epay.chargily.com.dz/api/invoice'
-    const secretKey = Deno.env.get('CHARGILY_SECRET_KEY')
+    const secretKey = Deno.env.get('Chargily pay')
 
     if (!secretKey) {
-      console.error('Missing CHARGILY_SECRET_KEY')
+      console.error('Missing Chargily pay secret key')
       throw new Error('Configuration de paiement manquante')
     }
 
