@@ -31,29 +31,42 @@ const Cart = () => {
         .eq('id', user.id)
         .single();
 
+      console.log('Creating payment with data:', {
+        amount: parseFloat(product.price.replace('DA', '')),
+        client_name: profile?.full_name || user.email,
+        client_email: user.email,
+        back_url: window.location.origin + '/profile',
+        webhook_url: window.location.origin + '/webhook-payment',
+      });
+
       const { data, error } = await supabase.functions.invoke('create-payment', {
         body: {
           amount: parseFloat(product.price.replace('DA', '')),
           client_name: profile?.full_name || user.email,
           client_email: user.email,
           client_phone: profile?.phone || '',
-          back_url: `${window.location.origin}/profile`,
-          webhook_url: `${window.location.origin}/webhook-payment`,
+          back_url: window.location.origin + '/profile',
+          webhook_url: window.location.origin + '/webhook-payment',
         },
       });
 
       if (error) {
         console.error('Payment creation error:', error);
-        throw new Error('Erreur lors de la création du paiement');
+        throw new Error('Erreur lors de la création du paiement. Veuillez réessayer.');
       }
 
-      if (!data || !data.checkout_url) {
-        console.error('Invalid response data:', data);
-        throw new Error('URL de paiement non reçue');
+      if (!data) {
+        console.error('No data received from payment creation');
+        throw new Error('Aucune donnée reçue du service de paiement');
+      }
+
+      if (!data.checkout_url) {
+        console.error('No checkout URL in response:', data);
+        throw new Error('URL de paiement non reçue du service');
       }
 
       // Enregistrer l'action dans l'historique
-      await supabase
+      const { error: historyError } = await supabase
         .from('cart_history')
         .insert({
           user_id: user.id,
@@ -61,11 +74,17 @@ const Cart = () => {
           product_id: product.name
         });
 
+      if (historyError) {
+        console.error('Error saving to cart history:', historyError);
+        // Continue with payment even if history fails
+      }
+
+      // Redirect to payment page
       window.location.href = data.checkout_url;
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Payment creation error:', error);
       toast({
-        title: "Erreur",
+        title: "Erreur de paiement",
         description: error instanceof Error ? error.message : "Une erreur est survenue lors du traitement du paiement",
         variant: "destructive",
       });
