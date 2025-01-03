@@ -4,12 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { toast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
 
 const Admin = () => {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     checkAdminStatus();
@@ -17,11 +15,7 @@ const Admin = () => {
 
   const checkAdminStatus = async () => {
     try {
-      setIsLoading(true);
-      
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) throw sessionError;
+      const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
         toast({
@@ -33,24 +27,13 @@ const Admin = () => {
         return;
       }
 
-      const { data, error: adminError } = await supabase
+      const { data: adminData, error: adminError } = await supabase
         .from('admin_users')
         .select('id')
         .eq('id', session.user.id)
-        .maybeSingle();
+        .single();
 
-      if (adminError) {
-        console.error("Erreur lors de la vérification des droits admin:", adminError);
-        toast({
-          title: "Erreur",
-          description: "Une erreur est survenue lors de la vérification des droits",
-          variant: "destructive",
-        });
-        navigate('/');
-        return;
-      }
-
-      if (!data) {
+      if (adminError || !adminData) {
         toast({
           title: "Accès refusé",
           description: "Vous n'avez pas les droits d'administration",
@@ -62,34 +45,15 @@ const Admin = () => {
 
       setIsAdmin(true);
     } catch (error) {
-      console.error('Erreur lors de la vérification des droits admin:', error);
+      console.error('Error checking admin status:', error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la vérification des droits",
         variant: "destructive",
       });
       navigate('/');
-    } finally {
-      setIsLoading(false);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-grow flex items-center justify-center">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-accent" />
-            <p className="text-lg text-muted-foreground">
-              Vérification des droits d'accès...
-            </p>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
 
   if (!isAdmin) {
     return null;
@@ -98,7 +62,7 @@ const Admin = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-grow container mx-auto px-4 py-8 pt-24">
+      <main className="flex-grow container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">Panel Administrateur</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
