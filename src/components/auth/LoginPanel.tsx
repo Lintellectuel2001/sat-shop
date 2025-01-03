@@ -29,7 +29,6 @@ const LoginPanel = () => {
       return;
     }
     
-    // Client-side validation
     if (!validateEmail(email)) {
       toast({
         title: "Format d'email invalide",
@@ -51,17 +50,21 @@ const LoginPanel = () => {
     setLoading(true);
 
     try {
+      console.log("Tentative de connexion avec:", { email });
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.toLowerCase().trim(),
         password,
       });
 
       if (error) {
-        console.error("Login error:", error);
+        console.error("Erreur de connexion:", error);
         throw error;
       }
 
       if (data.user) {
+        console.log("Utilisateur connecté:", data.user);
+        
         // Check if user is admin
         const { data: adminData, error: adminError } = await supabase
           .from('admin_users')
@@ -70,7 +73,7 @@ const LoginPanel = () => {
           .single();
 
         if (adminError) {
-          console.error("Admin check error:", adminError);
+          console.error("Erreur vérification admin:", adminError);
         }
 
         toast({
@@ -81,7 +84,7 @@ const LoginPanel = () => {
         navigate("/");
       }
     } catch (error: any) {
-      console.error("Login error:", error);
+      console.error("Erreur complète:", error);
       let errorMessage = "Une erreur est survenue lors de la connexion";
       
       if (error.message.includes("Invalid login credentials")) {
@@ -122,6 +125,7 @@ const LoginPanel = () => {
                 placeholder="votre@email.com"
                 className="w-full"
                 required
+                disabled={loading}
               />
             </div>
 
@@ -137,17 +141,23 @@ const LoginPanel = () => {
                 placeholder="••••••••"
                 className="w-full"
                 required
+                disabled={loading}
               />
             </div>
 
             <div className="flex items-center justify-between">
               <label className="flex items-center space-x-2 text-sm">
-                <input type="checkbox" className="rounded border-gray-300" />
+                <input 
+                  type="checkbox" 
+                  className="rounded border-gray-300"
+                  disabled={loading}
+                />
                 <span className="text-primary/80">Se souvenir de moi</span>
               </label>
               <button
                 type="button"
                 className="text-sm text-accent hover:text-accent/80 transition-colors"
+                disabled={loading}
               >
                 Mot de passe oublié ?
               </button>
@@ -167,6 +177,7 @@ const LoginPanel = () => {
                 type="button"
                 onClick={() => navigate("/register")}
                 className="text-accent hover:text-accent/80 transition-colors"
+                disabled={loading}
               >
                 S'inscrire
               </button>
