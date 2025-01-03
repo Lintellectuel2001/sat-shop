@@ -8,6 +8,8 @@ import Marketplace from "./pages/Marketplace";
 import Cart from "./pages/Cart";
 import LoginPanel from "./components/auth/LoginPanel";
 import Admin from "./pages/Admin";
+import AdminProducts from "./pages/AdminProducts";
+import AdminSlides from "./pages/AdminSlides";
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/login" element={<LoginPanel />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/admin/products" element={<AdminProducts />} />
+        <Route path="/admin/slides" element={<AdminSlides />} />
       </Routes>
       <Toaster />
     </Router>

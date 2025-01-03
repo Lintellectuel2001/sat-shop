@@ -31,14 +31,15 @@ const Admin = () => {
         return;
       }
 
-      const { data: adminData, error: adminError } = await supabase
+      // Vérification des droits admin
+      const { data: adminData, error } = await supabase
         .from('admin_users')
-        .select('*')
+        .select('id')
         .eq('id', session.user.id)
         .single();
 
-      if (adminError) {
-        console.error("Erreur lors de la vérification des droits admin:", adminError);
+      if (error) {
+        console.error("Erreur lors de la vérification des droits admin:", error);
         toast({
           title: "Erreur",
           description: "Une erreur est survenue lors de la vérification des droits",
