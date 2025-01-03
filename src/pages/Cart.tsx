@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const Cart = () => {
@@ -47,25 +47,26 @@ const Cart = () => {
         throw new Error('Erreur lors de la création du paiement');
       }
 
-      if (data?.checkout_url) {
-        // Enregistrer l'action dans l'historique
-        await supabase
-          .from('cart_history')
-          .insert({
-            user_id: user.id,
-            action_type: 'payment_initiated',
-            product_id: product.name
-          });
-
-        window.location.href = data.checkout_url;
-      } else {
+      if (!data || !data.checkout_url) {
+        console.error('Invalid response data:', data);
         throw new Error('URL de paiement non reçue');
       }
+
+      // Enregistrer l'action dans l'historique
+      await supabase
+        .from('cart_history')
+        .insert({
+          user_id: user.id,
+          action_type: 'payment_initiated',
+          product_id: product.name
+        });
+
+      window.location.href = data.checkout_url;
     } catch (error) {
       console.error('Error:', error);
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors du traitement du paiement",
+        description: error instanceof Error ? error.message : "Une erreur est survenue lors du traitement du paiement",
         variant: "destructive",
       });
     }
