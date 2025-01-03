@@ -1,21 +1,9 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import HeroSection from "../components/home/HeroSection";
 import NewsletterSection from "../components/home/NewsletterSection";
 import ProductsSection from "../components/home/ProductsSection";
-import { UserCog } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
   Carousel,
   CarouselContent,
@@ -41,11 +29,6 @@ const slides = [
 ];
 
 const Index = () => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [accessCode, setAccessCode] = useState("");
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  
   const plugin = React.useMemo(
     () =>
       Autoplay({
@@ -55,22 +38,8 @@ const Index = () => {
     []
   );
 
-  const handleAdminAccess = () => {
-    if (accessCode === "852654") {
-      setIsDialogOpen(false);
-      setAccessCode("");
-      navigate('/admin');
-    } else {
-      toast({
-        title: "Code incorrect",
-        description: "Le code d'accès administrateur est invalide.",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen">
       <Navbar />
       
       {/* Carousel Section */}
@@ -109,45 +78,6 @@ const Index = () => {
       <ProductsSection />
       <NewsletterSection />
       <Footer />
-
-      {/* Admin Access Button */}
-      <button
-        onClick={() => setIsDialogOpen(true)}
-        className="fixed bottom-6 right-6 p-3 bg-white rounded-full shadow-elegant hover:bg-muted transition-colors duration-200"
-        aria-label="Accès administrateur"
-      >
-        <UserCog className="w-6 h-6 text-primary" />
-      </button>
-
-      {/* Admin Access Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Accès Administrateur</DialogTitle>
-            <DialogDescription>
-              Veuillez entrer le code d'accès administrateur pour continuer.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              type="password"
-              placeholder="Code d'accès"
-              value={accessCode}
-              onChange={(e) => setAccessCode(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handleAdminAccess();
-                }
-              }}
-            />
-            <div className="flex justify-end">
-              <Button onClick={handleAdminAccess}>
-                Accéder
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
