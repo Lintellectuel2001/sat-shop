@@ -24,8 +24,8 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      setIsLoggedIn(false); // Update state before signOut to prevent race conditions
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
       
       toast({
         title: "Déconnexion réussie",
@@ -34,7 +34,6 @@ const Navbar = () => {
       navigate('/');
     } catch (error) {
       console.error('Erreur lors de la déconnexion:', error);
-      setIsLoggedIn(true); // Restore state if logout fails
       toast({
         title: "Erreur lors de la déconnexion",
         description: "Veuillez réessayer",
