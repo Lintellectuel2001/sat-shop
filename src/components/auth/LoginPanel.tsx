@@ -62,6 +62,8 @@ const LoginPanel = () => {
         throw error;
       }
 
+      console.log("Réponse de connexion:", data);
+
       if (data.user) {
         console.log("Utilisateur connecté:", data.user);
         
@@ -76,15 +78,25 @@ const LoginPanel = () => {
           console.error("Erreur vérification admin:", adminError);
         }
 
+        console.log("Statut admin:", adminData ? "Oui" : "Non");
+
         toast({
           title: "Connexion réussie",
           description: adminData ? "Bienvenue administrateur !" : "Vous êtes maintenant connecté.",
         });
 
-        navigate("/");
+        // Force a small delay to ensure the session is properly set
+        setTimeout(() => {
+          navigate("/");
+        }, 500);
+      } else {
+        console.error("Pas de données utilisateur dans la réponse");
+        throw new Error("Échec de la connexion");
       }
     } catch (error: any) {
       console.error("Erreur complète:", error);
+      setLoading(false);
+      
       let errorMessage = "Une erreur est survenue lors de la connexion";
       
       if (error.message.includes("Invalid login credentials")) {
@@ -96,8 +108,6 @@ const LoginPanel = () => {
         description: errorMessage,
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
