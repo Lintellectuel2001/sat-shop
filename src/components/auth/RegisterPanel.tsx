@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const RegisterPanel = () => {
@@ -16,8 +16,8 @@ const RegisterPanel = () => {
   const { toast } = useToast();
 
   const validateEmail = (email: string) => {
-    // RFC 5322 compliant email regex
-    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    // Stricter email validation that matches Supabase's requirements
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
     return emailRegex.test(email);
   };
 
@@ -28,12 +28,12 @@ const RegisterPanel = () => {
     try {
       // Validate email before sending to Supabase
       if (!validateEmail(email)) {
-        throw new Error("L'adresse email n'est pas valide");
+        throw new Error("L'adresse email n'est pas valide. Veuillez utiliser une adresse email valide.");
       }
 
       // First, create the auth user
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
-        email,
+        email: email.toLowerCase().trim(), // Normalize email
         password,
         options: {
           data: {
@@ -44,7 +44,7 @@ const RegisterPanel = () => {
 
       if (signUpError) {
         if (signUpError.message.includes("email_address_invalid")) {
-          throw new Error("L'adresse email n'est pas valide");
+          throw new Error("L'adresse email n'est pas valide. Veuillez utiliser une adresse email valide.");
         }
         throw signUpError;
       }
@@ -57,7 +57,7 @@ const RegisterPanel = () => {
             {
               id: authData.user.id,
               full_name: fullName,
-              email,
+              email: email.toLowerCase().trim(),
               phone,
               address,
             }
