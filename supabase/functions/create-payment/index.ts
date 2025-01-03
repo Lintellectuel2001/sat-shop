@@ -14,14 +14,7 @@ serve(async (req) => {
   try {
     const { amount, client_name, client_email, client_phone, back_url, webhook_url } = await req.json()
 
-    console.log('Payment request received:', {
-      amount,
-      client_name,
-      client_email,
-      client_phone,
-      back_url,
-      webhook_url
-    })
+    console.log('Payment request received with client:', client_email)
 
     const chargilyApiUrl = 'https://epay.chargily.com.dz/api/invoice'
     const secretKey = Deno.env.get('CHARGILY_SECRET_KEY')
@@ -39,6 +32,8 @@ serve(async (req) => {
         }
       )
     }
+
+    console.log('Attempting payment creation with Chargily...')
 
     const paymentResponse = await fetch(chargilyApiUrl, {
       method: 'POST',
@@ -63,18 +58,28 @@ serve(async (req) => {
     console.log('Chargily API response status:', paymentResponse.status)
 
     if (!paymentResponse.ok) {
-      const errorText = await paymentResponse.text()
+      let errorText = await paymentResponse.text()
       console.error('Chargily API error response:', errorText)
+      
+      try {
+        // Try to parse error as JSON if possible
+        const errorJson = JSON.parse(errorText)
+        errorText = JSON.stringify(errorJson, null, 2)
+      } catch {
+        // If not JSON, keep as is
+      }
       
       let errorMessage = 'Erreur lors de la communication avec le service de paiement'
       if (paymentResponse.status === 401) {
-        errorMessage = 'Erreur d\'authentification avec le service de paiement'
+        errorMessage = 'Erreur d\'authentification avec le service de paiement. Veuillez vérifier la clé API.'
+        console.error('Authentication failed with Chargily API. Please verify the API key.')
       }
 
       return new Response(
         JSON.stringify({ 
           error: errorMessage,
-          details: errorText
+          details: errorText,
+          status: paymentResponse.status
         }), 
         {
           status: paymentResponse.status,
