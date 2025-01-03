@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const RegisterPanel = () => {
@@ -15,11 +15,22 @@ const RegisterPanel = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const validateEmail = (email: string) => {
+    // RFC 5322 compliant email regex
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    return emailRegex.test(email);
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Validate email before sending to Supabase
+      if (!validateEmail(email)) {
+        throw new Error("L'adresse email n'est pas valide");
+      }
+
       // First, create the auth user
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
@@ -31,7 +42,12 @@ const RegisterPanel = () => {
         },
       });
 
-      if (signUpError) throw signUpError;
+      if (signUpError) {
+        if (signUpError.message.includes("email_address_invalid")) {
+          throw new Error("L'adresse email n'est pas valide");
+        }
+        throw signUpError;
+      }
 
       if (authData.user) {
         // Then create the profile with the same ID as the auth user
@@ -59,7 +75,7 @@ const RegisterPanel = () => {
       console.error("Registration error:", error);
       toast({
         title: "Erreur lors de l'inscription",
-        description: error.message,
+        description: error.message || "Une erreur est survenue lors de l'inscription",
         variant: "destructive",
       });
     } finally {
