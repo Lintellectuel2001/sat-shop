@@ -14,26 +14,24 @@ serve(async (req) => {
   try {
     const { amount, client_name, client_email, client_phone, back_url, webhook_url } = await req.json()
 
-    console.log('Payment request received with client:', client_email)
+    console.log('Payment request received:', {
+      amount,
+      client_name,
+      client_email,
+      client_phone,
+      back_url,
+      webhook_url
+    })
 
     const chargilyApiUrl = 'https://epay.chargily.com.dz/api/invoice'
     const secretKey = Deno.env.get('CHARGILY_SECRET_KEY')
 
     if (!secretKey) {
       console.error('Missing CHARGILY_SECRET_KEY')
-      return new Response(
-        JSON.stringify({ 
-          error: 'Configuration de paiement manquante',
-          details: 'Clé API Chargily non configurée'
-        }), 
-        {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      )
+      throw new Error('Configuration de paiement manquante')
     }
 
-    console.log('Attempting payment creation with Chargily...')
+    console.log('Attempting to create payment with Chargily...')
 
     const paymentResponse = await fetch(chargilyApiUrl, {
       method: 'POST',
@@ -58,34 +56,19 @@ serve(async (req) => {
     console.log('Chargily API response status:', paymentResponse.status)
 
     if (!paymentResponse.ok) {
-      let errorText = await paymentResponse.text()
+      const errorText = await paymentResponse.text()
       console.error('Chargily API error response:', errorText)
       
-      try {
-        // Try to parse error as JSON if possible
-        const errorJson = JSON.parse(errorText)
-        errorText = JSON.stringify(errorJson, null, 2)
-      } catch {
-        // If not JSON, keep as is
-      }
-      
-      let errorMessage = 'Erreur lors de la communication avec le service de paiement'
+      let errorMessage = 'Erreur lors de la création du paiement'
       if (paymentResponse.status === 401) {
-        errorMessage = 'Erreur d\'authentification avec le service de paiement. Veuillez vérifier la clé API.'
         console.error('Authentication failed with Chargily API. Please verify the API key.')
+        errorMessage = 'Erreur d\'authentification avec le service de paiement'
+      } else if (paymentResponse.status === 400) {
+        console.error('Bad request to Chargily API. Please verify the payment data.')
+        errorMessage = 'Données de paiement invalides'
       }
 
-      return new Response(
-        JSON.stringify({ 
-          error: errorMessage,
-          details: errorText,
-          status: paymentResponse.status
-        }), 
-        {
-          status: paymentResponse.status,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      )
+      throw new Error(errorMessage)
     }
 
     const data = await paymentResponse.json()
@@ -93,31 +76,23 @@ serve(async (req) => {
 
     if (!data.checkout_url) {
       console.error('Missing checkout_url in response:', data)
-      return new Response(
-        JSON.stringify({ 
-          error: 'URL de paiement non reçue du service',
-          details: data
-        }), 
-        {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      )
+      throw new Error('URL de paiement non reçue')
     }
 
     return new Response(
-      JSON.stringify(data), 
+      JSON.stringify(data),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     )
   } catch (error) {
-    console.error('Error in create-payment function:', error)
+    console.error('Payment process error:', error)
+    
     return new Response(
       JSON.stringify({ 
-        error: 'Une erreur est survenue lors du traitement de la demande',
+        error: error instanceof Error ? error.message : 'Une erreur est survenue',
         details: error instanceof Error ? error.message : 'Erreur inconnue'
-      }), 
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

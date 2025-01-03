@@ -42,7 +42,7 @@ const Cart = () => {
       }
 
       const paymentData = {
-        amount: parseFloat(product.price.replace('DA', '')),
+        amount: parseFloat(product.price.replace(' DA', '')),
         client_name: profile?.full_name || user.email,
         client_email: user.email,
         client_phone: profile?.phone || '',
@@ -58,17 +58,22 @@ const Cart = () => {
 
       if (error) {
         console.error('Payment creation error:', error);
-        throw new Error('Erreur lors de la création du paiement');
+        toast({
+          title: "Erreur de paiement",
+          description: "Une erreur est survenue lors de la création du paiement. Veuillez réessayer.",
+          variant: "destructive",
+        });
+        return;
       }
 
-      if (!data) {
-        console.error('No data received from payment creation');
-        throw new Error('Aucune donnée reçue du service de paiement');
-      }
-
-      if (!data.checkout_url) {
-        console.error('No checkout URL in response:', data);
-        throw new Error('URL de paiement non reçue');
+      if (!data || !data.checkout_url) {
+        console.error('Invalid response from payment service:', data);
+        toast({
+          title: "Erreur de paiement",
+          description: "Le service de paiement n'a pas répondu correctement. Veuillez réessayer.",
+          variant: "destructive",
+        });
+        return;
       }
 
       // Save to cart history before redirecting
@@ -82,7 +87,6 @@ const Cart = () => {
 
       if (historyError) {
         console.error('Error saving to cart history:', historyError);
-        // Continue with payment even if history fails
       }
 
       // Redirect to payment page
