@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ interface ProductFormProps {
 
 const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: ProductFormProps) => {
   const { toast } = useToast();
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +46,29 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
     }
 
     onSubmit();
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      setIsUploading(true);
+      try {
+        const url = await handleImageUpload(e.target.files[0]);
+        onProductChange('image', url);
+        toast({
+          title: "Succès",
+          description: "Image téléchargée avec succès",
+        });
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Erreur lors du téléchargement de l'image",
+        });
+      } finally {
+        setIsUploading(false);
+      }
+    }
   };
 
   return (
@@ -105,34 +129,32 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
 
       <div className="space-y-2">
         <Label htmlFor="image">Image *</Label>
-        <Input
-          id="image"
-          type="file"
-          accept="image/*"
-          onChange={async (e) => {
-            if (e.target.files?.[0]) {
-              try {
-                const url = await handleImageUpload(e.target.files[0]);
-                onProductChange('image', url);
-                toast({
-                  title: "Succès",
-                  description: "Image téléchargée avec succès",
-                });
-              } catch (error) {
-                console.error('Error uploading image:', error);
-                toast({
-                  variant: "destructive",
-                  title: "Erreur",
-                  description: "Erreur lors du téléchargement de l'image",
-                });
-              }
-            }
-          }}
-        />
+        <div className="flex flex-col gap-2">
+          <Input
+            id="image"
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            disabled={isUploading}
+          />
+          {product.image && (
+            <div className="mt-2">
+              <img 
+                src={product.image} 
+                alt="Aperçu du produit" 
+                className="w-32 h-32 object-cover rounded-md"
+              />
+            </div>
+          )}
+        </div>
       </div>
 
-      <Button type="submit" className="w-full">
-        {submitLabel}
+      <Button 
+        type="submit" 
+        className="w-full"
+        disabled={isUploading}
+      >
+        {isUploading ? 'Téléchargement...' : submitLabel}
       </Button>
     </form>
   );

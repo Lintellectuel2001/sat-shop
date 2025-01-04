@@ -18,11 +18,21 @@ export const handleImageUpload = async (file: File): Promise<string> => {
       throw new Error("Vous n'avez pas les droits d'administration");
     }
 
+    // Vérifier la taille du fichier (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error("L'image ne doit pas dépasser 5MB");
+    }
+
+    // Vérifier le type de fichier
+    if (!file.type.startsWith('image/')) {
+      throw new Error("Le fichier doit être une image");
+    }
+
     const fileExt = file.name.split('.').pop();
     const fileName = `${Math.random()}.${fileExt}`;
     const filePath = `${fileName}`;
 
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError, data } = await supabase.storage
       .from('lovable-uploads')
       .upload(filePath, file);
 
@@ -38,6 +48,6 @@ export const handleImageUpload = async (file: File): Promise<string> => {
     return publicUrl;
   } catch (error) {
     console.error('Error in handleImageUpload:', error);
-    throw new Error("Une erreur est survenue lors de l'upload");
+    throw error;
   }
 };
