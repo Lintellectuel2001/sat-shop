@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { handleImageUpload } from "@/utils/fileUpload";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from 'react-router-dom';
 
 interface ProductFormProps {
   product: {
@@ -22,10 +24,57 @@ interface ProductFormProps {
 
 const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: ProductFormProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isUploading, setIsUploading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    checkAdminStatus();
+  }, []);
+
+  const checkAdminStatus = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Vous devez être connecté pour accéder à cette page",
+      });
+      navigate('/login');
+      return;
+    }
+
+    const { data: adminData } = await supabase
+      .from('admin_users')
+      .select('id')
+      .eq('id', session.user.id)
+      .single();
+
+    if (!adminData) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Vous n'avez pas les droits d'administration",
+      });
+      navigate('/');
+      return;
+    }
+
+    setIsAdmin(true);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isAdmin) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Vous devez être administrateur pour effectuer cette action",
+      });
+      return;
+    }
+
     console.log('Submitting form with product:', product);
     
     if (!product.name || !product.price || !product.category || !product.payment_link) {
@@ -57,6 +106,15 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
   };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isAdmin) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Vous devez être administrateur pour uploader des images",
+      });
+      return;
+    }
+
     const file = e.target.files?.[0];
     if (!file) {
       console.log('No file selected');
@@ -89,6 +147,8 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
       setIsUploading(false);
     }
   };
+
+  // ... keep existing code (form JSX structure)
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -154,7 +214,7 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
             type="file"
             accept="image/*"
             onChange={handleImageChange}
-            disabled={isUploading}
+            disabled={isUploading || !isAdmin}
           />
           {product.image && (
             <div className="mt-2">
@@ -171,7 +231,7 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
       <Button 
         type="submit" 
         className="w-full"
-        disabled={isUploading}
+        disabled={isUploading || !isAdmin}
       >
         {isUploading ? 'Téléchargement...' : submitLabel}
       </Button>
