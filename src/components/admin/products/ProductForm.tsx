@@ -26,8 +26,15 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Submitting form with product:', product);
     
     if (!product.name || !product.price || !product.category || !product.payment_link) {
+      console.log('Missing required fields:', {
+        name: !product.name,
+        price: !product.price,
+        category: !product.category,
+        payment_link: !product.payment_link
+      });
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -37,6 +44,7 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
     }
 
     if (!product.image) {
+      console.log('Missing image');
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -49,25 +57,36 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
   };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      setIsUploading(true);
-      try {
-        const url = await handleImageUpload(e.target.files[0]);
-        onProductChange('image', url);
-        toast({
-          title: "Succès",
-          description: "Image téléchargée avec succès",
-        });
-      } catch (error) {
-        console.error('Error uploading image:', error);
-        toast({
-          variant: "destructive",
-          title: "Erreur",
-          description: "Erreur lors du téléchargement de l'image",
-        });
-      } finally {
-        setIsUploading(false);
-      }
+    const file = e.target.files?.[0];
+    if (!file) {
+      console.log('No file selected');
+      return;
+    }
+
+    console.log('Starting image upload:', {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type
+    });
+
+    setIsUploading(true);
+    try {
+      const url = await handleImageUpload(file);
+      console.log('Image uploaded successfully:', url);
+      onProductChange('image', url);
+      toast({
+        title: "Succès",
+        description: "Image téléchargée avec succès",
+      });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: error instanceof Error ? error.message : "Erreur lors du téléchargement de l'image",
+      });
+    } finally {
+      setIsUploading(false);
     }
   };
 
