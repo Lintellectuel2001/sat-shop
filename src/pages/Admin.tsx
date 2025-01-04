@@ -80,12 +80,12 @@ const Admin = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8">Administration</h1>
+      <h1 className="text-3xl font-bold mb-8">Panneau d'Administration</h1>
       
       <Tabs defaultValue="products">
-        <TabsList>
+        <TabsList className="mb-6">
           <TabsTrigger value="products">Produits</TabsTrigger>
-          <TabsTrigger value="slides">Slides</TabsTrigger>
+          <TabsTrigger value="slides">Diaporama</TabsTrigger>
         </TabsList>
 
         <TabsContent value="products">

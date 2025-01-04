@@ -1,5 +1,4 @@
 import React from 'react';
-import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import {
@@ -33,7 +32,6 @@ interface ProductHeaderProps {
 }
 
 const ProductHeader = ({
-  productsCount,
   isDialogOpen,
   setIsDialogOpen,
   newProduct,
@@ -41,26 +39,20 @@ const ProductHeader = ({
   onSubmit
 }: ProductHeaderProps) => {
   return (
-    <div className="flex justify-between items-center">
-      <div className="flex items-center space-x-2">
-        <FileText className="h-6 w-6" />
-        <h2 className="text-2xl font-semibold">Gestion des Articles</h2>
-        <span className="bg-gray-100 px-2 py-1 rounded-full text-sm">
-          {productsCount} articles
-        </span>
-      </div>
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="text-2xl font-semibold">Liste des Produits</h2>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Nouvel Article
+            Nouveau Produit
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Ajouter un Article</DialogTitle>
+            <DialogTitle>Ajouter un Produit</DialogTitle>
             <DialogDescription>
-              Remplissez les informations pour créer un nouvel article.
+              Remplissez les informations pour créer un nouveau produit.
             </DialogDescription>
           </DialogHeader>
           <ProductForm
