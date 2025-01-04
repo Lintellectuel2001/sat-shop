@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import ProductHeader from './products/ProductHeader';
 import ProductGrid from './products/ProductGrid';
+import { useNavigate } from 'react-router-dom';
 
 interface Product {
   id: string;
@@ -31,10 +32,45 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const checkAdminStatus = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Vous devez être connecté pour accéder à cette page",
+      });
+      navigate('/login');
+      return false;
+    }
+
+    const { data: adminData } = await supabase
+      .from('admin_users')
+      .select('id')
+      .eq('id', session.user.id)
+      .single();
+
+    if (!adminData) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Vous n'avez pas les droits d'administration",
+      });
+      navigate('/');
+      return false;
+    }
+
+    return true;
+  };
 
   const handleProductCreate = async () => {
     try {
       console.log('Creating product:', newProduct);
+
+      const isAdmin = await checkAdminStatus();
+      if (!isAdmin) return;
 
       if (!newProduct.name || !newProduct.price || !newProduct.category || !newProduct.image || !newProduct.payment_link) {
         toast({
@@ -97,6 +133,9 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
 
   const handleProductUpdate = async (updatedProduct: Product) => {
     try {
+      const isAdmin = await checkAdminStatus();
+      if (!isAdmin) return;
+
       if (!updatedProduct.name || !updatedProduct.price || !updatedProduct.category || !updatedProduct.image || !updatedProduct.payment_link) {
         toast({
           variant: "destructive",
@@ -139,6 +178,9 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
 
   const handleProductDelete = async (id: string) => {
     try {
+      const isAdmin = await checkAdminStatus();
+      if (!isAdmin) return;
+
       const { error } = await supabase
         .from('products')
         .delete()

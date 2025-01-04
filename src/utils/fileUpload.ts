@@ -1,33 +1,38 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export const handleImageUpload = async (file: File) => {
+export const handleImageUpload = async (file: File): Promise<string> => {
   try {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random()}.${fileExt}`;
-    const filePath = `${fileName}`;
-
-    // First, check if user is authenticated
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       throw new Error("Vous devez être connecté pour uploader des images");
     }
 
-    // Upload the file with proper metadata
-    const { error: uploadError, data } = await supabase.storage
-      .from('profiles')
-      .upload(filePath, file, {
-        upsert: true,
-        contentType: file.type,
-      });
+    // Vérifier si l'utilisateur est un admin
+    const { data: adminData } = await supabase
+      .from('admin_users')
+      .select('id')
+      .eq('id', session.user.id)
+      .single();
 
-    if (uploadError) {
-      console.error('Upload error:', uploadError);
-      throw new Error("Impossible d'uploader l'image");
+    if (!adminData) {
+      throw new Error("Vous n'avez pas les droits d'administration");
     }
 
-    // Get the public URL after successful upload
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('lovable-uploads')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      console.error('Error uploading file:', uploadError);
+      throw new Error("Erreur lors de l'upload du fichier");
+    }
+
     const { data: { publicUrl } } = supabase.storage
-      .from('profiles')
+      .from('lovable-uploads')
       .getPublicUrl(filePath);
 
     return publicUrl;
