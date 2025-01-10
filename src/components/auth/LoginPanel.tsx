@@ -20,7 +20,6 @@ const LoginPanel = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Client-side validation
     if (!validateEmail(email)) {
       toast({
         title: "Format d'email invalide",
