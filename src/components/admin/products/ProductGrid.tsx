@@ -2,6 +2,15 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import ProductForm from './ProductForm';
 
 interface Product {
   id: string;
@@ -21,6 +30,8 @@ interface ProductGridProps {
 }
 
 const ProductGrid = ({ products, onEdit, onDelete }: ProductGridProps) => {
+  const [editingProduct, setEditingProduct] = React.useState<Product | null>(null);
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -30,6 +41,8 @@ const ProductGrid = ({ products, onEdit, onDelete }: ProductGridProps) => {
             <TableHead>Nom</TableHead>
             <TableHead>Prix</TableHead>
             <TableHead>Catégorie</TableHead>
+            <TableHead>Description</TableHead>
+            <TableHead>Lien de paiement</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -43,17 +56,52 @@ const ProductGrid = ({ products, onEdit, onDelete }: ProductGridProps) => {
                   className="w-16 h-16 object-cover rounded"
                 />
               </TableCell>
-              <TableCell className="font-medium">{product.name}</TableCell>
+              <TableCell className="font-medium max-w-[200px] truncate">
+                {product.name}
+              </TableCell>
               <TableCell>{product.price}</TableCell>
               <TableCell>{product.category}</TableCell>
+              <TableCell className="max-w-[200px] truncate">
+                {product.description || '-'}
+              </TableCell>
+              <TableCell className="max-w-[200px] truncate">
+                {product.payment_link}
+              </TableCell>
               <TableCell className="text-right space-x-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => onEdit(product)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setEditingProduct(product)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Modifier le Produit</DialogTitle>
+                      <DialogDescription>
+                        Modifiez les informations du produit.
+                      </DialogDescription>
+                    </DialogHeader>
+                    {editingProduct && (
+                      <ProductForm
+                        product={editingProduct}
+                        onProductChange={(field, value) => 
+                          setEditingProduct({ ...editingProduct, [field]: value })
+                        }
+                        onSubmit={() => {
+                          if (editingProduct) {
+                            onEdit(editingProduct);
+                            setEditingProduct(null);
+                          }
+                        }}
+                        submitLabel="Mettre à jour"
+                      />
+                    )}
+                  </DialogContent>
+                </Dialog>
                 <Button
                   variant="destructive"
                   size="icon"
