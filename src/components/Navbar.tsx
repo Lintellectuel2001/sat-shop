@@ -9,17 +9,47 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let mounted = true;
+
     // Check initial auth state
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsLoggedIn(!!session);
-    });
+    const checkSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        if (mounted) {
+          setIsLoggedIn(!!session);
+        }
+      } catch (error: any) {
+        console.error('Session check error:', error);
+        if (error.message.includes('refresh_token_not_found')) {
+          setIsLoggedIn(false);
+          // Clear any stale auth state
+          await supabase.auth.signOut();
+        }
+      }
+    };
+
+    checkSession();
 
     // Subscribe to auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsLoggedIn(!!session);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (mounted) {
+        setIsLoggedIn(!!session);
+        
+        if (event === 'TOKEN_REFRESHED') {
+          console.log('Token refreshed successfully');
+        }
+        
+        if (event === 'SIGNED_OUT') {
+          setIsLoggedIn(false);
+        }
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleLogout = async () => {
@@ -32,7 +62,7 @@ const Navbar = () => {
         description: "À bientôt !",
       });
       navigate('/');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors de la déconnexion:', error);
       toast({
         title: "Erreur lors de la déconnexion",
