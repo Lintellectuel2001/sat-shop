@@ -1,7 +1,38 @@
+import { useEffect, useState } from "react";
 import ProductCard from "../ProductCard";
-import { products } from "@/data/products";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const ProductsSection = () => {
+  const [products, setProducts] = useState([]);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          throw error;
+        }
+
+        setProducts(data || []);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Impossible de charger les produits",
+        });
+      }
+    };
+
+    fetchProducts();
+  }, [toast]);
+
   return (
     <section className="py-16">
       <div className="container mx-auto">
@@ -16,7 +47,7 @@ const ProductsSection = () => {
               image={product.image}
               rating={product.rating}
               reviews={product.reviews}
-              paymentLink={product.paymentLink}
+              paymentLink={product.payment_link}
             />
           ))}
         </div>
