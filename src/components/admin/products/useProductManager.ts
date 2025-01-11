@@ -75,7 +75,6 @@ export const useProductManager = (onProductsChange: () => void) => {
         description: "Produit créé avec succès",
       });
       
-      onProductsChange();
       setIsDialogOpen(false);
       setNewProduct({
         id: '',
@@ -85,6 +84,9 @@ export const useProductManager = (onProductsChange: () => void) => {
         image: '',
         payment_link: '',
       });
+      
+      // Appeler onProductsChange après une création réussie
+      onProductsChange();
     } catch (error) {
       console.error('Unexpected error creating product:', error);
       toast({

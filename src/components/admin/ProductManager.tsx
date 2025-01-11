@@ -30,6 +30,11 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
     handleProductDelete,
   } = useProductManager(onProductsChange);
 
+  const handleCreateSuccess = async () => {
+    await handleProductCreate();
+    onProductsChange(); // Appeler explicitement onProductsChange après la création
+  };
+
   return (
     <div className="space-y-6">
       <ProductHeader
@@ -40,7 +45,7 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
         onProductChange={(field, value) => 
           setNewProduct({ ...newProduct, [field]: value })
         }
-        onSubmit={handleProductCreate}
+        onSubmit={handleCreateSuccess}
       />
       <ProductGrid
         products={products}
