@@ -27,40 +27,53 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
   const navigate = useNavigate();
   const [isUploading, setIsUploading] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     checkAdminStatus();
   }, []);
 
   const checkAdminStatus = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Vous devez être connecté pour accéder à cette page",
+        });
+        navigate('/login');
+        return;
+      }
+
+      const { data: adminData, error: adminError } = await supabase
+        .from('admin_users')
+        .select('id')
+        .eq('id', session.user.id)
+        .single();
+
+      if (adminError || !adminData) {
+        console.error('Error checking admin status:', adminError);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Vous n'avez pas les droits d'administration",
+        });
+        navigate('/');
+        return;
+      }
+
+      setIsAdmin(true);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error in checkAdminStatus:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Vous devez être connecté pour accéder à cette page",
-      });
-      navigate('/login');
-      return;
-    }
-
-    const { data: adminData } = await supabase
-      .from('admin_users')
-      .select('id')
-      .eq('id', session.user.id)
-      .single();
-
-    if (!adminData) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Vous n'avez pas les droits d'administration",
+        description: "Une erreur est survenue lors de la vérification des droits",
       });
       navigate('/');
-      return;
     }
-
-    setIsAdmin(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -75,15 +88,7 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
       return;
     }
 
-    console.log('Submitting form with product:', product);
-    
     if (!product.name || !product.price || !product.category || !product.payment_link) {
-      console.log('Missing required fields:', {
-        name: !product.name,
-        price: !product.price,
-        category: !product.category,
-        payment_link: !product.payment_link
-      });
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -93,7 +98,6 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
     }
 
     if (!product.image) {
-      console.log('Missing image');
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -116,21 +120,11 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
     }
 
     const file = e.target.files?.[0];
-    if (!file) {
-      console.log('No file selected');
-      return;
-    }
-
-    console.log('Starting image upload:', {
-      fileName: file.name,
-      fileSize: file.size,
-      fileType: file.type
-    });
+    if (!file) return;
 
     setIsUploading(true);
     try {
       const url = await handleImageUpload(file);
-      console.log('Image uploaded successfully:', url);
       onProductChange('image', url);
       toast({
         title: "Succès",
@@ -148,7 +142,13 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
     }
   };
 
-  // ... keep existing code (form JSX structure)
+  if (isLoading) {
+    return <div>Chargement...</div>;
+  }
+
+  if (!isAdmin) {
+    return null;
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -214,7 +214,7 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
             type="file"
             accept="image/*"
             onChange={handleImageChange}
-            disabled={isUploading || !isAdmin}
+            disabled={isUploading}
           />
           {product.image && (
             <div className="mt-2">
@@ -231,7 +231,7 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
       <Button 
         type="submit" 
         className="w-full"
-        disabled={isUploading || !isAdmin}
+        disabled={isUploading}
       >
         {isUploading ? 'Téléchargement...' : submitLabel}
       </Button>
