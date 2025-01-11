@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from 'react-router-dom';
+import { useAdminCheck } from "@/hooks/useAdminCheck";
 
 interface Product {
   id: string;
@@ -25,43 +25,18 @@ export const useProductManager = (onProductsChange: () => void) => {
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
-
-  const checkAdminStatus = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Vous devez être connecté pour accéder à cette page",
-      });
-      navigate('/login');
-      return false;
-    }
-
-    const { data: adminData } = await supabase
-      .from('admin_users')
-      .select('id')
-      .eq('id', session.user.id)
-      .single();
-
-    if (!adminData) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Vous n'avez pas les droits d'administration",
-      });
-      navigate('/');
-      return false;
-    }
-
-    return true;
-  };
+  const { isAdmin } = useAdminCheck();
 
   const handleProductCreate = async () => {
     try {
-      const isAdmin = await checkAdminStatus();
-      if (!isAdmin) return;
+      if (!isAdmin) {
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Vous n'avez pas les droits d'administration",
+        });
+        return;
+      }
 
       if (!newProduct.name || !newProduct.price || !newProduct.category || !newProduct.image || !newProduct.payment_link) {
         toast({
@@ -122,8 +97,14 @@ export const useProductManager = (onProductsChange: () => void) => {
 
   const handleProductUpdate = async (updatedProduct: Product) => {
     try {
-      const isAdmin = await checkAdminStatus();
-      if (!isAdmin) return;
+      if (!isAdmin) {
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Vous n'avez pas les droits d'administration",
+        });
+        return;
+      }
 
       if (!updatedProduct.name || !updatedProduct.price || !updatedProduct.category || !updatedProduct.image || !updatedProduct.payment_link) {
         toast({
@@ -167,8 +148,14 @@ export const useProductManager = (onProductsChange: () => void) => {
 
   const handleProductDelete = async (id: string) => {
     try {
-      const isAdmin = await checkAdminStatus();
-      if (!isAdmin) return;
+      if (!isAdmin) {
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Vous n'avez pas les droits d'administration",
+        });
+        return;
+      }
 
       const { error } = await supabase
         .from('products')

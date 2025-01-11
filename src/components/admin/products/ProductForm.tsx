@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { handleImageUpload } from "@/utils/fileUpload";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from 'react-router-dom';
+import { useAdminCheck } from "@/hooks/useAdminCheck";
 
 interface ProductFormProps {
   product: {
@@ -24,77 +23,8 @@ interface ProductFormProps {
 
 const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: ProductFormProps) => {
   const { toast } = useToast();
-  const navigate = useNavigate();
   const [isUploading, setIsUploading] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [sessionChecked, setSessionChecked] = useState(false);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const checkAdminStatus = async () => {
-      try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError || !session) {
-          if (mounted) {
-            setIsAdmin(false);
-            setIsLoading(false);
-            setSessionChecked(true);
-            toast({
-              variant: "destructive",
-              title: "Erreur",
-              description: "Vous devez être connecté pour accéder à cette page",
-            });
-            navigate('/login');
-          }
-          return;
-        }
-
-        const { data: adminData, error: adminError } = await supabase
-          .from('admin_users')
-          .select('id')
-          .eq('id', session.user.id)
-          .single();
-
-        if (mounted) {
-          if (adminError || !adminData) {
-            setIsAdmin(false);
-            toast({
-              variant: "destructive",
-              title: "Erreur",
-              description: "Vous n'avez pas les droits d'administration",
-            });
-            navigate('/');
-          } else {
-            setIsAdmin(true);
-          }
-          setIsLoading(false);
-          setSessionChecked(true);
-        }
-      } catch (error) {
-        if (mounted) {
-          console.error('Error in checkAdminStatus:', error);
-          setIsAdmin(false);
-          setIsLoading(false);
-          setSessionChecked(true);
-          toast({
-            variant: "destructive",
-            title: "Erreur",
-            description: "Une erreur est survenue lors de la vérification des droits",
-          });
-          navigate('/');
-        }
-      }
-    };
-
-    checkAdminStatus();
-
-    return () => {
-      mounted = false;
-    };
-  }, [navigate, toast]);
+  const { isAdmin, isLoading, sessionChecked } = useAdminCheck();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
