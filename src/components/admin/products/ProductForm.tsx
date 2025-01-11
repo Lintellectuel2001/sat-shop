@@ -28,53 +28,73 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
   const [isUploading, setIsUploading] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [sessionChecked, setSessionChecked] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
+
+    const checkAdminStatus = async () => {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError || !session) {
+          if (mounted) {
+            setIsAdmin(false);
+            setIsLoading(false);
+            setSessionChecked(true);
+            toast({
+              variant: "destructive",
+              title: "Erreur",
+              description: "Vous devez être connecté pour accéder à cette page",
+            });
+            navigate('/login');
+          }
+          return;
+        }
+
+        const { data: adminData, error: adminError } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('id', session.user.id)
+          .single();
+
+        if (mounted) {
+          if (adminError || !adminData) {
+            setIsAdmin(false);
+            toast({
+              variant: "destructive",
+              title: "Erreur",
+              description: "Vous n'avez pas les droits d'administration",
+            });
+            navigate('/');
+          } else {
+            setIsAdmin(true);
+          }
+          setIsLoading(false);
+          setSessionChecked(true);
+        }
+      } catch (error) {
+        if (mounted) {
+          console.error('Error in checkAdminStatus:', error);
+          setIsAdmin(false);
+          setIsLoading(false);
+          setSessionChecked(true);
+          toast({
+            variant: "destructive",
+            title: "Erreur",
+            description: "Une erreur est survenue lors de la vérification des droits",
+          });
+          navigate('/');
+        }
+      }
+    };
+
     checkAdminStatus();
-  }, []);
 
-  const checkAdminStatus = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast({
-          variant: "destructive",
-          title: "Erreur",
-          description: "Vous devez être connecté pour accéder à cette page",
-        });
-        navigate('/login');
-        return;
-      }
-
-      const { data: adminData, error: adminError } = await supabase
-        .from('admin_users')
-        .select('id')
-        .eq('id', session.user.id)
-        .single();
-
-      if (adminError || !adminData) {
-        console.error('Error checking admin status:', adminError);
-        toast({
-          variant: "destructive",
-          title: "Erreur",
-          description: "Vous n'avez pas les droits d'administration",
-        });
-        navigate('/');
-        return;
-      }
-
-      setIsAdmin(true);
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Error in checkAdminStatus:', error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la vérification des droits",
-      });
-      navigate('/');
-    }
-  };
+    return () => {
+      mounted = false;
+    };
+  }, [navigate, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,7 +162,7 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
     }
   };
 
-  if (isLoading) {
+  if (isLoading || !sessionChecked) {
     return <div>Chargement...</div>;
   }
 
