@@ -5,17 +5,6 @@ import { useToast } from "@/hooks/use-toast";
 import ProductManager from '@/components/admin/ProductManager';
 import SlideManager from '@/components/admin/SlideManager';
 
-interface Product {
-  id: string;
-  name: string;
-  price: string;
-  description?: string;
-  image: string;
-  category: string;
-  features?: string[];
-  payment_link: string;
-}
-
 interface Slide {
   id: string;
   title: string;
@@ -25,41 +14,12 @@ interface Slide {
 }
 
 const Admin = () => {
-  const [products, setProducts] = useState<Product[]>([]);
   const [slides, setSlides] = useState<Slide[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchProducts();
     fetchSlides();
   }, []);
-
-  const fetchProducts = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        toast({
-          variant: "destructive",
-          title: "Erreur",
-          description: "Impossible de charger les produits",
-        });
-        return;
-      }
-      
-      setProducts(data || []);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Une erreur est survenue lors du chargement des produits",
-      });
-    }
-  };
 
   const fetchSlides = async () => {
     const { data, error } = await supabase
@@ -89,7 +49,7 @@ const Admin = () => {
         </TabsList>
 
         <TabsContent value="products">
-          <ProductManager products={products} onProductsChange={fetchProducts} />
+          <ProductManager />
         </TabsContent>
 
         <TabsContent value="slides">
