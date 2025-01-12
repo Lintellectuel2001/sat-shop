@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Plus } from "lucide-react";
+import { useSlides } from "@/hooks/useSlides";
 import {
   Dialog,
   DialogContent,
@@ -22,12 +23,7 @@ interface Slide {
   color: string;
 }
 
-interface SlideManagerProps {
-  slides: Slide[];
-  onSlidesChange: () => void;
-}
-
-const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
+const SlideManager = () => {
   const [newSlide, setNewSlide] = useState<Slide>({
     id: '',
     title: '',
@@ -35,6 +31,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
     image: '',
   });
   const { toast } = useToast();
+  const { slides, invalidateSlides } = useSlides();
 
   const handleSlideCreate = async () => {
     if (!newSlide.title || !newSlide.color || !newSlide.image) {
@@ -64,7 +61,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
       description: "Slide créé avec succès",
     });
     
-    onSlidesChange();
+    invalidateSlides();
     setNewSlide({
       id: '',
       title: '',
@@ -102,7 +99,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
       description: "Slide mis à jour avec succès",
     });
     
-    onSlidesChange();
+    invalidateSlides();
   };
 
   const handleSlideDelete = async (id: string) => {
@@ -125,7 +122,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
       description: "Slide supprimé avec succès",
     });
     
-    onSlidesChange();
+    invalidateSlides();
   };
 
   return (
