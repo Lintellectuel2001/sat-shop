@@ -45,8 +45,8 @@ const ProductsSection = () => {
               name={product.name}
               price={product.price}
               image={product.image}
-              rating={product.rating}
-              reviews={product.reviews}
+              rating={product.rating || 5}
+              reviews={product.reviews || 0}
               paymentLink={product.payment_link}
             />
           ))}
