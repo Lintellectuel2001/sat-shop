@@ -16,13 +16,13 @@ const Navbar = () => {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
+          console.error('Session check error:', error);
           if (error.message.includes('refresh_token_not_found')) {
             console.log('No valid session found, clearing auth state');
             setIsLoggedIn(false);
             await supabase.auth.signOut();
-            return;
           }
-          throw error;
+          return;
         }
 
         if (mounted) {
@@ -41,15 +41,28 @@ const Navbar = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
 
-      if (event === 'SIGNED_IN') {
-        setIsLoggedIn(true);
-      } else if (event === 'SIGNED_OUT') {
-        setIsLoggedIn(false);
-      } else if (event === 'TOKEN_REFRESHED') {
-        setIsLoggedIn(!!session);
-      } else if (event === 'USER_DELETED') {
-        setIsLoggedIn(false);
-        navigate('/');
+      console.log('Auth state changed:', event);
+
+      switch (event) {
+        case 'SIGNED_IN':
+          setIsLoggedIn(true);
+          break;
+        case 'SIGNED_OUT':
+          setIsLoggedIn(false);
+          navigate('/');
+          break;
+        case 'TOKEN_REFRESHED':
+          setIsLoggedIn(!!session);
+          break;
+        case 'USER_UPDATED':
+          setIsLoggedIn(!!session);
+          break;
+        default:
+          // Handle any other events
+          if (session) {
+            setIsLoggedIn(true);
+          }
+          break;
       }
     });
 
