@@ -47,9 +47,6 @@ const Navbar = () => {
         setIsLoggedIn(false);
       } else if (event === 'TOKEN_REFRESHED') {
         setIsLoggedIn(true);
-      } else if (event === 'USER_DELETED') {
-        setIsLoggedIn(false);
-        navigate('/');
       }
     });
 
