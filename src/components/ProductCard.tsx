@@ -15,9 +15,7 @@ const ProductCard = ({ id = "1", name, price, image, rating, reviews, paymentLin
   const navigate = useNavigate();
 
   const handleClick = () => {
-    if (id) {
-      navigate(`/product/${id}`);
-    }
+    navigate(`/product/${id}`);
   };
 
   return (
