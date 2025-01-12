@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { ShoppingCart, User } from "lucide-react";
+import { User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import CartHistory from "./CartHistory";
 
@@ -90,7 +90,7 @@ const Navbar = () => {
       <Link to="/" className="text-lg font-bold">MyApp</Link>
       <div className="flex items-center">
         <Link to="/cart" className="mr-4">
-          <ShoppingCart className="h-6 w-6" />
+          <CartHistory />
         </Link>
         {isLoggedIn ? (
           <>
