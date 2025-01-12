@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { handleImageUpload } from "@/utils/fileUpload";
-import { useToast } from "@/hooks/use-toast";
 
 interface SlideFormProps {
   slide: {
@@ -18,34 +17,6 @@ interface SlideFormProps {
 }
 
 const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel }: SlideFormProps) => {
-  const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async () => {
-    if (!slide.title || !slide.color || !slide.image) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Veuillez remplir tous les champs obligatoires",
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      await onSubmit();
-    } catch (error) {
-      console.error('Error submitting slide:', error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la création du slide",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
     <div className="space-y-4">
       <Input
@@ -71,27 +42,13 @@ const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel }: SlideFormPro
             try {
               const url = await handleImageUpload(e.target.files[0]);
               onSlideChange('image', url);
-              toast({
-                title: "Succès",
-                description: "Image téléchargée avec succès",
-              });
             } catch (error) {
               console.error('Error uploading image:', error);
-              toast({
-                variant: "destructive",
-                title: "Erreur",
-                description: "Impossible de télécharger l'image",
-              });
             }
           }
         }}
       />
-      <Button 
-        onClick={handleSubmit}
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? "Création en cours..." : submitLabel}
-      </Button>
+      <Button onClick={onSubmit}>{submitLabel}</Button>
     </div>
   );
 };

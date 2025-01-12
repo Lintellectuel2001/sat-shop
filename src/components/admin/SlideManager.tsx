@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Plus } from "lucide-react";
-import { useSlides } from "@/hooks/useSlides";
 import {
   Dialog,
   DialogContent,
@@ -23,16 +22,19 @@ interface Slide {
   color: string;
 }
 
-const SlideManager = () => {
+interface SlideManagerProps {
+  slides: Slide[];
+  onSlidesChange: () => void;
+}
+
+const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
   const [newSlide, setNewSlide] = useState<Slide>({
     id: '',
     title: '',
     color: '',
     image: '',
   });
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
-  const { slides, invalidateSlides } = useSlides();
 
   const handleSlideCreate = async () => {
     if (!newSlide.title || !newSlide.color || !newSlide.image) {
@@ -62,14 +64,13 @@ const SlideManager = () => {
       description: "Slide créé avec succès",
     });
     
-    invalidateSlides();
+    onSlidesChange();
     setNewSlide({
       id: '',
       title: '',
       color: '',
       image: '',
     });
-    setIsDialogOpen(false);
   };
 
   const handleSlideUpdate = async (updatedSlide: Slide) => {
@@ -101,7 +102,7 @@ const SlideManager = () => {
       description: "Slide mis à jour avec succès",
     });
     
-    invalidateSlides();
+    onSlidesChange();
   };
 
   const handleSlideDelete = async (id: string) => {
@@ -124,14 +125,14 @@ const SlideManager = () => {
       description: "Slide supprimé avec succès",
     });
     
-    invalidateSlides();
+    onSlidesChange();
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Gestion des Slides</h2>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog>
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />

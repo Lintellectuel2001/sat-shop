@@ -7,7 +7,6 @@ import ProductsSection from "../components/home/ProductsSection";
 import { UserCog } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { useSlides } from "@/hooks/useSlides";
 import {
   Dialog,
   DialogContent,
@@ -27,12 +26,26 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
+const slides = [
+  {
+    title: "Moments en famille",
+    description: "Partagez des moments inoubliables avec vos proches",
+    image: "/lovable-uploads/d5a2fef2-4158-4ee4-b25e-8492028478d8.png",
+    color: "from-pink-500",
+  },
+  {
+    title: "Divertissement à la maison",
+    description: "Profitez du meilleur du divertissement depuis votre canapé",
+    image: "/lovable-uploads/93f4a4d3-0266-4de9-adcb-0b83e06ef79a.png",
+    color: "from-green-500",
+  },
+];
+
 const Index = () => {
   const [accessCode, setAccessCode] = React.useState("");
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { slides, isLoading } = useSlides();
   
   const plugin = React.useMemo(
     () =>
@@ -57,10 +70,6 @@ const Index = () => {
     setAccessCode("");
   };
 
-  if (isLoading) {
-    return <div>Chargement...</div>;
-  }
-
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -75,8 +84,8 @@ const Index = () => {
           plugins={[plugin]}
         >
           <CarouselContent>
-            {slides.map((slide) => (
-              <CarouselItem key={slide.id}>
+            {slides.map((slide, index) => (
+              <CarouselItem key={index}>
                 <div className="relative h-[85vh] max-h-[800px] w-full overflow-hidden">
                   <div className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent opacity-60`} />
                   <img

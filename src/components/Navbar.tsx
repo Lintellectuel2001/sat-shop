@@ -11,42 +11,38 @@ const Navbar = () => {
   useEffect(() => {
     let mounted = true;
 
+    // Check initial auth state
     const checkSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          if (error.message.includes('refresh_token_not_found')) {
-            // Clear the invalid session state
-            setIsLoggedIn(false);
-            await supabase.auth.signOut();
-            return;
-          }
-          throw error;
-        }
-        
+        if (error) throw error;
         if (mounted) {
           setIsLoggedIn(!!session);
         }
       } catch (error: any) {
         console.error('Session check error:', error);
-        setIsLoggedIn(false);
+        if (error.message.includes('refresh_token_not_found')) {
+          setIsLoggedIn(false);
+          // Clear any stale auth state
+          await supabase.auth.signOut();
+        }
       }
     };
 
-    // Check initial session
     checkSession();
 
     // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted) return;
-
-      if (event === 'SIGNED_IN') {
-        setIsLoggedIn(true);
-      } else if (event === 'SIGNED_OUT') {
-        setIsLoggedIn(false);
-      } else if (event === 'TOKEN_REFRESHED') {
-        setIsLoggedIn(true);
+      if (mounted) {
+        setIsLoggedIn(!!session);
+        
+        if (event === 'TOKEN_REFRESHED') {
+          console.log('Token refreshed successfully');
+        }
+        
+        if (event === 'SIGNED_OUT') {
+          setIsLoggedIn(false);
+        }
       }
     });
 
@@ -54,7 +50,7 @@ const Navbar = () => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, []);
 
   const handleLogout = async () => {
     try {
