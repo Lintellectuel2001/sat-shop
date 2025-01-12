@@ -30,6 +30,7 @@ const SlideManager = () => {
     color: '',
     image: '',
   });
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   const { slides, invalidateSlides } = useSlides();
 
@@ -68,6 +69,7 @@ const SlideManager = () => {
       color: '',
       image: '',
     });
+    setIsDialogOpen(false);
   };
 
   const handleSlideUpdate = async (updatedSlide: Slide) => {
@@ -129,7 +131,7 @@ const SlideManager = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Gestion des Slides</h2>
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
