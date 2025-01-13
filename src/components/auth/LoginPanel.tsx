@@ -2,13 +2,16 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { AuthError, AuthApiError } from "@supabase/supabase-js";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const LoginPanel = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -17,24 +20,34 @@ const LoginPanel = () => {
     return emailRegex.test(email);
   };
 
+  const getErrorMessage = (error: AuthError) => {
+    if (error instanceof AuthApiError) {
+      switch (error.status) {
+        case 400:
+          if (error.message.includes("Invalid login credentials")) {
+            return "Email ou mot de passe incorrect. Veuillez vérifier vos identifiants.";
+          }
+          break;
+        case 422:
+          return "Format d'email invalide.";
+        case 429:
+          return "Trop de tentatives. Veuillez réessayer plus tard.";
+      }
+    }
+    return error.message;
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     
     if (!validateEmail(email)) {
-      toast({
-        title: "Format d'email invalide",
-        description: "Veuillez entrer une adresse email valide.",
-        variant: "destructive",
-      });
+      setError("Veuillez entrer une adresse email valide.");
       return;
     }
 
     if (password.length < 6) {
-      toast({
-        title: "Mot de passe trop court",
-        description: "Le mot de passe doit contenir au moins 6 caractères.",
-        variant: "destructive",
-      });
+      setError("Le mot de passe doit contenir au moins 6 caractères.");
       return;
     }
 
@@ -47,9 +60,6 @@ const LoginPanel = () => {
       });
 
       if (error) {
-        if (error.message.includes("Invalid login credentials")) {
-          throw new Error("Email ou mot de passe incorrect.");
-        }
         throw error;
       }
 
@@ -60,9 +70,11 @@ const LoginPanel = () => {
       navigate("/");
     } catch (error: any) {
       console.error("Login error:", error);
+      const errorMessage = getErrorMessage(error);
+      setError(errorMessage);
       toast({
         title: "Erreur de connexion",
-        description: error.message || "Une erreur est survenue lors de la connexion",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -81,6 +93,12 @@ const LoginPanel = () => {
             </p>
           </div>
 
+          {error && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium text-primary">
@@ -90,10 +108,14 @@ const LoginPanel = () => {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError(null);
+                }}
                 placeholder="votre@email.com"
                 className="w-full"
                 required
+                disabled={loading}
               />
             </div>
 
@@ -105,21 +127,30 @@ const LoginPanel = () => {
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setError(null);
+                }}
                 placeholder="••••••••"
                 className="w-full"
                 required
+                disabled={loading}
               />
             </div>
 
             <div className="flex items-center justify-between">
               <label className="flex items-center space-x-2 text-sm">
-                <input type="checkbox" className="rounded border-gray-300" />
+                <input 
+                  type="checkbox" 
+                  className="rounded border-gray-300"
+                  disabled={loading}
+                />
                 <span className="text-primary/80">Se souvenir de moi</span>
               </label>
               <button
                 type="button"
                 className="text-sm text-accent hover:text-accent/80 transition-colors"
+                disabled={loading}
               >
                 Mot de passe oublié ?
               </button>
@@ -139,6 +170,7 @@ const LoginPanel = () => {
                 type="button"
                 onClick={() => navigate("/register")}
                 className="text-accent hover:text-accent/80 transition-colors"
+                disabled={loading}
               >
                 S'inscrire
               </button>
