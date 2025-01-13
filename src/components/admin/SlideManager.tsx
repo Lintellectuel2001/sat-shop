@@ -34,6 +34,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
     color: '',
     image: '',
   });
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const handleSlideCreate = async () => {
@@ -46,31 +47,33 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
       return;
     }
 
-    const { error } = await supabase
-      .from('slides')
-      .insert([newSlide]);
+    try {
+      const { error } = await supabase
+        .from('slides')
+        .insert([newSlide]);
 
-    if (error) {
+      if (error) throw error;
+
+      toast({
+        title: "Succès",
+        description: "Slide créé avec succès",
+      });
+      
+      onSlidesChange();
+      setNewSlide({
+        id: '',
+        title: '',
+        color: '',
+        image: '',
+      });
+      setIsCreateDialogOpen(false);
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Impossible de créer le slide",
+        description: error.message || "Impossible de créer le slide",
       });
-      return;
     }
-
-    toast({
-      title: "Succès",
-      description: "Slide créé avec succès",
-    });
-    
-    onSlidesChange();
-    setNewSlide({
-      id: '',
-      title: '',
-      color: '',
-      image: '',
-    });
   };
 
   const handleSlideUpdate = async (updatedSlide: Slide) => {
@@ -83,56 +86,58 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
       return;
     }
 
-    const { error } = await supabase
-      .from('slides')
-      .update(updatedSlide)
-      .eq('id', updatedSlide.id);
+    try {
+      const { error } = await supabase
+        .from('slides')
+        .update(updatedSlide)
+        .eq('id', updatedSlide.id);
 
-    if (error) {
+      if (error) throw error;
+
+      toast({
+        title: "Succès",
+        description: "Slide mis à jour avec succès",
+      });
+      
+      onSlidesChange();
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Impossible de mettre à jour le slide",
+        description: error.message || "Impossible de mettre à jour le slide",
       });
-      return;
     }
-
-    toast({
-      title: "Succès",
-      description: "Slide mis à jour avec succès",
-    });
-    
-    onSlidesChange();
   };
 
   const handleSlideDelete = async (id: string) => {
-    const { error } = await supabase
-      .from('slides')
-      .delete()
-      .eq('id', id);
+    try {
+      const { error } = await supabase
+        .from('slides')
+        .delete()
+        .eq('id', id);
 
-    if (error) {
+      if (error) throw error;
+
+      toast({
+        title: "Succès",
+        description: "Slide supprimé avec succès",
+      });
+      
+      onSlidesChange();
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Impossible de supprimer le slide",
+        description: error.message || "Impossible de supprimer le slide",
       });
-      return;
     }
-
-    toast({
-      title: "Succès",
-      description: "Slide supprimé avec succès",
-    });
-    
-    onSlidesChange();
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Gestion des Slides</h2>
-        <Dialog>
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
