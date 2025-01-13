@@ -164,7 +164,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
         <h2 className="text-2xl font-semibold">Gestion des Slides</h2>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button disabled={isLoading}>
+            <Button>
               <Plus className="mr-2 h-4 w-4" />
               Nouveau Slide
             </Button>
