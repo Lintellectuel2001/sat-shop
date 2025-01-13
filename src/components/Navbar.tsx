@@ -17,10 +17,15 @@ const Navbar = () => {
         
         if (error) {
           console.error('Session check error:', error);
-          if (error.message.includes('refresh_token_not_found')) {
-            console.log('No valid session found, clearing auth state');
+          if (mounted) {
             setIsLoggedIn(false);
+            // Clear the session if there's an error
             await supabase.auth.signOut();
+            toast({
+              title: "Session expirée",
+              description: "Veuillez vous reconnecter",
+              variant: "destructive",
+            });
           }
           return;
         }
@@ -30,7 +35,14 @@ const Navbar = () => {
         }
       } catch (error: any) {
         console.error('Session check error:', error);
-        setIsLoggedIn(false);
+        if (mounted) {
+          setIsLoggedIn(false);
+          toast({
+            title: "Erreur de session",
+            description: "Une erreur est survenue lors de la vérification de votre session",
+            variant: "destructive",
+          });
+        }
       }
     };
 
@@ -59,9 +71,7 @@ const Navbar = () => {
           break;
         default:
           // Handle any other events
-          if (session) {
-            setIsLoggedIn(true);
-          }
+          setIsLoggedIn(!!session);
           break;
       }
     });
