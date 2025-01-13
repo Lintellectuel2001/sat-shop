@@ -35,6 +35,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
     image: '',
   });
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const handleSlideCreate = async () => {
@@ -47,10 +48,16 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
       return;
     }
 
+    setIsLoading(true);
     try {
       const { error } = await supabase
         .from('slides')
-        .insert([newSlide]);
+        .insert([{
+          title: newSlide.title,
+          description: newSlide.description,
+          color: newSlide.color,
+          image: newSlide.image
+        }]);
 
       if (error) throw error;
 
@@ -68,11 +75,14 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
       });
       setIsCreateDialogOpen(false);
     } catch (error: any) {
+      console.error('Error creating slide:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
         description: error.message || "Impossible de créer le slide",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -86,10 +96,16 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
       return;
     }
 
+    setIsLoading(true);
     try {
       const { error } = await supabase
         .from('slides')
-        .update(updatedSlide)
+        .update({
+          title: updatedSlide.title,
+          description: updatedSlide.description,
+          color: updatedSlide.color,
+          image: updatedSlide.image
+        })
         .eq('id', updatedSlide.id);
 
       if (error) throw error;
@@ -101,15 +117,19 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
       
       onSlidesChange();
     } catch (error: any) {
+      console.error('Error updating slide:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
         description: error.message || "Impossible de mettre à jour le slide",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleSlideDelete = async (id: string) => {
+    setIsLoading(true);
     try {
       const { error } = await supabase
         .from('slides')
@@ -125,11 +145,14 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
       
       onSlidesChange();
     } catch (error: any) {
+      console.error('Error deleting slide:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
         description: error.message || "Impossible de supprimer le slide",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -139,7 +162,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
         <h2 className="text-2xl font-semibold">Gestion des Slides</h2>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button disabled={isLoading}>
               <Plus className="mr-2 h-4 w-4" />
               Nouveau Slide
             </Button>
@@ -158,6 +181,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
               }
               onSubmit={handleSlideCreate}
               submitLabel="Créer"
+              isLoading={isLoading}
             />
           </DialogContent>
         </Dialog>
@@ -170,6 +194,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
             slide={slide}
             onEdit={handleSlideUpdate}
             onDelete={handleSlideDelete}
+            isLoading={isLoading}
           />
         ))}
       </div>

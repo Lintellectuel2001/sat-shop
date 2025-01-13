@@ -8,7 +8,6 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -35,9 +34,10 @@ interface SlideCardProps {
   slide: Slide;
   onEdit: (slide: Slide) => void;
   onDelete: (id: string) => void;
+  isLoading: boolean;
 }
 
-const SlideCard = ({ slide, onEdit, onDelete }: SlideCardProps) => {
+const SlideCard = ({ slide, onEdit, onDelete, isLoading }: SlideCardProps) => {
   const [editingSlide, setEditingSlide] = React.useState<Slide>(slide);
   const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
 
@@ -68,7 +68,7 @@ const SlideCard = ({ slide, onEdit, onDelete }: SlideCardProps) => {
         <div className="flex gap-2">
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" disabled={isLoading}>
                 <Pencil className="h-4 w-4" />
               </Button>
             </DialogTrigger>
@@ -86,13 +86,14 @@ const SlideCard = ({ slide, onEdit, onDelete }: SlideCardProps) => {
                 }
                 onSubmit={handleEdit}
                 submitLabel="Mettre à jour"
+                isLoading={isLoading}
               />
             </DialogContent>
           </Dialog>
 
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="icon">
+              <Button variant="destructive" size="icon" disabled={isLoading}>
                 <Trash2 className="h-4 w-4" />
               </Button>
             </AlertDialogTrigger>
@@ -105,7 +106,7 @@ const SlideCard = ({ slide, onEdit, onDelete }: SlideCardProps) => {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Annuler</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onDelete(slide.id)}>
+                <AlertDialogAction onClick={() => onDelete(slide.id)} disabled={isLoading}>
                   Supprimer
                 </AlertDialogAction>
               </AlertDialogFooter>
