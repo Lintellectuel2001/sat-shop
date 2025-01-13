@@ -31,6 +31,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
   const [newSlide, setNewSlide] = useState<Slide>({
     id: '',
     title: '',
+    description: '',
     color: '',
     image: '',
   });
@@ -70,6 +71,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
       setNewSlide({
         id: '',
         title: '',
+        description: '',
         color: '',
         image: '',
       });
