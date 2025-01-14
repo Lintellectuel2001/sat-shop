@@ -12,6 +12,7 @@ interface SlideFormProps {
     description?: string;
     image: string;
     color: string;
+    textColor?: string; // Added textColor property
   };
   onSlideChange: (field: string, value: string) => void;
   onSubmit: () => void;
@@ -54,12 +55,24 @@ const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: S
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="color">Couleur *</Label>
+        <Label htmlFor="color">Couleur de fond *</Label>
         <Input
           id="color"
           placeholder="Couleur (ex: from-blue-500)"
           value={slide.color}
           onChange={(e) => onSlideChange('color', e.target.value)}
+          disabled={isLoading}
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="textColor">Couleur du texte *</Label>
+        <Input
+          id="textColor"
+          placeholder="Couleur du texte (ex: text-white)"
+          value={slide.textColor || 'text-white'}
+          onChange={(e) => onSlideChange('textColor', e.target.value)}
           disabled={isLoading}
           required
         />
