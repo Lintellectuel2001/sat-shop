@@ -20,6 +20,7 @@ interface Slide {
   description?: string;
   image: string;
   color: string;
+  text_color?: string;
 }
 
 interface SlideManagerProps {
@@ -34,6 +35,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
     description: '',
     color: '',
     image: '',
+    text_color: 'text-white',
   });
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -57,7 +59,8 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
           title: newSlide.title,
           description: newSlide.description,
           color: newSlide.color,
-          image: newSlide.image
+          image: newSlide.image,
+          text_color: newSlide.text_color
         }]);
 
       if (error) throw error;
@@ -74,6 +77,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
         description: '',
         color: '',
         image: '',
+        text_color: 'text-white',
       });
       setIsCreateDialogOpen(false);
     } catch (error: any) {
@@ -106,7 +110,8 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
           title: updatedSlide.title,
           description: updatedSlide.description,
           color: updatedSlide.color,
-          image: updatedSlide.image
+          image: updatedSlide.image,
+          text_color: updatedSlide.text_color
         })
         .eq('id', updatedSlide.id);
 

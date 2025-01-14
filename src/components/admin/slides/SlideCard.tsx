@@ -28,6 +28,7 @@ interface Slide {
   description?: string;
   image: string;
   color: string;
+  text_color?: string;
 }
 
 interface SlideCardProps {
@@ -58,7 +59,7 @@ const SlideCard = ({ slide, onEdit, onDelete, isLoading }: SlideCardProps) => {
       </div>
       
       <div className="p-4 space-y-4">
-        <div>
+        <div className={slide.text_color || 'text-black'}>
           <h3 className="font-semibold text-lg">{slide.title}</h3>
           {slide.description && (
             <p className="text-sm text-gray-600 mt-1">{slide.description}</p>
