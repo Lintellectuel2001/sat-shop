@@ -23,8 +23,13 @@ const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: S
   const [imagePreview, setImagePreview] = React.useState<string>(slide.image);
   const [isUploading, setIsUploading] = React.useState(false);
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit();
+  };
+
   return (
-    <div className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="title">Titre *</Label>
         <Input
@@ -96,7 +101,7 @@ const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: S
       )}
 
       <Button 
-        onClick={onSubmit} 
+        type="submit"
         disabled={isLoading || isUploading}
         className="w-full"
       >
@@ -109,7 +114,7 @@ const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: S
           submitLabel
         )}
       </Button>
-    </div>
+    </form>
   );
 };
 
