@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { handleImageUpload } from "@/utils/fileUpload";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface SlideFormProps {
   slide: {
@@ -12,13 +13,21 @@ interface SlideFormProps {
     description?: string;
     image: string;
     color: string;
-    textColor?: string; // Added textColor property
+    textColor?: string;
   };
   onSlideChange: (field: string, value: string) => void;
   onSubmit: () => void;
   submitLabel: string;
   isLoading: boolean;
 }
+
+const textColorOptions = [
+  { value: 'text-white', label: 'Blanc' },
+  { value: 'text-black', label: 'Noir' },
+  { value: 'text-primary', label: 'Principal' },
+  { value: 'text-accent', label: 'Accent' },
+  { value: 'text-muted-foreground', label: 'Gris' },
+];
 
 const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: SlideFormProps) => {
   const [imagePreview, setImagePreview] = React.useState<string>(slide.image);
@@ -67,15 +76,21 @@ const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: S
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="textColor">Couleur du texte *</Label>
-        <Input
-          id="textColor"
-          placeholder="Couleur du texte (ex: text-white)"
+        <Label>Couleur du texte *</Label>
+        <RadioGroup
           value={slide.textColor || 'text-white'}
-          onChange={(e) => onSlideChange('textColor', e.target.value)}
-          disabled={isLoading}
-          required
-        />
+          onValueChange={(value) => onSlideChange('textColor', value)}
+          className="flex flex-wrap gap-4"
+        >
+          {textColorOptions.map((option) => (
+            <div key={option.value} className="flex items-center space-x-2">
+              <RadioGroupItem value={option.value} id={option.value} />
+              <Label htmlFor={option.value} className={option.value}>
+                {option.label}
+              </Label>
+            </div>
+          ))}
+        </RadioGroup>
       </div>
 
       <div className="space-y-2">
