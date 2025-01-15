@@ -17,23 +17,41 @@ const LoginPanel = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: email.toLowerCase().trim(),
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes('refresh_token_not_found')) {
+          // Si le token n'est pas trouvé, on nettoie la session
+          await supabase.auth.signOut();
+        }
+        throw error;
+      }
 
-      toast({
-        title: "Connexion réussie",
-        description: "Vous êtes maintenant connecté.",
-      });
-      navigate("/");
+      if (data?.user) {
+        toast({
+          title: "Connexion réussie",
+          description: "Vous êtes maintenant connecté.",
+        });
+        navigate("/");
+      }
     } catch (error: any) {
       console.error("Login error:", error);
+      let errorMessage = "Une erreur est survenue lors de la connexion";
+      
+      if (error.message.includes('Invalid login credentials')) {
+        errorMessage = "Email ou mot de passe incorrect";
+      } else if (error.message.includes('Email not confirmed')) {
+        errorMessage = "Veuillez confirmer votre email avant de vous connecter";
+      } else if (error.message.includes('refresh_token_not_found')) {
+        errorMessage = "Session expirée, veuillez vous reconnecter";
+      }
+
       toast({
         title: "Erreur de connexion",
-        description: error.message || "Une erreur est survenue lors de la connexion",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
