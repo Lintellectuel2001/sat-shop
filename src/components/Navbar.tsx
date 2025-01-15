@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, User, UserCog, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import Logo from "./navbar/Logo";
+import NavLinks from "./navbar/NavLinks";
+import AuthButtons from "./navbar/AuthButtons";
+import UserButtons from "./navbar/UserButtons";
 
 interface SiteSettings {
   logo_url: string;
@@ -44,7 +47,6 @@ const Navbar = () => {
           console.error('Session check error:', error);
           if (mounted) {
             setIsLoggedIn(false);
-            // Clear the session if there's an error
             await supabase.auth.signOut();
             if (error.message.includes('refresh_token_not_found')) {
               toast({
@@ -80,10 +82,8 @@ const Navbar = () => {
       }
     };
 
-    // Check initial session
     checkSession();
 
-    // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
 
@@ -104,7 +104,6 @@ const Navbar = () => {
           setIsLoggedIn(!!session);
           break;
         default:
-          // Handle any other events
           setIsLoggedIn(!!session);
           break;
       }
@@ -140,84 +139,19 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 glass-effect">
       <div className="container mx-auto">
         <div className="flex items-center justify-between h-20 px-4">
-          <Link to="/" className="flex items-center gap-3">
-            <img 
-              src={settings?.logo_url || "/lovable-uploads/d7990538-4e18-4b76-bb29-4e16e74bf512.png"} 
-              alt={settings?.logo_text || "Sat-shop"} 
-              className="h-12 w-auto"
-            />
-            {settings?.logo_text && (
-              <span className="text-lg font-semibold text-primary">
-                {settings.logo_text}
-              </span>
-            )}
-          </Link>
+          <Logo 
+            logoUrl={settings?.logo_url || "/lovable-uploads/d7990538-4e18-4b76-bb29-4e16e74bf512.png"}
+            logoText={settings?.logo_text}
+            altText={settings?.logo_text || "Sat-shop"}
+          />
           
-          <div className="hidden md:flex items-center space-x-8">
-            <Link 
-              to="/" 
-              className="nav-link font-medium"
-            >
-              Accueil
-            </Link>
-            <Link 
-              to="/marketplace" 
-              className="nav-link font-medium"
-            >
-              Marketplace
-            </Link>
-            <Link 
-              to="/contact" 
-              className="nav-link font-medium"
-            >
-              Contactez-nous
-            </Link>
-          </div>
+          <NavLinks />
 
           <div className="flex items-center gap-6">
             {isLoggedIn ? (
-              <>
-                <Link 
-                  to="/profile" 
-                  className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
-                  title="Gérer mon profil"
-                >
-                  <UserCog className="w-5 h-5" />
-                  <span className="font-medium">Mon Profil</span>
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
-                  title="Se déconnecter"
-                >
-                  <LogOut className="w-5 h-5" />
-                  <span className="font-medium">Déconnexion</span>
-                </button>
-                <Link 
-                  to="/cart" 
-                  className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
-                >
-                  <ShoppingCart className="w-5 h-5" />
-                  <span className="font-medium">Panier</span>
-                </Link>
-              </>
+              <UserButtons onLogout={handleLogout} />
             ) : (
-              <>
-                <Link 
-                  to="/login" 
-                  className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
-                >
-                  <User className="w-5 h-5" />
-                  <span className="font-medium">Connexion</span>
-                </Link>
-                <Link 
-                  to="/cart" 
-                  className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
-                >
-                  <ShoppingCart className="w-5 h-5" />
-                  <span className="font-medium">Panier</span>
-                </Link>
-              </>
+              <AuthButtons />
             )}
           </div>
         </div>
