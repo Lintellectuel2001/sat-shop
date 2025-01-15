@@ -3,10 +3,35 @@ import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, User, UserCog, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+
+interface SiteSettings {
+  logo_url: string;
+  logo_text: string;
+}
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+
+  const { data: settings } = useQuery({
+    queryKey: ['site-settings'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('*')
+        .single();
+
+      if (error) {
+        console.error('Error fetching site settings:', error);
+        return {
+          logo_url: "/lovable-uploads/d7990538-4e18-4b76-bb29-4e16e74bf512.png",
+          logo_text: "Sat-shop"
+        };
+      }
+      return data as SiteSettings;
+    },
+  });
 
   useEffect(() => {
     let mounted = true;
@@ -117,10 +142,15 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-20 px-4">
           <Link to="/" className="flex items-center gap-3">
             <img 
-              src="/lovable-uploads/d7990538-4e18-4b76-bb29-4e16e74bf512.png" 
-              alt="Sat-shop" 
+              src={settings?.logo_url || "/lovable-uploads/d7990538-4e18-4b76-bb29-4e16e74bf512.png"} 
+              alt={settings?.logo_text || "Sat-shop"} 
               className="h-12 w-auto"
             />
+            {settings?.logo_text && (
+              <span className="text-lg font-semibold text-primary">
+                {settings.logo_text}
+              </span>
+            )}
           </Link>
           
           <div className="hidden md:flex items-center space-x-8">
