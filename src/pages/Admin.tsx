@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import ProductManager from '@/components/admin/ProductManager';
 import SlideManager from '@/components/admin/SlideManager';
+import SiteSettingsManager from '@/components/admin/settings/SiteSettingsManager';
 
 interface Product {
   id: string;
@@ -86,6 +87,7 @@ const Admin = () => {
         <TabsList className="mb-6">
           <TabsTrigger value="products">Produits</TabsTrigger>
           <TabsTrigger value="slides">Diaporama</TabsTrigger>
+          <TabsTrigger value="settings">Paramètres</TabsTrigger>
         </TabsList>
 
         <TabsContent value="products">
@@ -94,6 +96,10 @@ const Admin = () => {
 
         <TabsContent value="slides">
           <SlideManager slides={slides} onSlidesChange={fetchSlides} />
+        </TabsContent>
+
+        <TabsContent value="settings">
+          <SiteSettingsManager />
         </TabsContent>
       </Tabs>
     </div>
