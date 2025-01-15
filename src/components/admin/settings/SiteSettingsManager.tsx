@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { Upload } from "lucide-react";
-import { uploadFile } from "@/utils/fileUpload";
+import { handleImageUpload } from "@/utils/fileUpload";
 
 interface SiteSettings {
   id: string;
@@ -36,7 +36,7 @@ const SiteSettingsManager = () => {
 
     setIsLoading(true);
     try {
-      const logoUrl = await uploadFile(file, 'lovable-uploads');
+      const logoUrl = await handleImageUpload(file);
       
       const { error } = await supabase
         .from('site_settings')
