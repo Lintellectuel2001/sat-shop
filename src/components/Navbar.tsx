@@ -39,7 +39,7 @@ const Navbar = () => {
   useEffect(() => {
     let mounted = true;
 
-    const checkSession = async () => {
+    const checkAuthStatus = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
@@ -47,8 +47,8 @@ const Navbar = () => {
           console.error('Session check error:', error);
           if (mounted) {
             setIsLoggedIn(false);
-            await supabase.auth.signOut();
             if (error.message.includes('refresh_token_not_found')) {
+              await supabase.auth.signOut();
               toast({
                 title: "Session expirée",
                 description: "Votre session a expiré. Veuillez vous reconnecter.",
@@ -82,7 +82,7 @@ const Navbar = () => {
       }
     };
 
-    checkSession();
+    checkAuthStatus();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
