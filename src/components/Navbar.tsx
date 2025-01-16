@@ -115,7 +115,8 @@ const Navbar = () => {
           break;
         default:
           // Handle refresh token errors
-          if (error?.message?.includes('refresh_token_not_found')) {
+          const { error: authError } = await supabase.auth.getSession();
+          if (authError?.message?.includes('refresh_token_not_found')) {
             await handleSignOut();
           } else {
             setIsLoggedIn(!!session);
