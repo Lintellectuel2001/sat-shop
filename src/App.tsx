@@ -7,6 +7,7 @@ import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import ProductDetails from "./pages/ProductDetails";
 import LoginPanel from "./components/auth/LoginPanel";
+import RegisterPanel from "./components/auth/RegisterPanel";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/admin" element={<Admin />} />
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/login" element={<LoginPanel />} />
+        <Route path="/register" element={<RegisterPanel />} />
       </Routes>
     </Router>
   );
