@@ -22,11 +22,20 @@ export const useAdminCheck = () => {
             setIsAdmin(false);
             setIsLoading(false);
             setSessionChecked(true);
-            toast({
-              variant: "destructive",
-              title: "Erreur",
-              description: "Vous devez être connecté pour accéder à cette page",
-            });
+            if (sessionError?.message.includes('refresh_token_not_found')) {
+              await supabase.auth.signOut();
+              toast({
+                variant: "destructive",
+                title: "Session expirée",
+                description: "Votre session a expiré. Veuillez vous reconnecter.",
+              });
+            } else {
+              toast({
+                variant: "destructive",
+                title: "Erreur",
+                description: "Vous devez être connecté pour accéder à cette page",
+              });
+            }
             navigate('/login');
           }
           return;
@@ -78,7 +87,7 @@ export const useAdminCheck = () => {
       }
     };
 
-    checkSession();
+    checkAdminStatus();
 
     return () => {
       mounted = false;
