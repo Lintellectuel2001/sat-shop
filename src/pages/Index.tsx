@@ -43,7 +43,6 @@ const Index = () => {
     []
   );
 
-  // Fetch slides from Supabase
   const { data: slides = [] } = useQuery({
     queryKey: ['slides'],
     queryFn: async () => {
@@ -84,7 +83,6 @@ const Index = () => {
     <div className="min-h-screen">
       <Navbar />
       
-      {/* Carousel Section */}
       <section className="w-full bg-white pt-16">
         <Carousel 
           className="w-full max-w-[2000px] mx-auto" 
@@ -103,7 +101,7 @@ const Index = () => {
                     alt={slide.title}
                     className="w-full h-full object-cover object-[50%_5%] sm:object-[50%_25%]"
                   />
-                  <div className={`absolute bottom-0 left-0 p-8 ${slide.text_color || 'text-white'}`}>
+                  <div className={`absolute bottom-0 left-0 p-8 text-black ${slide.text_color || ''}`}>
                     <h3 className="text-2xl font-bold mb-2">{slide.title}</h3>
                     {slide.description && (
                       <p className="text-lg">{slide.description}</p>
@@ -123,7 +121,6 @@ const Index = () => {
       <NewsletterSection />
       <Footer />
 
-      {/* Admin Access Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
           <Button
