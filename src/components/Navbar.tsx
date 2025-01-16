@@ -39,6 +39,22 @@ const Navbar = () => {
   useEffect(() => {
     let mounted = true;
 
+    const handleSignOut = async () => {
+      try {
+        await supabase.auth.signOut();
+        if (mounted) {
+          setIsLoggedIn(false);
+          navigate('/login');
+          toast({
+            title: "Session expirée",
+            description: "Votre session a expiré. Veuillez vous reconnecter.",
+          });
+        }
+      } catch (error) {
+        console.error('Error signing out:', error);
+      }
+    };
+
     const checkAuthStatus = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -48,13 +64,7 @@ const Navbar = () => {
           if (mounted) {
             setIsLoggedIn(false);
             if (error.message.includes('refresh_token_not_found')) {
-              await supabase.auth.signOut();
-              toast({
-                title: "Session expirée",
-                description: "Votre session a expiré. Veuillez vous reconnecter.",
-                variant: "destructive",
-              });
-              navigate('/login');
+              await handleSignOut();
             } else {
               toast({
                 title: "Erreur de session",
@@ -104,7 +114,12 @@ const Navbar = () => {
           setIsLoggedIn(!!session);
           break;
         default:
-          setIsLoggedIn(!!session);
+          // Handle refresh token errors
+          if (event === 'USER_DELETED' || event.includes('TOKEN_REFRESHED')) {
+            await handleSignOut();
+          } else {
+            setIsLoggedIn(!!session);
+          }
           break;
       }
     });
