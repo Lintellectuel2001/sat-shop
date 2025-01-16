@@ -36,14 +36,23 @@ export const useAdminCheck = () => {
           .from('admin_users')
           .select('id')
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
 
         if (mounted) {
-          if (adminError || !adminData) {
+          if (adminError) {
+            console.error('Error checking admin status:', adminError);
             setIsAdmin(false);
             toast({
               variant: "destructive",
               title: "Erreur",
+              description: "Une erreur est survenue lors de la vérification des droits",
+            });
+            navigate('/');
+          } else if (!adminData) {
+            setIsAdmin(false);
+            toast({
+              variant: "destructive",
+              title: "Accès refusé",
               description: "Vous n'avez pas les droits d'administration",
             });
             navigate('/');
@@ -69,7 +78,7 @@ export const useAdminCheck = () => {
       }
     };
 
-    checkAdminStatus();
+    checkSession();
 
     return () => {
       mounted = false;
