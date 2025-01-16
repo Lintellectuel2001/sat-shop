@@ -24,6 +24,9 @@ interface SlideFormProps {
 const textColorOptions = [
   { value: 'text-white', label: 'Blanc' },
   { value: 'text-black', label: 'Noir' },
+  { value: 'text-primary', label: 'Principal' },
+  { value: 'text-accent', label: 'Accent' },
+  { value: 'text-muted-foreground', label: 'Gris' },
 ];
 
 const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: SlideFormProps) => {
@@ -32,6 +35,8 @@ const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: S
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Set a default transparent background
+    onSlideChange('color', 'from-transparent');
     onSubmit();
   };
 
@@ -64,7 +69,7 @@ const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: S
         <Label>Couleur du texte *</Label>
         <RadioGroup
           value={slide.textColor || 'text-white'}
-          onValueChange={(value) => onSlideChange('text_color', value)}
+          onValueChange={(value) => onSlideChange('textColor', value)}
           className="flex flex-wrap gap-4"
         >
           {textColorOptions.map((option) => (
