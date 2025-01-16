@@ -115,7 +115,7 @@ const Navbar = () => {
           break;
         default:
           // Handle refresh token errors
-          if (event === 'USER_DELETED' || event.includes('TOKEN_REFRESHED')) {
+          if (error?.message?.includes('refresh_token_not_found')) {
             await handleSignOut();
           } else {
             setIsLoggedIn(!!session);
