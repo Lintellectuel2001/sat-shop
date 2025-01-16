@@ -35,6 +35,8 @@ const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: S
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Set a default transparent background
+    onSlideChange('color', 'from-transparent');
     onSubmit();
   };
 
@@ -60,18 +62,6 @@ const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: S
           value={slide.description || ''}
           onChange={(e) => onSlideChange('description', e.target.value)}
           disabled={isLoading}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="color">Couleur de fond *</Label>
-        <Input
-          id="color"
-          placeholder="Couleur (ex: from-blue-500)"
-          value={slide.color}
-          onChange={(e) => onSlideChange('color', e.target.value)}
-          disabled={isLoading}
-          required
         />
       </div>
 
