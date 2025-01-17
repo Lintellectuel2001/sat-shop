@@ -13,7 +13,7 @@ interface SlideFormProps {
     description?: string;
     image: string;
     color: string;
-    textColor?: string;
+    text_color?: string;
   };
   onSlideChange: (field: string, value: string) => void;
   onSubmit: () => void;
@@ -68,8 +68,8 @@ const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: S
       <div className="space-y-2">
         <Label>Couleur du texte *</Label>
         <RadioGroup
-          value={slide.textColor || 'text-white'}
-          onValueChange={(value) => onSlideChange('textColor', value)}
+          value={slide.text_color || 'text-white'}
+          onValueChange={(value) => onSlideChange('text_color', value)}
           className="flex flex-wrap gap-4"
         >
           {textColorOptions.map((option) => (
