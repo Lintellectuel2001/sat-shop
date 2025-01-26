@@ -65,12 +65,6 @@ const Navbar = () => {
             setIsLoggedIn(false);
             if (error.message.includes('refresh_token_not_found')) {
               await handleSignOut();
-            } else {
-              toast({
-                title: "Erreur de session",
-                description: "Une erreur est survenue lors de la vérification de votre session",
-                variant: "destructive",
-              });
             }
           }
           return;
@@ -78,22 +72,24 @@ const Navbar = () => {
 
         if (mounted) {
           setIsLoggedIn(!!session);
+          if (!session) {
+            // Clear any existing auth state if no session
+            await supabase.auth.signOut();
+          }
         }
       } catch (error: any) {
         console.error('Session check error:', error);
         if (mounted) {
           setIsLoggedIn(false);
-          toast({
-            title: "Erreur de session",
-            description: "Une erreur est survenue lors de la vérification de votre session",
-            variant: "destructive",
-          });
+          await handleSignOut();
         }
       }
     };
 
+    // Initial auth check
     checkAuthStatus();
 
+    // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
 
@@ -115,11 +111,13 @@ const Navbar = () => {
           break;
         default:
           // Handle refresh token errors
-          const { error: authError } = await supabase.auth.getSession();
-          if (authError?.message?.includes('refresh_token_not_found')) {
-            await handleSignOut();
-          } else {
-            setIsLoggedIn(!!session);
+          if (!session) {
+            const { error } = await supabase.auth.getSession();
+            if (error?.message?.includes('refresh_token_not_found')) {
+              await handleSignOut();
+            } else {
+              setIsLoggedIn(false);
+            }
           }
           break;
       }
