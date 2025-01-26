@@ -18,7 +18,7 @@ const ProductCard = ({ id = "1", name, price, image, rating, reviews, paymentLin
     if (id) {
       navigate('/cart', {
         state: {
-          product: { name, price },
+          product: { id, name, price, image },
           paymentLink
         }
       });
