@@ -31,7 +31,6 @@ const Cart = () => {
   const paymentLink = location.state?.paymentLink;
   const product = location.state?.product;
 
-  // Redirect to home if no product in state
   React.useEffect(() => {
     if (!product || !paymentLink) {
       toast({
@@ -73,7 +72,6 @@ const Cart = () => {
         description: "Vous allez être redirigé vers la page de paiement",
       });
 
-      // Add a small delay to allow the toast to be shown
       setTimeout(() => {
         window.location.href = paymentLink;
       }, 1500);

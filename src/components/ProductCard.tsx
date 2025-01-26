@@ -20,8 +20,7 @@ const ProductCard = ({ id = "1", name, price, image, rating, reviews, paymentLin
       state: {
         product: { id, name, price, image },
         paymentLink
-      },
-      replace: true // Ajout de replace: true pour forcer la redirection
+      }
     });
   };
 
