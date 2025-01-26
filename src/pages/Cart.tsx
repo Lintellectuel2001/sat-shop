@@ -28,21 +28,31 @@ const Cart = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { state } = location;
-  const paymentLink = state?.paymentLink;
-  const product = state?.product;
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  // Utiliser un état local pour stocker les données du produit
+  const [cartData, setCartData] = React.useState<{
+    product: any;
+    paymentLink: string;
+  } | null>(null);
 
   React.useEffect(() => {
-    if (!state || !product || !paymentLink) {
+    // Vérifier si nous avons les données nécessaires dans location.state
+    if (location.state?.product && location.state?.paymentLink) {
+      setCartData({
+        product: location.state.product,
+        paymentLink: location.state.paymentLink
+      });
+    } else {
       toast({
         variant: "destructive",
         title: "Erreur",
         description: "Aucun produit sélectionné",
       });
       navigate('/');
-      return;
     }
-  }, [state, product, paymentLink, navigate, toast]);
+    setIsLoading(false);
+  }, [location.state, navigate, toast]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -55,12 +65,14 @@ const Cart = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!cartData) return;
+
     try {
       const { error } = await supabase.functions.invoke('send-order-email', {
         body: {
           ...values,
-          productName: product?.name,
-          productPrice: product?.price,
+          productName: cartData.product?.name,
+          productPrice: cartData.product?.price,
         },
       });
 
@@ -75,7 +87,7 @@ const Cart = () => {
       });
 
       setTimeout(() => {
-        window.location.href = paymentLink;
+        window.location.href = cartData.paymentLink;
       }, 1500);
     } catch (error: any) {
       console.error("Error:", error);
@@ -87,7 +99,20 @@ const Cart = () => {
     }
   };
 
-  if (!product) {
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <main className="container mx-auto px-4 pt-32 pb-16">
+          <div className="flex justify-center items-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!cartData) {
     return null;
   }
 
@@ -106,8 +131,8 @@ const Cart = () => {
             <div className="border-b pb-4 mb-4">
               <div className="flex justify-between items-center">
                 <div>
-                  <h3 className="font-medium">{product.name}</h3>
-                  <p className="text-sm text-gray-600">{product.price}</p>
+                  <h3 className="font-medium">{cartData.product.name}</h3>
+                  <p className="text-sm text-gray-600">{cartData.product.price}</p>
                 </div>
               </div>
             </div>
