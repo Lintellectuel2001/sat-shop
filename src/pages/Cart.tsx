@@ -1,25 +1,88 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
+
+const formSchema = z.object({
+  firstName: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
+  lastName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
+  email: z.string().email("Email invalide"),
+  phone: z.string().min(8, "Numéro de téléphone invalide"),
+});
 
 const Cart = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const paymentLink = location.state?.paymentLink;
+  const product = location.state?.product;
 
-  const handleOrder = () => {
-    if (paymentLink) {
-      window.location.href = paymentLink;
-    } else {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!paymentLink) {
       toast({
         variant: "destructive",
         title: "Erreur",
         description: "Lien de paiement non trouvé",
       });
       navigate('/');
+      return;
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-order-email`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({
+            ...values,
+            productName: product?.name,
+            productPrice: product?.price,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de l'envoi de l'email");
+      }
+
+      window.location.href = paymentLink;
+    } catch (error) {
+      console.error("Error:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la commande",
+      });
     }
   };
 
@@ -46,12 +109,72 @@ const Cart = () => {
               </div>
             )}
 
-            <Button 
-              onClick={handleOrder}
-              className="w-full lg:w-auto text-lg py-6 bg-primary hover:bg-primary/90"
-            >
-              Commander Maintenant
-            </Button>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Prénom</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Votre prénom" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nom</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Votre nom" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="votre@email.com" type="email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Téléphone</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Votre numéro de téléphone" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button 
+                  type="submit"
+                  className="w-full lg:w-auto text-lg py-6 bg-primary hover:bg-primary/90"
+                >
+                  Payer Maintenant
+                </Button>
+              </form>
+            </Form>
           </div>
         </div>
       </main>
