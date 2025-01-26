@@ -62,10 +62,19 @@ const Cart = () => {
       });
 
       if (error) {
-        throw error;
+        console.error("Edge function error:", error);
+        throw new Error("Erreur lors de l'envoi de l'email");
       }
 
-      window.location.href = paymentLink;
+      toast({
+        title: "Commande enregistrée",
+        description: "Vous allez être redirigé vers la page de paiement",
+      });
+
+      // Add a small delay to allow the toast to be shown
+      setTimeout(() => {
+        window.location.href = paymentLink;
+      }, 1500);
     } catch (error: any) {
       console.error("Error:", error);
       toast({
