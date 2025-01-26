@@ -31,6 +31,18 @@ const Cart = () => {
   const paymentLink = location.state?.paymentLink;
   const product = location.state?.product;
 
+  // Redirect to home if no product in state
+  React.useEffect(() => {
+    if (!product || !paymentLink) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Aucun produit sélectionné",
+      });
+      navigate('/');
+    }
+  }, [product, paymentLink, navigate, toast]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -42,16 +54,6 @@ const Cart = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (!paymentLink) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Lien de paiement non trouvé",
-      });
-      navigate('/');
-      return;
-    }
-
     try {
       const { error } = await supabase.functions.invoke('send-order-email', {
         body: {
@@ -85,6 +87,10 @@ const Cart = () => {
     }
   };
 
+  if (!product) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -97,16 +103,14 @@ const Cart = () => {
               <h2 className="text-xl font-semibold">Récapitulatif de la commande</h2>
             </div>
             
-            {location.state?.product && (
-              <div className="border-b pb-4 mb-4">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="font-medium">{location.state.product.name}</h3>
-                    <p className="text-sm text-gray-600">{location.state.product.price}</p>
-                  </div>
+            <div className="border-b pb-4 mb-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="font-medium">{product.name}</h3>
+                  <p className="text-sm text-gray-600">{product.price}</p>
                 </div>
               </div>
-            )}
+            </div>
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
