@@ -29,30 +29,33 @@ const Cart = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(true);
-
-  // Utiliser un état local pour stocker les données du produit
   const [cartData, setCartData] = React.useState<{
     product: any;
     paymentLink: string;
   } | null>(null);
 
   React.useEffect(() => {
-    // Vérifier si nous avons les données nécessaires dans location.state
-    if (location.state?.product && location.state?.paymentLink) {
-      setCartData({
-        product: location.state.product,
-        paymentLink: location.state.paymentLink
-      });
-    } else {
+    // On vérifie d'abord si nous avons les données nécessaires
+    const hasValidData = location.state?.product && location.state?.paymentLink;
+    
+    if (!hasValidData) {
+      console.log("Données manquantes:", location.state);
       toast({
         variant: "destructive",
         title: "Erreur",
         description: "Aucun produit sélectionné",
       });
-      navigate('/');
+      navigate('/', { replace: true });
+      return;
     }
+
+    // Si nous avons les données, on les stocke
+    setCartData({
+      product: location.state.product,
+      paymentLink: location.state.paymentLink
+    });
     setIsLoading(false);
-  }, [location.state, navigate, toast]);
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
