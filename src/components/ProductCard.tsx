@@ -15,6 +15,7 @@ const ProductCard = ({ id = "1", name, price, image, rating, reviews, paymentLin
   const navigate = useNavigate();
 
   const handleClick = () => {
+    console.log("Redirecting to cart with:", { id, name, price, image, paymentLink });
     navigate('/cart', {
       state: {
         product: { id, name, price, image },
