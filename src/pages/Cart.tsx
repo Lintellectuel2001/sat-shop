@@ -53,30 +53,20 @@ const Cart = () => {
     }
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-order-email`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${session?.access_token}`,
-          },
-          body: JSON.stringify({
-            ...values,
-            productName: product?.name,
-            productPrice: product?.price,
-          }),
-        }
-      );
+      const { error } = await supabase.functions.invoke('send-order-email', {
+        body: {
+          ...values,
+          productName: product?.name,
+          productPrice: product?.price,
+        },
+      });
 
-      if (!response.ok) {
-        throw new Error("Erreur lors de l'envoi de l'email");
+      if (error) {
+        throw error;
       }
 
       window.location.href = paymentLink;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error:", error);
       toast({
         variant: "destructive",
