@@ -28,19 +28,21 @@ const Cart = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const paymentLink = location.state?.paymentLink;
-  const product = location.state?.product;
+  const { state } = location;
+  const paymentLink = state?.paymentLink;
+  const product = state?.product;
 
   React.useEffect(() => {
-    if (!product || !paymentLink) {
+    if (!state || !product || !paymentLink) {
       toast({
         variant: "destructive",
         title: "Erreur",
         description: "Aucun produit sélectionné",
       });
       navigate('/');
+      return;
     }
-  }, [product, paymentLink, navigate, toast]);
+  }, [state, product, paymentLink, navigate, toast]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
