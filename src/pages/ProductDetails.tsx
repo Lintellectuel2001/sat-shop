@@ -55,6 +55,34 @@ const ProductDetails = () => {
     fetchProduct();
   }, [id, navigate, toast]);
 
+  const handleOrder = async () => {
+    if (!product) return;
+
+    try {
+      // Send order notification email
+      const { error: emailError } = await supabase.functions.invoke('send-order-notification', {
+        body: {
+          productName: product.name,
+          productPrice: product.price,
+        },
+      });
+
+      if (emailError) {
+        console.error('Error sending notification:', emailError);
+      }
+
+      // Redirect to payment link
+      window.location.href = product.payment_link;
+    } catch (error) {
+      console.error('Error processing order:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur est survenue lors du traitement de la commande",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -120,7 +148,7 @@ const ProductDetails = () => {
             )}
 
             <Button 
-              onClick={() => window.location.href = product.payment_link}
+              onClick={handleOrder}
               className="w-full lg:w-auto text-lg py-6"
             >
               Commander Maintenant
