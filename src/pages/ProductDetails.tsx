@@ -55,32 +55,21 @@ const ProductDetails = () => {
     fetchProduct();
   }, [id, navigate, toast]);
 
-  const handleOrder = async () => {
+  const handleOrder = () => {
     if (!product) return;
 
-    try {
-      // Send order notification email
-      const { error: emailError } = await supabase.functions.invoke('send-order-notification', {
-        body: {
-          productName: product.name,
-          productPrice: product.price,
-        },
-      });
+    // Redirect immediately to payment link
+    window.location.href = product.payment_link;
 
-      if (emailError) {
-        console.error('Error sending notification:', emailError);
-      }
-
-      // Redirect to payment link
-      window.location.href = product.payment_link;
-    } catch (error) {
-      console.error('Error processing order:', error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Une erreur est survenue lors du traitement de la commande",
-      });
-    }
+    // Send notification email in the background
+    supabase.functions.invoke('send-order-notification', {
+      body: {
+        productName: product.name,
+        productPrice: product.price,
+      },
+    }).catch((error) => {
+      console.error('Error sending notification:', error);
+    });
   };
 
   if (loading) {
