@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import ProductManager from '@/components/admin/ProductManager';
 import SlideManager from '@/components/admin/SlideManager';
 import SiteSettingsManager from '@/components/admin/settings/SiteSettingsManager';
+import StatisticsPanel from '@/components/admin/statistics/StatisticsPanel';
 
 interface Product {
   id: string;
@@ -83,12 +84,17 @@ const Admin = () => {
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-8">Panneau d'Administration</h1>
       
-      <Tabs defaultValue="products">
+      <Tabs defaultValue="statistics">
         <TabsList className="mb-6">
+          <TabsTrigger value="statistics">Statistiques</TabsTrigger>
           <TabsTrigger value="products">Produits</TabsTrigger>
           <TabsTrigger value="slides">Diaporama</TabsTrigger>
           <TabsTrigger value="settings">Paramètres</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="statistics">
+          <StatisticsPanel />
+        </TabsContent>
 
         <TabsContent value="products">
           <ProductManager products={products} onProductsChange={fetchProducts} />
