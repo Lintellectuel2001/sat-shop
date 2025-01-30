@@ -27,12 +27,17 @@ const StatisticsPanel = () => {
         .select('*', { count: 'exact', head: true });
       setTotalProducts(productsCount || 0);
 
-      // Count total orders based on "Commander maintenant" button clicks
-      const { count: ordersCount } = await supabase
+      // Count total orders from cart_history
+      const { data: ordersData, error: ordersError } = await supabase
         .from('cart_history')
-        .select('*', { count: 'exact', head: true })
+        .select('*')
         .eq('action_type', 'purchase');
-      setTotalOrders(ordersCount || 0);
+
+      if (ordersError) {
+        console.error('Error fetching orders:', ordersError);
+      } else {
+        setTotalOrders(ordersData?.length || 0);
+      }
 
       // Analyze product categories
       const { data: products } = await supabase
@@ -59,8 +64,7 @@ const StatisticsPanel = () => {
         .from('cart_history')
         .select('created_at')
         .eq('action_type', 'purchase')
-        .order('created_at', { ascending: false })
-        .limit(6);
+        .order('created_at', { ascending: false });
 
       if (recentSales) {
         const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'];
