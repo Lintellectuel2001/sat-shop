@@ -29,7 +29,8 @@ const StatisticsPanel = () => {
         .select('*', { count: 'exact' });
       setTotalProducts(productsCount || 0);
 
-      // Track total orders based on "Commander maintenant" button clicks
+      // Count total orders based on "Commander maintenant" button clicks
+      // We use cart_history table with action_type = 'purchase'
       const { count: ordersCount } = await supabase
         .from('cart_history')
         .select('*', { count: 'exact', head: true })
