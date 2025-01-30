@@ -29,14 +29,14 @@ const StatisticsPanel = () => {
         .select('*', { count: 'exact' });
       setTotalProducts(productsCount || 0);
 
-      // Fetch total orders from cart_history where action_type is 'purchase'
+      // Count orders from cart_history where action_type is 'purchase'
       const { count: ordersCount } = await supabase
         .from('cart_history')
         .select('*', { count: 'exact' })
         .eq('action_type', 'purchase');
       setTotalOrders(ordersCount || 0);
 
-      // Fetch products to calculate popular category
+      // Calculate most popular category
       const { data: products } = await supabase
         .from('products')
         .select('category');
@@ -56,7 +56,7 @@ const StatisticsPanel = () => {
         setCategoryPercentage(Math.round(percentage));
       }
 
-      // Fetch recent sales data (last 6 months)
+      // Get sales data for the last 6 months
       const { data: recentSales } = await supabase
         .from('cart_history')
         .select('created_at')
