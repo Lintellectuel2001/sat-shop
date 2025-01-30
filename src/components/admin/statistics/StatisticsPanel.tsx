@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, ShoppingCart, Tags } from "lucide-react";
-import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from "@/integrations/supabase/client";
+import StatsCards from './StatsCards';
+import SalesChart from './SalesChart';
 
 interface SalesData {
   name: string;
@@ -30,7 +28,6 @@ const StatisticsPanel = () => {
       setTotalProducts(productsCount || 0);
 
       // Count total orders based on "Commander maintenant" button clicks
-      // We use cart_history table with action_type = 'purchase'
       const { count: ordersCount } = await supabase
         .from('cart_history')
         .select('*', { count: 'exact', head: true })
@@ -89,64 +86,14 @@ const StatisticsPanel = () => {
     <div className="space-y-6">
       <h2 className="text-2xl font-semibold">Statistiques</h2>
       
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Produits</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalProducts}</div>
-            <p className="text-xs text-muted-foreground">
-              Produits disponibles
-            </p>
-          </CardContent>
-        </Card>
+      <StatsCards
+        totalProducts={totalProducts}
+        totalOrders={totalOrders}
+        popularCategory={popularCategory}
+        categoryPercentage={categoryPercentage}
+      />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Commandes</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalOrders}</div>
-            <p className="text-xs text-muted-foreground">
-              Commandes totales
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Catégorie Populaire</CardTitle>
-            <Tags className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{popularCategory}</div>
-            <p className="text-xs text-muted-foreground">
-              {categoryPercentage}% des produits
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="col-span-4">
-        <CardHeader>
-          <CardTitle>Ventes Récentes</CardTitle>
-        </CardHeader>
-        <CardContent className="pl-2">
-          <div className="h-[200px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={salesData}>
-                <XAxis dataKey="name" stroke="#888888" fontSize={12} />
-                <YAxis stroke="#888888" fontSize={12} />
-                <Tooltip />
-                <Bar dataKey="sales" fill="#adfa1d" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
+      <SalesChart salesData={salesData} />
     </div>
   );
 };
