@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
 interface SalesData {
   name: string;
@@ -15,19 +15,33 @@ const SalesChart = ({ salesData }: SalesChartProps) => {
   return (
     <Card className="col-span-4">
       <CardHeader>
-        <CardTitle>Ventes Récentes</CardTitle>
+        <CardTitle>Aperçu des Ventes</CardTitle>
       </CardHeader>
       <CardContent className="pl-2">
-        <div className="h-[200px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={salesData}>
-              <XAxis dataKey="name" stroke="#888888" fontSize={12} />
-              <YAxis stroke="#888888" fontSize={12} />
-              <Tooltip />
-              <Bar dataKey="sales" fill="#adfa1d" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        <ResponsiveContainer width="100%" height={350}>
+          <BarChart data={salesData}>
+            <XAxis
+              dataKey="name"
+              stroke="#888888"
+              fontSize={12}
+              tickLine={false}
+              axisLine={false}
+            />
+            <YAxis
+              stroke="#888888"
+              fontSize={12}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(value) => `${value}`}
+            />
+            <Bar
+              dataKey="sales"
+              fill="currentColor"
+              radius={[4, 4, 0, 0]}
+              className="fill-primary"
+            />
+          </BarChart>
+        </ResponsiveContainer>
       </CardContent>
     </Card>
   );

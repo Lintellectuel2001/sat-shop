@@ -21,10 +21,10 @@ const StatisticsPanel = () => {
 
   const fetchStatistics = async () => {
     try {
-      // Get total number of products in the catalog
+      // Get total number of products
       const { count: productsCount } = await supabase
         .from('products')
-        .select('*', { count: 'exact' });
+        .select('*', { count: 'exact', head: true });
       setTotalProducts(productsCount || 0);
 
       // Count total orders based on "Commander maintenant" button clicks
@@ -34,7 +34,7 @@ const StatisticsPanel = () => {
         .eq('action_type', 'purchase');
       setTotalOrders(ordersCount || 0);
 
-      // Analyze product categories to find the most popular one
+      // Analyze product categories
       const { data: products } = await supabase
         .from('products')
         .select('category');
@@ -54,7 +54,7 @@ const StatisticsPanel = () => {
         setCategoryPercentage(Math.round(percentage));
       }
 
-      // Analyze sales trends over the last 6 months
+      // Get sales data for the last 6 months
       const { data: recentSales } = await supabase
         .from('cart_history')
         .select('created_at')

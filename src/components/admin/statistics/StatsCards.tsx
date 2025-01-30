@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, ShoppingCart, Tags } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Package2, ShoppingCart, Tag } from "lucide-react";
 
 interface StatsCardsProps {
   totalProducts: number;
@@ -13,41 +13,33 @@ const StatsCards = ({ totalProducts, totalOrders, popularCategory, categoryPerce
   return (
     <div className="grid gap-4 md:grid-cols-3">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Produits</CardTitle>
-          <Package className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{totalProducts}</div>
-          <p className="text-xs text-muted-foreground">
-            Produits disponibles
-          </p>
+        <CardContent className="flex items-center justify-between p-6">
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Total Produits</p>
+            <h3 className="text-2xl font-bold">{totalProducts}</h3>
+          </div>
+          <Package2 className="h-8 w-8 text-muted-foreground" />
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Commandes</CardTitle>
-          <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{totalOrders}</div>
-          <p className="text-xs text-muted-foreground">
-            Commandes totales
-          </p>
+        <CardContent className="flex items-center justify-between p-6">
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Total Commandes</p>
+            <h3 className="text-2xl font-bold">{totalOrders}</h3>
+          </div>
+          <ShoppingCart className="h-8 w-8 text-muted-foreground" />
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Catégorie Populaire</CardTitle>
-          <Tags className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{popularCategory}</div>
-          <p className="text-xs text-muted-foreground">
-            {categoryPercentage}% des produits
-          </p>
+        <CardContent className="flex items-center justify-between p-6">
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Catégorie Populaire</p>
+            <h3 className="text-2xl font-bold">{popularCategory}</h3>
+            <p className="text-sm text-muted-foreground">{categoryPercentage}% des produits</p>
+          </div>
+          <Tag className="h-8 w-8 text-muted-foreground" />
         </CardContent>
       </Card>
     </div>
