@@ -29,7 +29,7 @@ const StatisticsPanel = () => {
         .select('*', { count: 'exact' });
       setTotalProducts(productsCount || 0);
 
-      // Fetch orders count (from cart_history where action_type is 'purchase')
+      // Fetch total orders from cart_history where action_type is 'purchase'
       const { count: ordersCount } = await supabase
         .from('cart_history')
         .select('*', { count: 'exact' })
@@ -56,7 +56,7 @@ const StatisticsPanel = () => {
         setCategoryPercentage(Math.round(percentage));
       }
 
-      // Fetch recent sales data
+      // Fetch recent sales data (last 6 months)
       const { data: recentSales } = await supabase
         .from('cart_history')
         .select('created_at')
