@@ -43,10 +43,28 @@ const ProductsSection = () => {
     fetchProducts();
   }, [toast, searchQuery]);
 
+  if (products.length === 0 && searchQuery) {
+    return (
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold mb-8">Nos Services</h2>
+          <p className="text-center text-gray-500">
+            Aucun produit trouvé pour "{searchQuery}"
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-16">
       <div className="container mx-auto">
         <h2 className="text-3xl font-bold mb-8 px-4">Nos Services</h2>
+        {searchQuery && (
+          <p className="px-4 mb-4 text-gray-600">
+            Résultats pour "{searchQuery}"
+          </p>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
           {products.map((product) => (
             <ProductCard
