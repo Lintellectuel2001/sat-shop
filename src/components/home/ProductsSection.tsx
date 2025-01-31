@@ -2,18 +2,28 @@ import { useEffect, useState } from "react";
 import ProductCard from "../ProductCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useSearchParams } from "react-router-dom";
 
 const ProductsSection = () => {
   const [products, setProducts] = useState([]);
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get('search');
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data, error } = await supabase
+        let query = supabase
           .from('products')
           .select('*')
           .order('created_at', { ascending: false });
+
+        // Si une recherche est active, filtrer les produits
+        if (searchQuery) {
+          query = query.ilike('name', `%${searchQuery}%`);
+        }
+
+        const { data, error } = await query;
 
         if (error) {
           throw error;
@@ -31,7 +41,7 @@ const ProductsSection = () => {
     };
 
     fetchProducts();
-  }, [toast]);
+  }, [toast, searchQuery]);
 
   return (
     <section className="py-16">
