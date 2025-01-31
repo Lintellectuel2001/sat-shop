@@ -39,6 +39,15 @@ const LoginPanel = () => {
       return;
     }
 
+    if (password.length < 6) {
+      toast({
+        title: "Mot de passe invalide",
+        description: "Le mot de passe doit contenir au moins 6 caractères",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -48,6 +57,8 @@ const LoginPanel = () => {
       });
 
       if (error) {
+        console.error("Login error details:", error);
+        
         if (error.message.includes('Invalid login credentials')) {
           toast({
             title: "Erreur de connexion",
@@ -61,7 +72,6 @@ const LoginPanel = () => {
             variant: "destructive",
           });
         } else {
-          console.error("Login error:", error);
           toast({
             title: "Erreur de connexion",
             description: "Une erreur est survenue lors de la connexion",
