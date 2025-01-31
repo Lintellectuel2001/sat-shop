@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const LoginPanel = () => {
@@ -12,8 +12,33 @@ const LoginPanel = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Basic validation
+    if (!email.trim() || !password.trim()) {
+      toast({
+        title: "Erreur de validation",
+        description: "Veuillez remplir tous les champs",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      toast({
+        title: "Email invalide",
+        description: "Veuillez entrer une adresse email valide",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -23,11 +48,27 @@ const LoginPanel = () => {
       });
 
       if (error) {
-        if (error.message.includes('refresh_token_not_found')) {
-          // Si le token n'est pas trouvé, on nettoie la session
-          await supabase.auth.signOut();
+        if (error.message.includes('Invalid login credentials')) {
+          toast({
+            title: "Erreur de connexion",
+            description: "Email ou mot de passe incorrect",
+            variant: "destructive",
+          });
+        } else if (error.message.includes('Email not confirmed')) {
+          toast({
+            title: "Email non confirmé",
+            description: "Veuillez confirmer votre email avant de vous connecter",
+            variant: "destructive",
+          });
+        } else {
+          console.error("Login error:", error);
+          toast({
+            title: "Erreur de connexion",
+            description: "Une erreur est survenue lors de la connexion",
+            variant: "destructive",
+          });
         }
-        throw error;
+        return;
       }
 
       if (data?.user) {
@@ -39,19 +80,9 @@ const LoginPanel = () => {
       }
     } catch (error: any) {
       console.error("Login error:", error);
-      let errorMessage = "Une erreur est survenue lors de la connexion";
-      
-      if (error.message.includes('Invalid login credentials')) {
-        errorMessage = "Email ou mot de passe incorrect";
-      } else if (error.message.includes('Email not confirmed')) {
-        errorMessage = "Veuillez confirmer votre email avant de vous connecter";
-      } else if (error.message.includes('refresh_token_not_found')) {
-        errorMessage = "Session expirée, veuillez vous reconnecter";
-      }
-
       toast({
         title: "Erreur de connexion",
-        description: errorMessage,
+        description: "Une erreur inattendue est survenue",
         variant: "destructive",
       });
     } finally {
@@ -98,6 +129,7 @@ const LoginPanel = () => {
                 placeholder="••••••••"
                 className="w-full"
                 required
+                minLength={6}
               />
             </div>
 
