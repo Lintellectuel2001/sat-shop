@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import ProfileManager from "../components/profile/ProfileManager";
+import { ProfileManager } from "../components/profile/ProfileManager";
 import { Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
