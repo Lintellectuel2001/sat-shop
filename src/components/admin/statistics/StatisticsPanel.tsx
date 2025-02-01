@@ -18,7 +18,7 @@ const StatisticsPanel = () => {
   useEffect(() => {
     fetchStatistics();
     
-    // Configurer l'écoute en temps réel des nouvelles commandes
+    // Configuration de l'écoute en temps réel des nouvelles commandes
     const channel = supabase
       .channel('cart-changes')
       .on(
@@ -29,8 +29,8 @@ const StatisticsPanel = () => {
           table: 'cart_history',
           filter: 'action_type=eq.purchase'
         },
-        () => {
-          // Mettre à jour le compteur de commandes
+        (payload) => {
+          console.log('Nouvelle commande détectée:', payload);
           setTotalOrders(prev => prev + 1);
           updateSalesData();
         }
@@ -43,50 +43,56 @@ const StatisticsPanel = () => {
   }, []);
 
   const updateSalesData = async () => {
-    const { data: recentSales } = await supabase
-      .from('cart_history')
-      .select('created_at')
-      .eq('action_type', 'purchase')
-      .order('created_at', { ascending: false });
+    try {
+      const { data: recentSales } = await supabase
+        .from('cart_history')
+        .select('created_at')
+        .eq('action_type', 'purchase')
+        .order('created_at', { ascending: false });
 
-    if (recentSales) {
-      const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'];
-      const salesByMonth = recentSales.reduce((acc: {[key: string]: number}, sale) => {
-        const month = new Date(sale.created_at).getMonth();
-        acc[monthNames[month]] = (acc[monthNames[month]] || 0) + 1;
-        return acc;
-      }, {});
+      if (recentSales) {
+        const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'];
+        const salesByMonth = recentSales.reduce((acc: {[key: string]: number}, sale) => {
+          const month = new Date(sale.created_at).getMonth();
+          acc[monthNames[month]] = (acc[monthNames[month]] || 0) + 1;
+          return acc;
+        }, {});
 
-      const chartData = monthNames.map(month => ({
-        name: month,
-        sales: salesByMonth[month] || 0
-      }));
+        const chartData = monthNames.map(month => ({
+          name: month,
+          sales: salesByMonth[month] || 0
+        }));
 
-      setSalesData(chartData);
+        console.log('Données du graphique mises à jour:', chartData);
+        setSalesData(chartData);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour des données de vente:', error);
     }
   };
 
   const fetchStatistics = async () => {
     try {
-      // Get total number of products
+      // Nombre total de produits
       const { count: productsCount } = await supabase
         .from('products')
         .select('*', { count: 'exact', head: true });
       setTotalProducts(productsCount || 0);
 
-      // Count total orders from cart_history
+      // Nombre total de commandes depuis cart_history
       const { data: ordersData, error: ordersError } = await supabase
         .from('cart_history')
         .select('*')
         .eq('action_type', 'purchase');
 
       if (ordersError) {
-        console.error('Error fetching orders:', ordersError);
+        console.error('Erreur lors de la récupération des commandes:', ordersError);
       } else {
+        console.log('Nombre total de commandes:', ordersData?.length);
         setTotalOrders(ordersData?.length || 0);
       }
 
-      // Analyze product categories
+      // Analyse des catégories de produits
       const { data: products } = await supabase
         .from('products')
         .select('category');
@@ -108,7 +114,7 @@ const StatisticsPanel = () => {
 
       await updateSalesData();
     } catch (error) {
-      console.error('Error fetching statistics:', error);
+      console.error('Erreur lors de la récupération des statistiques:', error);
     }
   };
 
