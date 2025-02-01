@@ -139,12 +139,16 @@ const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: S
 
       {imagePreview && (
         <div className="mt-4 relative">
+          <div className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent opacity-60 rounded-lg`} />
+          <div className={`relative z-10 p-4 ${slide.text_color || 'text-white'}`}>
+            <h3 className="text-xl font-semibold">{slide.title}</h3>
+            {slide.description && <p className="mt-2">{slide.description}</p>}
+          </div>
           <img 
             src={imagePreview} 
             alt="Aperçu" 
-            className="w-full h-48 object-cover rounded-lg"
+            className="w-full h-48 object-cover rounded-lg -z-10"
           />
-          <div className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent opacity-60 rounded-lg`} />
         </div>
       )}
 

@@ -56,64 +56,61 @@ const SlideCard = ({ slide, onEdit, onDelete, isLoading }: SlideCardProps) => {
           className="w-full h-full object-cover"
         />
         <div className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent opacity-60`} />
-      </div>
-      
-      <div className="p-4 space-y-4">
-        <div className={slide.text_color || 'text-black'}>
+        <div className={`absolute inset-0 p-4 flex flex-col justify-end ${slide.text_color || 'text-white'}`}>
           <h3 className="font-semibold text-lg">{slide.title}</h3>
           {slide.description && (
-            <p className="text-sm text-gray-600 mt-1">{slide.description}</p>
+            <p className="text-sm mt-1">{slide.description}</p>
           )}
         </div>
+      </div>
+      
+      <div className="p-4 flex gap-2">
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="icon" disabled={isLoading}>
+              <Pencil className="h-4 w-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Modifier le Slide</DialogTitle>
+              <DialogDescription>
+                Modifiez les informations du slide.
+              </DialogDescription>
+            </DialogHeader>
+            <SlideForm
+              slide={editingSlide}
+              onSlideChange={(field, value) => 
+                setEditingSlide({ ...editingSlide, [field]: value })
+              }
+              onSubmit={handleEdit}
+              submitLabel="Mettre à jour"
+              isLoading={isLoading}
+            />
+          </DialogContent>
+        </Dialog>
 
-        <div className="flex gap-2">
-          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="icon" disabled={isLoading}>
-                <Pencil className="h-4 w-4" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Modifier le Slide</DialogTitle>
-                <DialogDescription>
-                  Modifiez les informations du slide.
-                </DialogDescription>
-              </DialogHeader>
-              <SlideForm
-                slide={editingSlide}
-                onSlideChange={(field, value) => 
-                  setEditingSlide({ ...editingSlide, [field]: value })
-                }
-                onSubmit={handleEdit}
-                submitLabel="Mettre à jour"
-                isLoading={isLoading}
-              />
-            </DialogContent>
-          </Dialog>
-
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="icon" disabled={isLoading}>
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Supprimer le slide</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Êtes-vous sûr de vouloir supprimer ce slide ? Cette action est irréversible.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Annuler</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onDelete(slide.id)} disabled={isLoading}>
-                  Supprimer
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" size="icon" disabled={isLoading}>
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Supprimer le slide</AlertDialogTitle>
+              <AlertDialogDescription>
+                Êtes-vous sûr de vouloir supprimer ce slide ? Cette action est irréversible.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Annuler</AlertDialogCancel>
+              <AlertDialogAction onClick={() => onDelete(slide.id)} disabled={isLoading}>
+                Supprimer
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
