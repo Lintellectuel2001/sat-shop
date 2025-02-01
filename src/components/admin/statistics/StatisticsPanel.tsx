@@ -17,7 +17,54 @@ const StatisticsPanel = () => {
 
   useEffect(() => {
     fetchStatistics();
+    
+    // Configurer l'écoute en temps réel des nouvelles commandes
+    const channel = supabase
+      .channel('cart-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'cart_history',
+          filter: 'action_type=eq.purchase'
+        },
+        () => {
+          // Mettre à jour le compteur de commandes
+          setTotalOrders(prev => prev + 1);
+          updateSalesData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
+
+  const updateSalesData = async () => {
+    const { data: recentSales } = await supabase
+      .from('cart_history')
+      .select('created_at')
+      .eq('action_type', 'purchase')
+      .order('created_at', { ascending: false });
+
+    if (recentSales) {
+      const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'];
+      const salesByMonth = recentSales.reduce((acc: {[key: string]: number}, sale) => {
+        const month = new Date(sale.created_at).getMonth();
+        acc[monthNames[month]] = (acc[monthNames[month]] || 0) + 1;
+        return acc;
+      }, {});
+
+      const chartData = monthNames.map(month => ({
+        name: month,
+        sales: salesByMonth[month] || 0
+      }));
+
+      setSalesData(chartData);
+    }
+  };
 
   const fetchStatistics = async () => {
     try {
@@ -59,28 +106,7 @@ const StatisticsPanel = () => {
         setCategoryPercentage(Math.round(percentage));
       }
 
-      // Get sales data for the last 6 months
-      const { data: recentSales } = await supabase
-        .from('cart_history')
-        .select('created_at')
-        .eq('action_type', 'purchase')
-        .order('created_at', { ascending: false });
-
-      if (recentSales) {
-        const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'];
-        const salesByMonth = recentSales.reduce((acc: {[key: string]: number}, sale) => {
-          const month = new Date(sale.created_at).getMonth();
-          acc[monthNames[month]] = (acc[monthNames[month]] || 0) + 1;
-          return acc;
-        }, {});
-
-        const chartData = monthNames.map(month => ({
-          name: month,
-          sales: salesByMonth[month] || 0
-        }));
-
-        setSalesData(chartData);
-      }
+      await updateSalesData();
     } catch (error) {
       console.error('Error fetching statistics:', error);
     }

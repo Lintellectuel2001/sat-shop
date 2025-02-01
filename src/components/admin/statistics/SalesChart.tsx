@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 
 interface SalesData {
   name: string;
@@ -33,6 +33,14 @@ const SalesChart = ({ salesData }: SalesChartProps) => {
               tickLine={false}
               axisLine={false}
               tickFormatter={(value) => `${value}`}
+            />
+            <Tooltip
+              contentStyle={{
+                background: "hsl(var(--background))",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "6px",
+              }}
+              labelStyle={{ color: "hsl(var(--foreground))" }}
             />
             <Bar
               dataKey="sales"
