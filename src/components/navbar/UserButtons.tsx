@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ShoppingCart, UserCog, LogOut, Shield } from "lucide-react";
+import { ShoppingCart, UserCog, LogOut } from "lucide-react";
 
 interface UserButtonsProps {
   onLogout: () => void;
@@ -16,14 +16,6 @@ const UserButtons = ({ onLogout }: UserButtonsProps) => {
       >
         <UserCog className="w-5 h-5" />
         <span className="font-medium">Mon Profil</span>
-      </Link>
-      <Link 
-        to="/admin" 
-        className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
-        title="Accès Administrateur"
-      >
-        <Shield className="w-5 h-5" />
-        <span className="font-medium">Admin</span>
       </Link>
       <button
         onClick={onLogout}
