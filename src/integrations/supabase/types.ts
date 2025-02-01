@@ -24,6 +24,30 @@ export type Database = {
         }
         Relationships: []
       }
+      cart_history: {
+        Row: {
+          id: string
+          action_type: string
+          product_id: string | null
+          user_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          action_type: string
+          product_id?: string | null
+          user_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          action_type?: string
+          product_id?: string | null
+          user_id?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           category: string

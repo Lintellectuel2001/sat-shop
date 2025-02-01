@@ -33,13 +33,14 @@ const ProductInfo = ({
 
   const handleOrder = async () => {
     try {
-      // Ajouter l'action dans cart_history
-      await supabase
+      const { error } = await supabase
         .from('cart_history')
-        .insert({
+        .insert([{
           action_type: 'purchase',
           product_id: name // On utilise le nom du produit comme identifiant
-        });
+        }]);
+
+      if (error) throw error;
 
       navigate('/cart', {
         state: {
