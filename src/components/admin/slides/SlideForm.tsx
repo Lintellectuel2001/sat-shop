@@ -29,14 +29,22 @@ const textColorOptions = [
   { value: 'text-muted-foreground', label: 'Gris' },
 ];
 
+const colorOptions = [
+  { value: 'from-purple-500', label: 'Violet' },
+  { value: 'from-blue-500', label: 'Bleu' },
+  { value: 'from-green-500', label: 'Vert' },
+  { value: 'from-red-500', label: 'Rouge' },
+  { value: 'from-yellow-500', label: 'Jaune' },
+  { value: 'from-pink-500', label: 'Rose' },
+  { value: 'from-accent', label: 'Accent' },
+];
+
 const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: SlideFormProps) => {
   const [imagePreview, setImagePreview] = React.useState<string>(slide.image);
   const [isUploading, setIsUploading] = React.useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Set a default transparent background
-    onSlideChange('color', 'from-transparent');
     onSubmit();
   };
 
@@ -84,6 +92,27 @@ const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: S
       </div>
 
       <div className="space-y-2">
+        <Label>Couleur du fond *</Label>
+        <RadioGroup
+          value={slide.color}
+          onValueChange={(value) => onSlideChange('color', value)}
+          className="flex flex-wrap gap-4"
+        >
+          {colorOptions.map((option) => (
+            <div key={option.value} className="flex items-center space-x-2">
+              <RadioGroupItem value={option.value} id={option.value} />
+              <Label 
+                htmlFor={option.value} 
+                className={`px-2 py-1 rounded ${option.value} to-transparent bg-gradient-to-r text-white`}
+              >
+                {option.label}
+              </Label>
+            </div>
+          ))}
+        </RadioGroup>
+      </div>
+
+      <div className="space-y-2">
         <Label htmlFor="image">Image *</Label>
         <Input
           id="image"
@@ -109,12 +138,13 @@ const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: S
       </div>
 
       {imagePreview && (
-        <div className="mt-4">
+        <div className="mt-4 relative">
           <img 
             src={imagePreview} 
             alt="Aperçu" 
             className="w-full h-48 object-cover rounded-lg"
           />
+          <div className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent opacity-60 rounded-lg`} />
         </div>
       )}
 
