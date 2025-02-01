@@ -18,7 +18,6 @@ const StatisticsPanel = () => {
   useEffect(() => {
     fetchStatistics();
     
-    // Configuration de l'écoute en temps réel des nouvelles commandes
     const channel = supabase
       .channel('cart-changes')
       .on(
