@@ -4,6 +4,8 @@ import ProductHeader from "./ProductHeader";
 import ProductDescription from "./ProductDescription";
 import ProductFeatures from "./ProductFeatures";
 import { useNavigate } from 'react-router-dom';
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProductInfoProps {
   name: string;
@@ -27,14 +29,32 @@ const ProductInfo = ({
   paymentLink
 }: ProductInfoProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleOrder = () => {
-    navigate('/cart', {
-      state: {
-        product: { name, price },
-        paymentLink
-      }
-    });
+  const handleOrder = async () => {
+    try {
+      // Ajouter l'action dans cart_history
+      await supabase
+        .from('cart_history')
+        .insert({
+          action_type: 'purchase',
+          product_id: name // On utilise le nom du produit comme identifiant
+        });
+
+      navigate('/cart', {
+        state: {
+          product: { name, price },
+          paymentLink
+        }
+      });
+    } catch (error) {
+      console.error('Error recording purchase:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'enregistrement de la commande"
+      });
+    }
   };
 
   return (
