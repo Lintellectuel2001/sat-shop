@@ -33,14 +33,10 @@ const Index = () => {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  
-  const plugin = React.useMemo(
-    () =>
-      Autoplay({
-        delay: 8000,
-        stopOnInteraction: false,
-      }),
-    []
+
+  // Déplacer l'initialisation du plugin à l'intérieur du composant
+  const [plugin] = React.useState(
+    () => Autoplay({ delay: 8000, stopOnInteraction: false })
   );
 
   const { data: slides = [] } = useQuery({
