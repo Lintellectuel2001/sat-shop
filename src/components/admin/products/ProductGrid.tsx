@@ -21,6 +21,8 @@ interface Product {
   category: string;
   features?: string[];
   payment_link: string;
+  is_physical?: boolean;
+  available_for_delivery?: boolean;
 }
 
 interface ProductGridProps {
@@ -43,6 +45,7 @@ const ProductGrid = ({ products, onEdit, onDelete }: ProductGridProps) => {
             <TableHead>Catégorie</TableHead>
             <TableHead>Description</TableHead>
             <TableHead>Lien de paiement</TableHead>
+            <TableHead>Type</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -66,6 +69,17 @@ const ProductGrid = ({ products, onEdit, onDelete }: ProductGridProps) => {
               </TableCell>
               <TableCell className="max-w-[200px] truncate">
                 {product.payment_link}
+              </TableCell>
+              <TableCell>
+                {product.is_physical ? (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    {product.available_for_delivery ? 'Livraison' : 'Physique'}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    Digital
+                  </span>
+                )}
               </TableCell>
               <TableCell className="text-right space-x-2">
                 <Dialog>

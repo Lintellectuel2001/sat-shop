@@ -6,6 +6,7 @@ import { handleImageUpload } from "@/utils/fileUpload";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { Switch } from "@/components/ui/switch";
 
 interface ProductFormProps {
   product: {
@@ -15,8 +16,10 @@ interface ProductFormProps {
     description?: string;
     image: string;
     payment_link: string;
+    is_physical?: boolean;
+    available_for_delivery?: boolean;
   };
-  onProductChange: (field: string, value: string) => void;
+  onProductChange: (field: string, value: any) => void;
   onSubmit: () => void;
   submitLabel: string;
 }
@@ -155,6 +158,26 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
           onChange={(e) => onProductChange('description', e.target.value)}
         />
       </div>
+
+      <div className="flex items-center space-x-2">
+        <Switch
+          id="is_physical"
+          checked={product.is_physical || false}
+          onCheckedChange={(checked) => onProductChange('is_physical', checked)}
+        />
+        <Label htmlFor="is_physical">Produit physique</Label>
+      </div>
+
+      {product.is_physical && (
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="available_for_delivery"
+            checked={product.available_for_delivery || false}
+            onCheckedChange={(checked) => onProductChange('available_for_delivery', checked)}
+          />
+          <Label htmlFor="available_for_delivery">Disponible pour la livraison</Label>
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="image">Image *</Label>

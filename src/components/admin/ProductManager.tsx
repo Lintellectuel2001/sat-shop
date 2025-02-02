@@ -12,6 +12,8 @@ interface Product {
   category: string;
   features?: string[];
   payment_link: string;
+  is_physical?: boolean;
+  available_for_delivery?: boolean;
 }
 
 interface ProductManagerProps {
@@ -32,7 +34,7 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
 
   const handleCreateSuccess = async () => {
     await handleProductCreate();
-    onProductsChange(); // Appeler explicitement onProductsChange après la création
+    onProductsChange();
   };
 
   return (

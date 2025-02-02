@@ -94,6 +94,7 @@ export type Database = {
       }
       products: {
         Row: {
+          available_for_delivery: boolean | null
           category: string
           created_at: string
           description: string | null
@@ -101,6 +102,7 @@ export type Database = {
           features: string[] | null
           id: string
           image: string
+          is_physical: boolean | null
           name: string
           payment_link: string
           price: string
@@ -109,6 +111,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          available_for_delivery?: boolean | null
           category: string
           created_at?: string
           description?: string | null
@@ -116,6 +119,7 @@ export type Database = {
           features?: string[] | null
           id?: string
           image: string
+          is_physical?: boolean | null
           name: string
           payment_link: string
           price: string
@@ -124,6 +128,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          available_for_delivery?: boolean | null
           category?: string
           created_at?: string
           description?: string | null
@@ -131,6 +136,7 @@ export type Database = {
           features?: string[] | null
           id?: string
           image?: string
+          is_physical?: boolean | null
           name?: string
           payment_link?: string
           price?: string
