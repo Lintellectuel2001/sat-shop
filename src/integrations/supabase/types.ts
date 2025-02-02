@@ -26,25 +26,25 @@ export type Database = {
       }
       cart_history: {
         Row: {
-          id: string
           action_type: string
+          created_at: string
+          id: string
           product_id: string | null
           user_id: string | null
-          created_at: string
         }
         Insert: {
-          id?: string
           action_type: string
+          created_at?: string
+          id?: string
           product_id?: string | null
           user_id?: string | null
-          created_at?: string
         }
         Update: {
-          id?: string
           action_type?: string
+          created_at?: string
+          id?: string
           product_id?: string | null
           user_id?: string | null
-          created_at?: string
         }
         Relationships: []
       }
