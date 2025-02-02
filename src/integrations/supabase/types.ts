@@ -48,53 +48,8 @@ export type Database = {
         }
         Relationships: []
       }
-      delivery_orders: {
-        Row: {
-          amount: string
-          created_at: string
-          customer_address: string
-          customer_name: string
-          customer_phone: string
-          id: string
-          product_id: string | null
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          amount: string
-          created_at?: string
-          customer_address: string
-          customer_name: string
-          customer_phone: string
-          id?: string
-          product_id?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          amount?: string
-          created_at?: string
-          customer_address?: string
-          customer_name?: string
-          customer_phone?: string
-          id?: string
-          product_id?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "delivery_orders_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       products: {
         Row: {
-          available_for_delivery: boolean | null
           category: string
           created_at: string
           description: string | null
@@ -102,7 +57,6 @@ export type Database = {
           features: string[] | null
           id: string
           image: string
-          is_physical: boolean | null
           name: string
           payment_link: string
           price: string
@@ -111,7 +65,6 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          available_for_delivery?: boolean | null
           category: string
           created_at?: string
           description?: string | null
@@ -119,7 +72,6 @@ export type Database = {
           features?: string[] | null
           id?: string
           image: string
-          is_physical?: boolean | null
           name: string
           payment_link: string
           price: string
@@ -128,7 +80,6 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          available_for_delivery?: boolean | null
           category?: string
           created_at?: string
           description?: string | null
@@ -136,7 +87,6 @@ export type Database = {
           features?: string[] | null
           id?: string
           image?: string
-          is_physical?: boolean | null
           name?: string
           payment_link?: string
           price?: string
