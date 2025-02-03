@@ -116,10 +116,12 @@ const StatisticsPanel = () => {
           table: 'cart_history',
           filter: 'action_type=eq.purchase'
         },
-        (payload) => {
+        async (payload) => {
           console.log('Nouvelle commande détectée:', payload);
+          // Mettre à jour le compteur de commandes
           setTotalOrders(prev => prev + 1);
-          updateSalesData();
+          // Mettre à jour les données de vente
+          await updateSalesData();
         }
       )
       .subscribe();
