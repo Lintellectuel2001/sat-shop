@@ -63,18 +63,26 @@ const StatisticsPanel = () => {
       if (ordersError) {
         console.error('Erreur lors de la récupération des commandes:', ordersError);
       } else {
-        console.log('Nombre total de commandes:', ordersData?.length);
-        setTotalOrders(ordersData?.length || 0);
+        const totalOrders = ordersData?.length || 0;
+        console.log('Nombre total de commandes trouvées:', totalOrders);
+        setTotalOrders(totalOrders);
       }
 
       // Analyse des catégories de produits
-      const { data: products } = await supabase
+      const { data: products, error: productsError } = await supabase
         .from('products')
         .select('category');
 
+      if (productsError) {
+        console.error('Erreur lors de la récupération des catégories:', productsError);
+        return;
+      }
+
       if (products && products.length > 0) {
         const categoryCounts = products.reduce((acc: {[key: string]: number}, product) => {
-          acc[product.category] = (acc[product.category] || 0) + 1;
+          if (product.category) {
+            acc[product.category] = (acc[product.category] || 0) + 1;
+          }
           return acc;
         }, {});
 
@@ -94,6 +102,7 @@ const StatisticsPanel = () => {
   };
 
   useEffect(() => {
+    console.log('Initialisation du panneau de statistiques...');
     fetchStatistics();
     
     // Mettre en place l'écoute en temps réel des nouvelles commandes
