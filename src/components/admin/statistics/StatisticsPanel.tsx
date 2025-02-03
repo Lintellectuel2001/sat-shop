@@ -63,9 +63,9 @@ const StatisticsPanel = () => {
       if (ordersError) {
         console.error('Erreur lors de la récupération des commandes:', ordersError);
       } else {
-        const totalOrders = ordersData?.length || 0;
-        console.log('Nombre total de commandes trouvées:', totalOrders);
-        setTotalOrders(totalOrders);
+        const totalOrderCount = ordersData?.length || 0;
+        console.log('Nombre total de commandes trouvées:', totalOrderCount);
+        setTotalOrders(totalOrderCount);
       }
 
       // Analyse des catégories de produits
