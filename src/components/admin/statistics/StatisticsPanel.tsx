@@ -15,33 +15,6 @@ const StatisticsPanel = () => {
   const [categoryPercentage, setCategoryPercentage] = useState<number>(0);
   const [salesData, setSalesData] = useState<SalesData[]>([]);
 
-  useEffect(() => {
-    fetchStatistics();
-    
-    // Mettre en place l'écoute en temps réel des nouvelles commandes
-    const channel = supabase
-      .channel('cart-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'cart_history',
-          filter: 'action_type=eq.purchase'
-        },
-        (payload) => {
-          console.log('Nouvelle commande détectée:', payload);
-          setTotalOrders(prev => prev + 1);
-          updateSalesData();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
   const updateSalesData = async () => {
     try {
       const { data: recentSales } = await supabase
@@ -77,6 +50,8 @@ const StatisticsPanel = () => {
       const { count: productsCount } = await supabase
         .from('products')
         .select('*', { count: 'exact', head: true });
+      
+      console.log('Nombre total de produits:', productsCount);
       setTotalProducts(productsCount || 0);
 
       // Nombre total de commandes depuis cart_history
@@ -97,7 +72,7 @@ const StatisticsPanel = () => {
         .from('products')
         .select('category');
 
-      if (products) {
+      if (products && products.length > 0) {
         const categoryCounts = products.reduce((acc: {[key: string]: number}, product) => {
           acc[product.category] = (acc[product.category] || 0) + 1;
           return acc;
@@ -117,6 +92,33 @@ const StatisticsPanel = () => {
       console.error('Erreur lors de la récupération des statistiques:', error);
     }
   };
+
+  useEffect(() => {
+    fetchStatistics();
+    
+    // Mettre en place l'écoute en temps réel des nouvelles commandes
+    const channel = supabase
+      .channel('cart-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'cart_history',
+          filter: 'action_type=eq.purchase'
+        },
+        (payload) => {
+          console.log('Nouvelle commande détectée:', payload);
+          setTotalOrders(prev => prev + 1);
+          updateSalesData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   return (
     <div className="space-y-6">
