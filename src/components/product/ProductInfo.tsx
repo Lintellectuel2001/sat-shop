@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import ProductHeader from "./ProductHeader";
@@ -33,27 +34,50 @@ const ProductInfo = ({
 
   const handleOrder = async () => {
     try {
-      const { error } = await supabase
+      // Record the purchase attempt
+      const { error: cartError } = await supabase
         .from('cart_history')
         .insert([{
           action_type: 'purchase',
-          product_id: name // On utilise le nom du produit comme identifiant
+          product_id: name
         }]);
+
+      if (cartError) throw cartError;
+
+      // Create payment using the Edge Function
+      const { data: payment, error } = await supabase.functions.invoke('create-chargily-payment', {
+        body: {
+          amount: price.replace(/[^0-9]/g, ''), // Remove any non-numeric characters
+          name: "Customer", // This should be replaced with actual customer name
+          productName: name
+        }
+      });
 
       if (error) throw error;
 
-      navigate('/cart', {
-        state: {
-          product: { name, price },
-          paymentLink
-        }
+      // If payment creation is successful, proceed with the order
+      if (payment && payment.checkout_url) {
+        window.location.href = payment.checkout_url;
+      } else {
+        throw new Error('Payment URL not received');
+      }
+
+      // Send notification email in the background
+      supabase.functions.invoke('send-order-notification', {
+        body: {
+          productName: name,
+          productPrice: price,
+        },
+      }).catch((error) => {
+        console.error('Error sending notification:', error);
       });
+
     } catch (error) {
-      console.error('Error recording purchase:', error);
+      console.error('Error processing order:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Une erreur est survenue lors de l'enregistrement de la commande"
+        description: "Une erreur est survenue lors du traitement de la commande"
       });
     }
   };
