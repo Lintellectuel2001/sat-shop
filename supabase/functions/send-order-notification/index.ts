@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 
@@ -15,13 +16,19 @@ interface OrderNotificationRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  console.log("Received request:", req.method);
+  
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { 
+      headers: corsHeaders,
+      status: 200
+    });
   }
 
   try {
     const { productName, productPrice }: OrderNotificationRequest = await req.json();
+    console.log("Processing order notification for:", { productName, productPrice });
 
     const emailResponse = await resend.emails.send({
       from: "Sat-shop <onboarding@resend.dev>",
@@ -53,7 +60,10 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({ error: error.message }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders 
+        },
       }
     );
   }
