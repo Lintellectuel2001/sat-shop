@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -94,25 +95,27 @@ const Index = () => {
           <CarouselContent>
             {slides.map((slide) => (
               <CarouselItem key={slide.id}>
-                <div className="relative h-[85vh] max-h-[800px] w-full overflow-hidden">
-                  <div className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent opacity-60`} />
+                <div className="relative h-[85vh] max-h-[800px] w-full overflow-hidden group">
+                  <div className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent opacity-60 transition-opacity duration-500 group-hover:opacity-40`} />
                   <img
                     src={slide.image}
                     alt={slide.title}
-                    className="w-full h-full object-cover object-[50%_5%] sm:object-[50%_25%]"
+                    className="w-full h-full object-cover object-[50%_5%] sm:object-[50%_25%] transition-transform duration-700 ease-out group-hover:scale-105"
                   />
-                  <div className={`absolute bottom-0 left-0 p-8 ${slide.text_color || 'text-white'}`}>
-                    <h3 className="text-2xl font-bold mb-2">{slide.title}</h3>
+                  <div 
+                    className={`absolute bottom-0 left-0 p-8 ${slide.text_color || 'text-white'} transform transition-transform duration-500 ease-out translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100`}
+                  >
+                    <h3 className="text-2xl font-bold mb-2 drop-shadow-lg">{slide.title}</h3>
                     {slide.description && (
-                      <p className="text-lg">{slide.description}</p>
+                      <p className="text-lg drop-shadow-md">{slide.description}</p>
                     )}
                   </div>
                 </div>
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="left-4" />
-          <CarouselNext className="right-4" />
+          <CarouselPrevious className="left-4 opacity-50 hover:opacity-100 transition-opacity duration-300" />
+          <CarouselNext className="right-4 opacity-50 hover:opacity-100 transition-opacity duration-300" />
         </Carousel>
       </section>
 
