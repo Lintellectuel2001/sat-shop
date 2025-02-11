@@ -1,7 +1,8 @@
+
 import React from 'react';
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { Mail, Phone, MapPin, CreditCard, Globe, Facebook, MessageCircle } from "lucide-react";
+import { Mail, Phone, MapPin, CreditCard, Globe, MessageCircle } from "lucide-react";
 
 const Contact = () => {
   return (

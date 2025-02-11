@@ -1,48 +1,22 @@
+
 import React, { useState, useEffect } from 'react';
 import Navbar from "../components/Navbar";
-import MarketplaceHeader from '@/components/marketplace/MarketplaceHeader';
-import FilterBar from '@/components/marketplace/FilterBar';
-import ProductGrid from '@/components/marketplace/ProductGrid';
-import { supabase } from "@/integrations/supabase/client";
+import Footer from "../components/Footer";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import ProductCard from "@/components/ProductCard";
 
 const Marketplace = () => {
   const [products, setProducts] = useState([]);
-  const [sortOrder, setSortOrder] = useState("newest");
-  const [category, setCategory] = useState("all");
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        let query = supabase
+        const { data, error } = await supabase
           .from('products')
-          .select('*');
-
-        // Appliquer le filtre par catégorie
-        if (category !== "all") {
-          query = query.eq('category', category);
-        }
-
-        // Appliquer le tri
-        switch (sortOrder) {
-          case "newest":
-            query = query.order('created_at', { ascending: false });
-            break;
-          case "price-asc":
-            query = query.order('price');
-            break;
-          case "price-desc":
-            query = query.order('price', { ascending: false });
-            break;
-          case "rating":
-            query = query.order('rating', { ascending: false });
-            break;
-          default:
-            query = query.order('created_at', { ascending: false });
-        }
-
-        const { data, error } = await query;
+          .select('*')
+          .order('created_at', { ascending: false });
 
         if (error) {
           throw error;
@@ -60,23 +34,32 @@ const Marketplace = () => {
     };
 
     fetchProducts();
-  }, [category, sortOrder, toast]);
+  }, [toast]);
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
       <Navbar />
       
       <main className="container mx-auto px-4 pt-32 pb-16">
-        <MarketplaceHeader />
-        <FilterBar 
-          productsCount={products.length}
-          category={category}
-          setCategory={setCategory}
-          sortOrder={sortOrder}
-          setSortOrder={setSortOrder}
-        />
-        <ProductGrid products={products} />
+        <h1 className="text-4xl font-bold text-gray-900 mb-8">Nos Produits</h1>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {products.map((product: any) => (
+            <ProductCard
+              key={product.id}
+              id={product.id}
+              name={product.name}
+              price={product.price}
+              image={product.image_url}
+              rating={product.rating || 5}
+              reviews={product.reviews_count || 0}
+              paymentLink={product.payment_link}
+            />
+          ))}
+        </div>
       </main>
+
+      <Footer />
     </div>
   );
 };
