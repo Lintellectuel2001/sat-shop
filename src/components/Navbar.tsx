@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,66 +38,24 @@ const Navbar = () => {
   });
 
   useEffect(() => {
-    let mounted = true;
-
-    const handleSignOut = async () => {
+    const checkSession = async () => {
       try {
-        await supabase.auth.signOut();
-        if (mounted) {
-          setIsLoggedIn(false);
-          navigate('/login');
-          toast({
-            title: "Session expirée",
-            description: "Votre session a expiré. Veuillez vous reconnecter.",
-          });
+        const { data: { session } } = await supabase.auth.getSession();
+        setIsLoggedIn(!!session);
+
+        if (!session) {
+          // Clear any stale session data
+          await supabase.auth.signOut();
         }
       } catch (error) {
-        console.error('Error signing out:', error);
-      }
-    };
-
-    const checkAuthStatus = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Session check error:', error);
-          if (mounted) {
-            setIsLoggedIn(false);
-            if (error.message.includes('refresh_token_not_found')) {
-              await handleSignOut();
-            } else {
-              toast({
-                title: "Erreur de session",
-                description: "Une erreur est survenue lors de la vérification de votre session",
-                variant: "destructive",
-              });
-            }
-          }
-          return;
-        }
-
-        if (mounted) {
-          setIsLoggedIn(!!session);
-        }
-      } catch (error: any) {
         console.error('Session check error:', error);
-        if (mounted) {
-          setIsLoggedIn(false);
-          toast({
-            title: "Erreur de session",
-            description: "Une erreur est survenue lors de la vérification de votre session",
-            variant: "destructive",
-          });
-        }
+        setIsLoggedIn(false);
       }
     };
 
-    checkAuthStatus();
+    checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted) return;
-
       console.log('Auth state changed:', event);
 
       switch (event) {
@@ -114,28 +73,23 @@ const Navbar = () => {
           setIsLoggedIn(!!session);
           break;
         default:
-          // Handle refresh token errors
-          const { error: authError } = await supabase.auth.getSession();
-          if (authError?.message?.includes('refresh_token_not_found')) {
-            await handleSignOut();
-          } else {
-            setIsLoggedIn(!!session);
+          if (!session) {
+            setIsLoggedIn(false);
+            // Clear session on any unhandled auth events if no session exists
+            await supabase.auth.signOut();
           }
           break;
       }
     });
 
     return () => {
-      mounted = false;
       subscription.unsubscribe();
     };
   }, [navigate]);
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
+      await supabase.auth.signOut();
       toast({
         title: "Déconnexion réussie",
         description: "À bientôt !",
