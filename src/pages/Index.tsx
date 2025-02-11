@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -96,14 +95,12 @@ const Index = () => {
             {slides.map((slide) => (
               <CarouselItem key={slide.id}>
                 <div className="relative h-[85vh] max-h-[800px] w-full overflow-hidden group cursor-pointer">
-                  {/* Overlay gradient with smooth transition */}
                   <div 
                     className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent opacity-40 
                     transition-all duration-700 ease-in-out group-hover:opacity-20 
                     group-hover:backdrop-blur-sm`} 
                   />
                   
-                  {/* Image with zoom and parallax effect */}
                   <img
                     src={slide.image}
                     alt={slide.title}
@@ -112,14 +109,12 @@ const Index = () => {
                     group-hover:scale-110 group-hover:rotate-1"
                   />
                   
-                  {/* Text container with modern animations */}
                   <div 
                     className={`absolute inset-x-0 bottom-0 p-8 ${slide.text_color || 'text-white'}
                     bg-gradient-to-t from-black/50 to-transparent
                     transform transition-all duration-700 ease-out 
                     translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100`}
                   >
-                    {/* Title with staggered animation */}
                     <h3 
                       className="text-3xl font-bold mb-3 
                       transform transition-all duration-700 delay-100
@@ -129,7 +124,6 @@ const Index = () => {
                       {slide.title}
                     </h3>
                     
-                    {/* Description with fade and slide effect */}
                     {slide.description && (
                       <p 
                         className="text-lg max-w-2xl 
@@ -147,15 +141,14 @@ const Index = () => {
             ))}
           </CarouselContent>
           
-          {/* Navigation buttons with glass effect */}
           <CarouselPrevious 
-            className="left-4 opacity-0 group-hover:opacity-100 
+            className="left-4 opacity-70 hover:opacity-100 
             transition-all duration-300 backdrop-blur-sm 
             bg-white/20 hover:bg-white/40 border-0
             text-white shadow-lg" 
           />
           <CarouselNext 
-            className="right-4 opacity-0 group-hover:opacity-100 
+            className="right-4 opacity-70 hover:opacity-100 
             transition-all duration-300 backdrop-blur-sm 
             bg-white/20 hover:bg-white/40 border-0
             text-white shadow-lg" 
