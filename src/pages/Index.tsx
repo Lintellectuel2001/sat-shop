@@ -147,15 +147,15 @@ const Index = () => {
             ))}
           </CarouselContent>
           
-          {/* Boutons de navigation avec glass morphism */}
+          {/* Boutons de navigation toujours visibles avec effet de verre */}
           <CarouselPrevious 
-            className="left-4 opacity-0 group-hover:opacity-100
+            className="left-4 opacity-70 hover:opacity-100
             transition-all duration-300 ease-in-out
             backdrop-blur-sm bg-white/20 hover:bg-white/40
             border-0 shadow-lg"
           />
           <CarouselNext 
-            className="right-4 opacity-0 group-hover:opacity-100
+            className="right-4 opacity-70 hover:opacity-100
             transition-all duration-300 ease-in-out
             backdrop-blur-sm bg-white/20 hover:bg-white/40
             border-0 shadow-lg"
