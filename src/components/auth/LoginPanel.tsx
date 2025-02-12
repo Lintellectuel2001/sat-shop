@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,8 +62,8 @@ const LoginPanel = () => {
         
         if (error.message.includes('Invalid login credentials')) {
           toast({
-            title: "Erreur de connexion",
-            description: "Email ou mot de passe incorrect",
+            title: "Identifiants incorrects",
+            description: "L'email ou le mot de passe est incorrect",
             variant: "destructive",
           });
         } else if (error.message.includes('Email not confirmed')) {
