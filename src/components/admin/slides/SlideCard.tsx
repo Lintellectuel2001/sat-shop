@@ -1,13 +1,12 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Trash2, Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -29,6 +28,7 @@ interface Slide {
   image: string;
   color: string;
   text_color?: string;
+  order: number;
 }
 
 interface SlideCardProps {
@@ -39,8 +39,8 @@ interface SlideCardProps {
 }
 
 const SlideCard = ({ slide, onEdit, onDelete, isLoading }: SlideCardProps) => {
-  const [editingSlide, setEditingSlide] = React.useState<Slide>(slide);
-  const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingSlide, setEditingSlide] = useState<Slide>(slide);
 
   const handleEdit = () => {
     onEdit(editingSlide);
@@ -50,6 +50,9 @@ const SlideCard = ({ slide, onEdit, onDelete, isLoading }: SlideCardProps) => {
   return (
     <div className="border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow">
       <div className="relative aspect-video">
+        <div className="absolute top-2 right-2 z-10 bg-black/50 px-2 py-1 rounded text-white text-sm">
+          Ordre: {slide.order}
+        </div>
         <img 
           src={slide.image} 
           alt={slide.title} 
@@ -67,16 +70,13 @@ const SlideCard = ({ slide, onEdit, onDelete, isLoading }: SlideCardProps) => {
       <div className="p-4 flex gap-2">
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="icon" disabled={isLoading}>
+            <Button variant="outline" size="icon">
               <Pencil className="h-4 w-4" />
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Modifier le Slide</DialogTitle>
-              <DialogDescription>
-                Modifiez les informations du slide.
-              </DialogDescription>
             </DialogHeader>
             <SlideForm
               slide={editingSlide}
@@ -92,20 +92,20 @@ const SlideCard = ({ slide, onEdit, onDelete, isLoading }: SlideCardProps) => {
 
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive" size="icon" disabled={isLoading}>
+            <Button variant="destructive" size="icon">
               <Trash2 className="h-4 w-4" />
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Supprimer le slide</AlertDialogTitle>
+              <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
               <AlertDialogDescription>
-                Êtes-vous sûr de vouloir supprimer ce slide ? Cette action est irréversible.
+                Cette action est irréversible. Le slide sera définitivement supprimé.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Annuler</AlertDialogCancel>
-              <AlertDialogAction onClick={() => onDelete(slide.id)} disabled={isLoading}>
+              <AlertDialogAction onClick={() => onDelete(slide.id)}>
                 Supprimer
               </AlertDialogAction>
             </AlertDialogFooter>

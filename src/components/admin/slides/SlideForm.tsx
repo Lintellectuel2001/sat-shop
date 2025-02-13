@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,8 +15,9 @@ interface SlideFormProps {
     image: string;
     color: string;
     text_color?: string;
+    order: number;
   };
-  onSlideChange: (field: string, value: string) => void;
+  onSlideChange: (field: string, value: string | number) => void;
   onSubmit: () => void;
   submitLabel: string;
   isLoading: boolean;
@@ -50,6 +52,21 @@ const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: S
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="order">Ordre d'affichage *</Label>
+        <Input
+          id="order"
+          type="number"
+          min="0"
+          placeholder="Ordre d'affichage"
+          value={slide.order}
+          onChange={(e) => onSlideChange('order', parseInt(e.target.value) || 0)}
+          disabled={isLoading}
+          required
+        />
+        <p className="text-sm text-gray-500">L'ordre détermine la position du slide (0 = premier)</p>
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="title">Titre *</Label>
         <Input

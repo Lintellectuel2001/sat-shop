@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -49,7 +50,7 @@ const Index = () => {
       const { data, error } = await supabase
         .from('slides')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('order', { ascending: true });
       
       if (error) {
         console.error('Error fetching slides:', error);

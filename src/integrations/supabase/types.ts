@@ -219,6 +219,7 @@ export type Database = {
           description: string | null
           id: string
           image: string
+          order: number
           text_color: string | null
           title: string
           updated_at: string
@@ -229,6 +230,7 @@ export type Database = {
           description?: string | null
           id?: string
           image: string
+          order?: number
           text_color?: string | null
           title: string
           updated_at?: string
@@ -239,6 +241,7 @@ export type Database = {
           description?: string | null
           id?: string
           image?: string
+          order?: number
           text_color?: string | null
           title?: string
           updated_at?: string

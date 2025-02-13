@@ -21,6 +21,7 @@ interface Slide {
   image: string;
   color: string;
   text_color?: string;
+  order: number;
 }
 
 interface SlideManagerProps {
@@ -36,6 +37,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
     color: '',
     image: '',
     text_color: 'text-white',
+    order: 0,
   });
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -60,7 +62,8 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
           description: newSlide.description,
           color: newSlide.color,
           image: newSlide.image,
-          text_color: newSlide.text_color
+          text_color: newSlide.text_color,
+          order: newSlide.order
         }]);
 
       if (error) throw error;
@@ -78,6 +81,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
         color: '',
         image: '',
         text_color: 'text-white',
+        order: 0,
       });
       setIsCreateDialogOpen(false);
     } catch (error: any) {
@@ -111,7 +115,8 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
           description: updatedSlide.description,
           color: updatedSlide.color,
           image: updatedSlide.image,
-          text_color: updatedSlide.text_color
+          text_color: updatedSlide.text_color,
+          order: updatedSlide.order
         })
         .eq('id', updatedSlide.id);
 
@@ -163,6 +168,8 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
     }
   };
 
+  const sortedSlides = [...slides].sort((a, b) => a.order - b.order);
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -195,7 +202,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {slides.map((slide) => (
+        {sortedSlides.map((slide) => (
           <SlideCard
             key={slide.id}
             slide={slide}
