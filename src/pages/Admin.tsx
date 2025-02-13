@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,6 +25,8 @@ interface Slide {
   description?: string;
   image: string;
   color: string;
+  text_color?: string;
+  order: number;
 }
 
 const Admin = () => {
@@ -66,7 +69,8 @@ const Admin = () => {
   const fetchSlides = async () => {
     const { data, error } = await supabase
       .from('slides')
-      .select('*');
+      .select('*')
+      .order('order', { ascending: true });
     
     if (error) {
       toast({
@@ -77,7 +81,7 @@ const Admin = () => {
       return;
     }
     
-    setSlides(data);
+    setSlides(data || []);
   };
 
   return (
