@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -17,25 +18,44 @@ export const useAdminCheck = () => {
       try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        if (sessionError || !session) {
+        if (sessionError) {
+          console.error('Session error:', sessionError);
           if (mounted) {
             setIsAdmin(false);
             setIsLoading(false);
             setSessionChecked(true);
-            if (sessionError?.message.includes('refresh_token_not_found')) {
+            
+            // Si l'erreur est liée au refresh token, déconnectez l'utilisateur
+            if (sessionError.message?.includes('refresh_token_not_found')) {
               await supabase.auth.signOut();
               toast({
                 variant: "destructive",
                 title: "Session expirée",
                 description: "Votre session a expiré. Veuillez vous reconnecter.",
               });
+              navigate('/login');
             } else {
               toast({
                 variant: "destructive",
-                title: "Erreur",
-                description: "Vous devez être connecté pour accéder à cette page",
+                title: "Erreur de session",
+                description: "Une erreur est survenue lors de la vérification de votre session",
               });
+              navigate('/login');
             }
+          }
+          return;
+        }
+
+        if (!session) {
+          if (mounted) {
+            setIsAdmin(false);
+            setIsLoading(false);
+            setSessionChecked(true);
+            toast({
+              variant: "destructive",
+              title: "Accès refusé",
+              description: "Vous devez être connecté pour accéder à cette page",
+            });
             navigate('/login');
           }
           return;
@@ -77,12 +97,15 @@ export const useAdminCheck = () => {
           setIsAdmin(false);
           setIsLoading(false);
           setSessionChecked(true);
+          
+          // En cas d'erreur imprévue, on déconnecte l'utilisateur par sécurité
+          await supabase.auth.signOut();
           toast({
             variant: "destructive",
-            title: "Erreur",
-            description: "Une erreur est survenue lors de la vérification des droits",
+            title: "Erreur de session",
+            description: "Une erreur est survenue. Veuillez vous reconnecter.",
           });
-          navigate('/');
+          navigate('/login');
         }
       }
     };
