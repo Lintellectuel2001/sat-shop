@@ -51,7 +51,7 @@ const SlideCard = ({ slide, onEdit, onDelete, isLoading }: SlideCardProps) => {
   return (
     <div className="border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow">
       <div className="relative aspect-video">
-        <div className="absolute top-2 right-2 z-10 bg-black/50 px-2 py-1 rounded text-white text-sm">
+        <div className="absolute top-2 right-2 z-10 bg-black/50 px-2 py-1 rounded text-white text-xs sm:text-sm">
           Ordre: {slide.order}
         </div>
         <img 
@@ -60,22 +60,22 @@ const SlideCard = ({ slide, onEdit, onDelete, isLoading }: SlideCardProps) => {
           className="w-full h-full object-cover"
         />
         <div className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent opacity-60`} />
-        <div className={`absolute inset-0 p-4 flex flex-col justify-end ${slide.text_color || 'text-white'}`}>
-          <h3 className="font-semibold text-lg">{slide.title}</h3>
+        <div className={`absolute inset-0 p-2 sm:p-4 flex flex-col justify-end ${slide.text_color || 'text-white'}`}>
+          <h3 className="font-semibold text-base sm:text-lg line-clamp-2">{slide.title}</h3>
           {slide.description && (
-            <p className="text-sm mt-1">{slide.description}</p>
+            <p className="text-xs sm:text-sm mt-1 line-clamp-2 opacity-90">{slide.description}</p>
           )}
         </div>
       </div>
       
-      <div className="p-4 flex gap-2">
+      <div className="p-2 sm:p-4 flex gap-2 justify-end">
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="icon">
-              <Pencil className="h-4 w-4" />
+            <Button variant="outline" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
+              <Pencil className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
               <DialogTitle>Modifier le Slide</DialogTitle>
             </DialogHeader>
@@ -93,8 +93,8 @@ const SlideCard = ({ slide, onEdit, onDelete, isLoading }: SlideCardProps) => {
 
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive" size="icon">
-              <Trash2 className="h-4 w-4" />
+            <Button variant="destructive" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
+              <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
