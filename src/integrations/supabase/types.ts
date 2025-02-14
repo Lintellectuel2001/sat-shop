@@ -92,6 +92,96 @@ export type Database = {
           },
         ]
       }
+      loyalty_points: {
+        Row: {
+          created_at: string
+          id: string
+          lifetime_points: number | null
+          points: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lifetime_points?: number | null
+          points?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lifetime_points?: number | null
+          points?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      loyalty_transactions: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          points: number
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          points: number
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          points?: number
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      marketing_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_sent: boolean | null
+          message: string
+          scheduled_for: string | null
+          target_audience: string | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_sent?: boolean | null
+          message: string
+          scheduled_for?: string | null
+          target_audience?: string | null
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_sent?: boolean | null
+          message?: string
+          scheduled_for?: string | null
+          target_audience?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       order_tracking: {
         Row: {
           created_at: string
@@ -120,6 +210,53 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "delivery_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      product_tags: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          tag: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          tag: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          tag?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_tags_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]
@@ -220,6 +357,51 @@ export type Database = {
         }
         Relationships: []
       }
+      promo_codes: {
+        Row: {
+          code: string
+          created_at: string
+          current_uses: number | null
+          discount_amount: number | null
+          discount_percentage: number | null
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          max_uses: number | null
+          minimum_purchase: number | null
+          start_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          current_uses?: number | null
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          minimum_purchase?: number | null
+          start_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          current_uses?: number | null
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          minimum_purchase?: number | null
+          start_date?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       saved_carts: {
         Row: {
           created_at: string
@@ -314,6 +496,38 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      user_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean | null
+          notification_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          notification_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          notification_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_notifications_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_notifications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       wishlists: {
         Row: {
