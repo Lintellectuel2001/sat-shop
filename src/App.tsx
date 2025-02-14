@@ -8,6 +8,7 @@ import Cart from "./pages/Cart";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import Wishlist from "./pages/Wishlist";
+import LoginPanel from "./components/auth/LoginPanel";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/login" element={<LoginPanel />} />
       </Routes>
     </Router>
   );
