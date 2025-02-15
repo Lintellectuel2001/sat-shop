@@ -27,12 +27,18 @@ const WishlistButton = ({ productId, className = '' }: WishlistButtonProps) => {
         return;
       }
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('wishlists')
         .select('id')
         .eq('product_id', productId)
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error checking wishlist status:', error);
+        setLoading(false);
+        return;
+      }
 
       setIsInWishlist(!!data);
       setLoading(false);
