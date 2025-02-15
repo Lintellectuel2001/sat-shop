@@ -2,10 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import PromoCodeInput from '@/components/marketing/PromoCodeInput';
+import OrderSummary from '@/components/cart/OrderSummary';
+import OrderTracking from '@/components/cart/OrderTracking';
 
 interface OrderTracking {
   status: string;
@@ -73,7 +73,6 @@ const Cart = () => {
   const handleOrder = async () => {
     if (paymentLink) {
       try {
-        // Record the purchase attempt in cart_history
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           await supabase
@@ -101,14 +100,13 @@ const Cart = () => {
   };
 
   const handlePromoCodeApply = (promoCode: any) => {
-    // Ici nous pourrions ajuster le prix en fonction du code promo
     toast({
       title: "Code promo appliqué",
       description: `Réduction appliquée: ${promoCode.discount_percentage ? promoCode.discount_percentage + '%' : promoCode.discount_amount + '€'}`,
     });
   };
 
-  const saveToCart = async () => {
+  const handleSaveCart = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -161,66 +159,14 @@ const Cart = () => {
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-8">Votre Panier</h1>
           
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Récapitulatif de la commande</h2>
-            </div>
-            
-            {location.state?.product && (
-              <div className="border-b pb-4 mb-4">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="font-medium">{location.state.product.name}</h3>
-                    <p className="text-sm text-gray-600">{location.state.product.price}</p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    onClick={saveToCart}
-                    className="ml-4"
-                  >
-                    Sauvegarder pour plus tard
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Ajout du PromoCodeInput */}
-            <div className="mb-6">
-              <h3 className="text-sm font-medium mb-2">Code Promo</h3>
-              <PromoCodeInput onApply={handlePromoCodeApply} />
-            </div>
-
-            <Button 
-              onClick={handleOrder}
-              className="w-full lg:w-auto text-lg py-6 bg-primary hover:bg-primary/90"
-            >
-              Commander Maintenant
-            </Button>
-          </div>
-
-          {orderTracking.length > 0 && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-4">Suivi de commande</h2>
-              <div className="space-y-4">
-                {orderTracking.map((track, index) => (
-                  <div 
-                    key={index}
-                    className="flex items-start gap-4 p-4 rounded-lg bg-gray-50"
-                  >
-                    <div className="flex-1">
-                      <p className="font-medium text-primary">{track.status}</p>
-                      {track.notes && (
-                        <p className="text-sm text-gray-600 mt-1">{track.notes}</p>
-                      )}
-                      <p className="text-xs text-gray-500 mt-2">
-                        {new Date(track.created_at).toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          <OrderSummary
+            product={location.state?.product}
+            onSaveCart={handleSaveCart}
+            onOrder={handleOrder}
+            onPromoCodeApply={handlePromoCodeApply}
+          />
+          
+          <OrderTracking tracking={orderTracking} />
         </div>
       </main>
     </div>
