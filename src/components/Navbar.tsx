@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +8,7 @@ import Logo from "./navbar/Logo";
 import NavLinks from "./navbar/NavLinks";
 import AuthButtons from "./navbar/AuthButtons";
 import UserButtons from "./navbar/UserButtons";
+import NotificationsMenu from "./marketing/NotificationsMenu";
 
 interface SiteSettings {
   logo_url: string;
@@ -15,6 +17,7 @@ interface SiteSettings {
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const { data: settings } = useQuery({
@@ -44,6 +47,7 @@ const Navbar = () => {
         await supabase.auth.signOut();
         if (mounted) {
           setIsLoggedIn(false);
+          setUserId(null);
           navigate('/login');
           toast({
             title: "Session expirée",
@@ -63,6 +67,7 @@ const Navbar = () => {
           console.error('Session check error:', error);
           if (mounted) {
             setIsLoggedIn(false);
+            setUserId(null);
             if (error.message.includes('refresh_token_not_found')) {
               await handleSignOut();
             } else {
@@ -78,11 +83,13 @@ const Navbar = () => {
 
         if (mounted) {
           setIsLoggedIn(!!session);
+          setUserId(session?.user?.id || null);
         }
       } catch (error: any) {
         console.error('Session check error:', error);
         if (mounted) {
           setIsLoggedIn(false);
+          setUserId(null);
           toast({
             title: "Erreur de session",
             description: "Une erreur est survenue lors de la vérification de votre session",
@@ -102,24 +109,28 @@ const Navbar = () => {
       switch (event) {
         case 'SIGNED_IN':
           setIsLoggedIn(true);
+          setUserId(session?.user?.id || null);
           break;
         case 'SIGNED_OUT':
           setIsLoggedIn(false);
+          setUserId(null);
           navigate('/');
           break;
         case 'TOKEN_REFRESHED':
           setIsLoggedIn(!!session);
+          setUserId(session?.user?.id || null);
           break;
         case 'USER_UPDATED':
           setIsLoggedIn(!!session);
+          setUserId(session?.user?.id || null);
           break;
         default:
-          // Handle refresh token errors
           const { error: authError } = await supabase.auth.getSession();
           if (authError?.message?.includes('refresh_token_not_found')) {
             await handleSignOut();
           } else {
             setIsLoggedIn(!!session);
+            setUserId(session?.user?.id || null);
           }
           break;
       }
@@ -165,7 +176,10 @@ const Navbar = () => {
 
           <div className="flex items-center gap-6">
             {isLoggedIn ? (
-              <UserButtons onLogout={handleLogout} />
+              <>
+                {userId && <NotificationsMenu userId={userId} />}
+                <UserButtons onLogout={handleLogout} />
+              </>
             ) : (
               <AuthButtons />
             )}
