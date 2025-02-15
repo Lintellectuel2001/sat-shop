@@ -3,8 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import PromoCodeInput from '@/components/marketing/PromoCodeInput';
 
 interface OrderTracking {
   status: string;
@@ -99,6 +100,14 @@ const Cart = () => {
     }
   };
 
+  const handlePromoCodeApply = (promoCode: any) => {
+    // Ici nous pourrions ajuster le prix en fonction du code promo
+    toast({
+      title: "Code promo appliqué",
+      description: `Réduction appliquée: ${promoCode.discount_percentage ? promoCode.discount_percentage + '%' : promoCode.discount_amount + '€'}`,
+    });
+  };
+
   const saveToCart = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -174,6 +183,12 @@ const Cart = () => {
                 </div>
               </div>
             )}
+
+            {/* Ajout du PromoCodeInput */}
+            <div className="mb-6">
+              <h3 className="text-sm font-medium mb-2">Code Promo</h3>
+              <PromoCodeInput onApply={handlePromoCodeApply} />
+            </div>
 
             <Button 
               onClick={handleOrder}
