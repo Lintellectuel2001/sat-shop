@@ -7,6 +7,7 @@ import ProductManager from '@/components/admin/ProductManager';
 import SlideManager from '@/components/admin/SlideManager';
 import SiteSettingsManager from '@/components/admin/settings/SiteSettingsManager';
 import StatisticsPanel from '@/components/admin/statistics/StatisticsPanel';
+import PromoCodeManager from '@/components/admin/promo/PromoCodeManager';
 
 interface Product {
   id: string;
@@ -93,6 +94,7 @@ const Admin = () => {
           <TabsTrigger value="statistics">Statistiques</TabsTrigger>
           <TabsTrigger value="products">Produits</TabsTrigger>
           <TabsTrigger value="slides">Diaporama</TabsTrigger>
+          <TabsTrigger value="promo">Codes Promo</TabsTrigger>
           <TabsTrigger value="settings">Paramètres</TabsTrigger>
         </TabsList>
 
@@ -106,6 +108,10 @@ const Admin = () => {
 
         <TabsContent value="slides">
           <SlideManager slides={slides} onSlidesChange={fetchSlides} />
+        </TabsContent>
+
+        <TabsContent value="promo">
+          <PromoCodeManager />
         </TabsContent>
 
         <TabsContent value="settings">
