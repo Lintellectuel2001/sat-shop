@@ -32,26 +32,33 @@ const ProductInfo = ({
 
   const handleOrder = async () => {
     try {
-      // Get the current page URL as the back URL
       const backUrl = `${window.location.origin}${location.pathname}`;
       console.log("Initiating payment with backUrl:", backUrl);
 
-      // Create payment using the Edge Function
-      const { data: payment, error } = await supabase.functions.invoke('create-chargily-payment', {
-        body: JSON.stringify({
-          amount: price.replace(/[^0-9]/g, ''),
-          name: "Customer",
-          productName: name,
-          backUrl
-        })
-      });
+      const requestBody = {
+        amount: price.replace(/[^0-9]/g, ''),
+        name: "Customer",
+        productName: name,
+        backUrl
+      };
+
+      console.log("Sending request with body:", requestBody);
+
+      const { data: payment, error } = await supabase.functions.invoke(
+        'create-chargily-payment',
+        {
+          body: JSON.stringify(requestBody),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
 
       console.log("Payment response:", payment, "Error:", error);
 
       if (error) throw error;
 
       if (payment && payment.checkout_url) {
-        // Record the purchase attempt after successful payment creation
         await supabase
           .from('cart_history')
           .insert([{

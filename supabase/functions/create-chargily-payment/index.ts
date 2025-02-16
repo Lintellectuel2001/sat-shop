@@ -23,7 +23,10 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { amount, name, productName, backUrl }: PaymentRequest = await req.json();
+    const requestData = await req.text();
+    console.log("Raw request data:", requestData);
+
+    const { amount, name, productName, backUrl }: PaymentRequest = JSON.parse(requestData);
 
     console.log("Processing payment request with details:", {
       amount,
@@ -38,6 +41,9 @@ const handler = async (req: Request): Promise<Response> => {
       mode: 'live',
     });
 
+    const webhookUrl = new URL(req.url);
+    webhookUrl.pathname = '/functions/v1/chargily-webhook';
+
     const paymentData = {
       amount: parseFloat(amount),
       currency: "DZD",
@@ -46,7 +52,7 @@ const handler = async (req: Request): Promise<Response> => {
       customer_phone: "213XXXXXXXX",
       customer_email: "customer@email.com",
       description: `Payment for ${productName}`,
-      webhook_url: `${req.url.split('/functions/')[0]}/functions/v1/chargily-webhook`,
+      webhook_url: webhookUrl.toString(),
       back_url: backUrl,
       feeOnCustomer: false,
     };
