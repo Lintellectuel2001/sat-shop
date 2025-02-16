@@ -12,6 +12,7 @@ interface PaymentRequest {
   amount: string;
   name: string;
   productName: string;
+  backUrl: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -21,14 +22,14 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { amount, name, productName }: PaymentRequest = await req.json();
+    const { amount, name, productName, backUrl }: PaymentRequest = await req.json();
 
     const client = new ChargilyClient({
       api_key: Deno.env.get("CHARGILY_API_KEY") || '',
       mode: 'live',
     });
 
-    console.log("Creating payment for:", { amount, name, productName });
+    console.log("Creating payment for:", { amount, name, productName, backUrl });
 
     const payment = await client.createPayment({
       amount: parseFloat(amount),
@@ -39,7 +40,7 @@ const handler = async (req: Request): Promise<Response> => {
       customer_email: "customer@email.com", // This should be provided by the customer
       description: `Payment for ${productName}`,
       webhook_url: "https://your-webhook-url.com", // You should set up a webhook endpoint
-      back_url: window.location.origin, // This will redirect back to your site
+      back_url: backUrl, // Now using the backUrl provided from the frontend
       feeOnCustomer: false,
     });
 

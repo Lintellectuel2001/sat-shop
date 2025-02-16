@@ -47,7 +47,8 @@ const ProductInfo = ({
         body: {
           amount: price.replace(/[^0-9]/g, ''), // Remove any non-numeric characters
           name: "Customer", // This should be replaced with actual customer name
-          productName: name
+          productName: name,
+          backUrl: window.location.origin // Send the origin URL from the frontend
         }
       });
 
