@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import ProductHeader from "./ProductHeader";
 import ProductDescription from "./ProductDescription";
 import ProductFeatures from "./ProductFeatures";
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -27,22 +27,23 @@ const ProductInfo = ({
   features, 
   downloadInfo,
 }: ProductInfoProps) => {
-  const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
   const handleOrder = async () => {
     try {
-      const backUrl = `${window.location.origin}/product/${name}`;
+      // Get the current page URL as the back URL
+      const backUrl = `${window.location.origin}${location.pathname}`;
       console.log("Initiating payment with backUrl:", backUrl);
 
       // Create payment using the Edge Function
       const { data: payment, error } = await supabase.functions.invoke('create-chargily-payment', {
-        body: {
+        body: JSON.stringify({
           amount: price.replace(/[^0-9]/g, ''),
           name: "Customer",
           productName: name,
           backUrl
-        }
+        })
       });
 
       console.log("Payment response:", payment, "Error:", error);

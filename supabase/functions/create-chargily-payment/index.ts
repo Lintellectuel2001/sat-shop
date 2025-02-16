@@ -25,15 +25,20 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { amount, name, productName, backUrl }: PaymentRequest = await req.json();
 
-    console.log("Initializing Chargily payment with API key:", !!Deno.env.get("CHARGILY_API_KEY"));
-    console.log("Payment details:", { amount, name, productName, backUrl });
+    console.log("Processing payment request with details:", {
+      amount,
+      name,
+      productName,
+      backUrl,
+      apiKeyExists: !!Deno.env.get("CHARGILY_API_KEY")
+    });
 
     const chargilyPay = new ChargilyPay({
       apiKey: Deno.env.get("CHARGILY_API_KEY") || '',
       mode: 'live',
     });
 
-    const payment = await chargilyPay.createPayment({
+    const paymentData = {
       amount: parseFloat(amount),
       currency: "DZD",
       payment_method: "CIB",
@@ -41,10 +46,14 @@ const handler = async (req: Request): Promise<Response> => {
       customer_phone: "213XXXXXXXX",
       customer_email: "customer@email.com",
       description: `Payment for ${productName}`,
-      webhook_url: "https://kyjuwizqndxvbuswmkiw.supabase.co/functions/v1/chargily-webhook",
+      webhook_url: `${req.url.split('/functions/')[0]}/functions/v1/chargily-webhook`,
       back_url: backUrl,
       feeOnCustomer: false,
-    });
+    };
+
+    console.log("Sending payment request to Chargily:", paymentData);
+
+    const payment = await chargilyPay.createPayment(paymentData);
 
     console.log("Payment created successfully:", payment);
 
@@ -56,7 +65,11 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
   } catch (error: any) {
-    console.error("Error creating payment:", error);
+    console.error("Error creating payment:", {
+      message: error.message,
+      stack: error.stack,
+      details: error.details || 'No additional details'
+    });
     
     return new Response(
       JSON.stringify({ 
