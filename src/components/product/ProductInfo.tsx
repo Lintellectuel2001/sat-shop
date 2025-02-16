@@ -32,44 +32,36 @@ const ProductInfo = ({
 
   const handleOrder = async () => {
     try {
-      // Record the purchase attempt
-      const { error: cartError } = await supabase
-        .from('cart_history')
-        .insert([{
-          action_type: 'purchase',
-          product_id: name
-        }]);
-
-      if (cartError) throw cartError;
+      const backUrl = `${window.location.origin}/product/${name}`;
+      console.log("Initiating payment with backUrl:", backUrl);
 
       // Create payment using the Edge Function
       const { data: payment, error } = await supabase.functions.invoke('create-chargily-payment', {
         body: {
-          amount: price.replace(/[^0-9]/g, ''), // Remove any non-numeric characters
-          name: "Customer", // This should be replaced with actual customer name
+          amount: price.replace(/[^0-9]/g, ''),
+          name: "Customer",
           productName: name,
-          backUrl: window.location.origin // Send the origin URL from the frontend
+          backUrl
         }
       });
 
+      console.log("Payment response:", payment, "Error:", error);
+
       if (error) throw error;
 
-      // If payment creation is successful, proceed with the order
       if (payment && payment.checkout_url) {
+        // Record the purchase attempt after successful payment creation
+        await supabase
+          .from('cart_history')
+          .insert([{
+            action_type: 'purchase',
+            product_id: name
+          }]);
+
         window.location.href = payment.checkout_url;
       } else {
         throw new Error('Payment URL not received');
       }
-
-      // Send notification email in the background
-      supabase.functions.invoke('send-order-notification', {
-        body: {
-          productName: name,
-          productPrice: price,
-        },
-      }).catch((error) => {
-        console.error('Error sending notification:', error);
-      });
 
     } catch (error) {
       console.error('Error processing order:', error);
