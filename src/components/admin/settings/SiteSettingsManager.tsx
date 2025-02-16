@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -92,7 +93,7 @@ const SiteSettingsManager = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold">Paramètres du Site</h2>
+      <h2 className="text-2xl font-semibold">Gestion Logo</h2>
       
       <div className="space-y-4">
         <div>
