@@ -1,6 +1,5 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { ChargilyPay } from 'npm:@chargily/chargily-pay';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,13 +8,6 @@ const corsHeaders = {
   'Access-Control-Max-Age': '86400',
 };
 
-interface PaymentRequest {
-  amount: string;
-  name: string;
-  productName: string;
-  backUrl: string;
-}
-
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -23,65 +15,31 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const requestData = await req.text();
-    console.log("Raw request data:", requestData);
+    // Simple echo response to test function
+    const body = await req.text();
+    console.log('Received request with body:', body);
 
-    const { amount, name, productName, backUrl }: PaymentRequest = JSON.parse(requestData);
-
-    console.log("Processing payment request with details:", {
-      amount,
-      name,
-      productName,
-      backUrl,
-      apiKeyExists: !!Deno.env.get("CHARGILY_API_KEY")
-    });
-
-    const chargilyPay = new ChargilyPay({
-      apiKey: Deno.env.get("CHARGILY_API_KEY") || '',
-      mode: 'live',
-    });
-
-    const webhookUrl = new URL(req.url);
-    webhookUrl.pathname = '/functions/v1/chargily-webhook';
-
-    const paymentData = {
-      amount: parseFloat(amount),
-      currency: "DZD",
-      payment_method: "CIB",
-      customer_name: name,
-      customer_phone: "213XXXXXXXX",
-      customer_email: "customer@email.com",
-      description: `Payment for ${productName}`,
-      webhook_url: webhookUrl.toString(),
-      back_url: backUrl,
-      feeOnCustomer: false,
-    };
-
-    console.log("Sending payment request to Chargily:", paymentData);
-
-    const payment = await chargilyPay.createPayment(paymentData);
-
-    console.log("Payment created successfully:", payment);
-
-    return new Response(JSON.stringify(payment), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        ...corsHeaders,
-      },
-    });
-  } catch (error: any) {
-    console.error("Error creating payment:", {
-      message: error.message,
-      stack: error.stack,
-      details: error.details || 'No additional details'
-    });
+    return new Response(
+      JSON.stringify({ 
+        status: 'success',
+        message: 'Function is working',
+        receivedData: body 
+      }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          ...corsHeaders,
+        },
+      }
+    );
+  } catch (error) {
+    console.error('Error in handler:', error);
     
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        stack: error.stack,
-        details: error.details || 'No additional details'
+        stack: error.stack 
       }),
       {
         status: 500,
