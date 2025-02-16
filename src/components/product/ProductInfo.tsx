@@ -16,7 +16,6 @@ interface ProductInfoProps {
   description: string;
   features: string[];
   downloadInfo?: any;
-  paymentLink: string;
 }
 
 const ProductInfo = ({ 
@@ -27,7 +26,6 @@ const ProductInfo = ({
   description, 
   features, 
   downloadInfo,
-  paymentLink
 }: ProductInfoProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
