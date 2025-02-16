@@ -26,14 +26,36 @@ export const useLoyaltyPoints = (userId?: string) => {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      // Utiliser maybeSingle() au lieu de single()
+      let { data, error } = await supabase
         .from('loyalty_points')
         .select('*')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         throw error;
+      }
+
+      // Si aucun enregistrement n'existe, on en crée un
+      if (!data) {
+        const { data: newData, error: insertError } = await supabase
+          .from('loyalty_points')
+          .insert([
+            {
+              user_id: userId,
+              points: 0,
+              lifetime_points: 0
+            }
+          ])
+          .select()
+          .single();
+
+        if (insertError) {
+          throw insertError;
+        }
+
+        data = newData;
       }
 
       setPoints(data);
