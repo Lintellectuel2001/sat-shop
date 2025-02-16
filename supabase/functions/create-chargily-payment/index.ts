@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { ChargilyClient } from 'npm:@chargily/chargily-pay';
+import { ChargilyPay } from 'npm:@chargily/chargily-pay';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -24,14 +24,14 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { amount, name, productName, backUrl }: PaymentRequest = await req.json();
 
-    const client = new ChargilyClient({
-      api_key: Deno.env.get("CHARGILY_API_KEY") || '',
+    const chargilyPay = new ChargilyPay({
+      apiKey: Deno.env.get("CHARGILY_API_KEY") || '',
       mode: 'live',
     });
 
     console.log("Creating payment for:", { amount, name, productName, backUrl });
 
-    const payment = await client.createPayment({
+    const payment = await chargilyPay.createPayment({
       amount: parseFloat(amount),
       currency: "DZD",
       payment_method: "CIB", // Or "EDAHABIA"
