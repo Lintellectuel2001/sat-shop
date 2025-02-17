@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import Chargily from "npm:@chargily/chargily-pay@2.1.0";
+import { ChargilyPay } from "npm:@chargily/chargily-pay@2.1.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -41,8 +41,8 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("CHARGILY_API_KEY not configured");
     }
 
-    // Create Chargily instance using the default export
-    const chargilyPay = new Chargily.ChargilyPay({
+    // Create Chargily instance with the named export ChargilyPay
+    const chargilyPay = new ChargilyPay({
       apiKey: apiKey,
       mode: 'live',
     });
@@ -94,7 +94,8 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(
       JSON.stringify({
         error: error.message || "Unknown error occurred",
-        details: "Payment creation failed"
+        details: "Payment creation failed",
+        stack: error.stack
       }),
       {
         status: 500,
