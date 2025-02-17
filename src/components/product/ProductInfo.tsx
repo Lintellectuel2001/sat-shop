@@ -29,9 +29,12 @@ const ProductInfo = ({
 }: ProductInfoProps) => {
   const location = useLocation();
   const { toast } = useToast();
+  const [loading, setLoading] = React.useState(false);
 
   const handleOrder = async () => {
     try {
+      setLoading(true);
+      
       // Construct the absolute URL with protocol
       const protocol = window.location.protocol;
       const host = window.location.host;
@@ -52,7 +55,6 @@ const ProductInfo = ({
       const { data: payment, error } = await supabase.functions.invoke(
         'create-chargily-payment',
         {
-          method: 'POST',
           body: {
             amount: numericAmount,
             name: "Customer",
@@ -84,8 +86,10 @@ const ProductInfo = ({
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Une erreur est survenue lors du traitement de la commande"
+        description: "Une erreur est survenue lors du traitement de la commande. Veuillez réessayer."
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -108,8 +112,9 @@ const ProductInfo = ({
       <Button 
         onClick={handleOrder}
         className="w-full lg:w-auto text-lg py-6 bg-primary hover:bg-primary/90"
+        disabled={loading}
       >
-        Commander Maintenant
+        {loading ? 'Traitement en cours...' : 'Commander Maintenant'}
       </Button>
 
       <div className="bg-muted p-4 rounded-lg mt-8">
