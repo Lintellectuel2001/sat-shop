@@ -35,11 +35,17 @@ const ProductInfo = ({
       const backUrl = `${window.location.origin}${location.pathname}`;
       console.log("Initiating payment with backUrl:", backUrl);
 
+      // Extract numeric value from price string and ensure it's a valid number
+      const numericAmount = price.replace(/[^0-9]/g, '');
+      if (!numericAmount) {
+        throw new Error('Invalid price format');
+      }
+
       const requestBody = {
-        amount: price.replace(/[^0-9]/g, ''),
+        amount: numericAmount,
         name: "Customer",
         productName: name,
-        backUrl
+        backUrl: backUrl
       };
 
       console.log("Sending request with body:", requestBody);
@@ -47,7 +53,7 @@ const ProductInfo = ({
       const { data: payment, error } = await supabase.functions.invoke(
         'create-chargily-payment',
         {
-          body: JSON.stringify(requestBody),
+          body: requestBody, // Remove JSON.stringify here
           headers: {
             'Content-Type': 'application/json'
           }
