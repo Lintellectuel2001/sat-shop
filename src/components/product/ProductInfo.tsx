@@ -41,21 +41,18 @@ const ProductInfo = ({
         throw new Error('Invalid price format');
       }
 
-      const requestBody = {
-        amount: numericAmount,
-        name: "Customer",
-        productName: name,
-        backUrl: backUrl
-      };
-
-      console.log("Sending request with body:", requestBody);
+      // Log the data we're about to send
+      console.log("Price:", price, "Numeric amount:", numericAmount);
 
       const { data: payment, error } = await supabase.functions.invoke(
         'create-chargily-payment',
         {
-          body: requestBody, // Remove JSON.stringify here
-          headers: {
-            'Content-Type': 'application/json'
+          method: 'POST',
+          body: {
+            amount: numericAmount,
+            name: "Customer",
+            productName: name,
+            backUrl: backUrl
           }
         }
       );
