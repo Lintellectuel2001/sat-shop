@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import Chargily from "npm:@chargily/chargily-pay";
+import Chargily from "npm:@chargily/chargily-pay@2.0.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,26 +22,69 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Verify content type
-    if (req.headers.get("content-type") !== "application/json") {
-      throw new Error("Content-Type must be application/json");
+    // Log raw request for debugging
+    const rawBody = await req.text();
+    console.log("Raw request body:", rawBody);
+
+    let requestData;
+    try {
+      requestData = JSON.parse(rawBody);
+    } catch (parseError) {
+      console.error("JSON parse error:", parseError);
+      return new Response(
+        JSON.stringify({
+          error: "Invalid JSON in request body",
+          details: parseError.message,
+          receivedBody: rawBody
+        }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        }
+      );
     }
 
-    const requestData = await req.json();
     console.log("Parsed request data:", requestData);
 
     if (!requestData.amount || !requestData.productName || !requestData.backUrl) {
-      throw new Error("Missing required fields: amount, productName, or backUrl");
+      return new Response(
+        JSON.stringify({
+          error: "Missing required fields",
+          details: "amount, productName, and backUrl are required",
+          receivedData: requestData
+        }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        }
+      );
     }
 
     const apiKey = Deno.env.get("CHARGILY_API_KEY");
     console.log("API Key exists:", !!apiKey);
 
     if (!apiKey) {
-      throw new Error("CHARGILY_API_KEY not configured");
+      return new Response(
+        JSON.stringify({
+          error: "Configuration error",
+          details: "CHARGILY_API_KEY not configured"
+        }),
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        }
+      );
     }
 
-    // Create Chargily instance using the default export
     const chargilyPay = new Chargily({
       apiKey: apiKey,
       mode: 'live',
@@ -53,7 +96,20 @@ const handler = async (req: Request): Promise<Response> => {
     // Ensure amount is a valid number
     const numericAmount = parseFloat(requestData.amount);
     if (isNaN(numericAmount)) {
-      throw new Error("Invalid amount value");
+      return new Response(
+        JSON.stringify({
+          error: "Invalid amount",
+          details: "Amount must be a valid number",
+          receivedAmount: requestData.amount
+        }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        }
+      );
     }
 
     const paymentData = {
@@ -75,7 +131,20 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Payment response from Chargily:", response);
 
     if (!response || !response.checkout_url) {
-      throw new Error("Invalid response from Chargily");
+      return new Response(
+        JSON.stringify({
+          error: "Invalid Chargily response",
+          details: "Response missing checkout_url",
+          response: response
+        }),
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        }
+      );
     }
 
     return new Response(
