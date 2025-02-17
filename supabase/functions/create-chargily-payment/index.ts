@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import Chargily from "npm:@chargily/chargily-pay@2.0.0";
+import { ChargilyPay } from "npm:@chargily/chargily-pay@2.0.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -85,10 +85,8 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const chargilyPay = new Chargily({
-      apiKey: apiKey,
-      mode: 'live',
-    });
+    const chargilyPay = new ChargilyPay(apiKey, 'live');
+    console.log("Chargily client initialized");
 
     const webhookUrl = `${req.url.split('/functions/')[0]}/functions/v1/chargily-webhook`;
     console.log("Webhook URL:", webhookUrl);
