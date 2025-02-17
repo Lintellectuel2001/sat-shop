@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { ChargilyClient } from "npm:@chargily/chargily-pay@2.0.0";
+import { ChargilyClient } from "npm:@chargily/chargily-pay@2.1.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -106,6 +106,8 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    console.log("API Key exists:", !!apiKey);
+
     const client = new ChargilyClient({
       api_key: apiKey,
       mode: 'live'
@@ -129,14 +131,15 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Ensure backUrl doesn't end with a slash
-    const backUrl = requestData.backUrl.replace(/\/$/, '');
-    console.log("Using backUrl:", backUrl);
-
     // Utilisation de l'URL de base de la requête pour le webhook
     const baseUrl = new URL(req.url).origin;
     const webhookUrl = `${baseUrl}/functions/v1/chargily-webhook`;
-    console.log("Using webhookUrl:", webhookUrl);
+
+    console.log("Creating checkout with data:", {
+      amount: numericAmount,
+      backUrl: requestData.backUrl,
+      webhookUrl: webhookUrl
+    });
 
     const checkoutData = {
       invoice: {
@@ -148,8 +151,8 @@ const handler = async (req: Request): Promise<Response> => {
         description: requestData.productName,
       },
       mode: "EDAHABIA",
-      successUrl: backUrl,
-      errorUrl: backUrl,
+      successUrl: requestData.backUrl,
+      errorUrl: requestData.backUrl,
       webhookUrl: webhookUrl,
       feeOnClient: false,
       lang: "fr"
