@@ -32,7 +32,8 @@ const ProductInfo = ({
 
   const handleOrder = async () => {
     try {
-      const backUrl = `${window.location.origin}${location.pathname}`;
+      // Construction d'une URL complète
+      const backUrl = new URL(location.pathname, window.location.origin).toString();
       console.log("Initiating payment with backUrl:", backUrl);
 
       // Extract numeric value from price string and ensure it's a valid number

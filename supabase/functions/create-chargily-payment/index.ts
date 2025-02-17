@@ -55,11 +55,11 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Validation plus stricte des données d'entrée
-    if (!requestData || typeof requestData !== 'object') {
+    if (!requestData?.backUrl) {
       return new Response(
         JSON.stringify({
-          error: "Invalid request data",
-          details: "Request data must be an object",
+          error: "Missing backUrl",
+          details: "backUrl is required",
           receivedData: requestData
         }),
         {
@@ -73,23 +73,6 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     console.log("BackUrl from request:", requestData.backUrl);
-
-    if (!requestData.amount || !requestData.productName || !requestData.backUrl) {
-      return new Response(
-        JSON.stringify({
-          error: "Missing required fields",
-          details: "amount, productName, and backUrl are required",
-          receivedData: requestData
-        }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders,
-          },
-        }
-      );
-    }
 
     const apiKey = Deno.env.get("CHARGILY_API_KEY");
     console.log("API Key exists:", !!apiKey);
@@ -136,18 +119,19 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Creating checkout with amount:", numericAmount);
 
-    // Construction des URLs
+    // Ensure we have a complete URL for the webhook
     const baseUrl = new URL(req.url).origin;
-    console.log("Base URL:", baseUrl);
-
     const webhookUrl = `${baseUrl}/functions/v1/chargily-webhook`;
-    console.log("Webhook URL:", webhookUrl);
 
+    // Ensure success/error URL is complete
     let successUrl = requestData.backUrl;
-    if (!successUrl.startsWith('http')) {
-      successUrl = `${baseUrl}${successUrl.startsWith('/') ? '' : '/'}${successUrl}`;
+    try {
+      // Test if it's a valid URL
+      new URL(successUrl);
+    } catch {
+      // If not, assume it's a path and construct full URL
+      successUrl = new URL(successUrl, baseUrl).toString();
     }
-    console.log("Success URL:", successUrl);
 
     const checkoutData = {
       invoice: {
