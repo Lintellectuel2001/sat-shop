@@ -35,6 +35,7 @@ const handler = async (req: Request): Promise<Response> => {
     let requestData;
     try {
       requestData = JSON.parse(rawBody);
+      console.log("Parsed request data:", JSON.stringify(requestData, null, 2));
     } catch (parseError) {
       console.error("JSON parse error:", parseError);
       return new Response(
@@ -53,7 +54,25 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log("Parsed request data:", requestData);
+    // Validation plus stricte des données d'entrée
+    if (!requestData || typeof requestData !== 'object') {
+      return new Response(
+        JSON.stringify({
+          error: "Invalid request data",
+          details: "Request data must be an object",
+          receivedData: requestData
+        }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        }
+      );
+    }
+
+    console.log("BackUrl from request:", requestData.backUrl);
 
     if (!requestData.amount || !requestData.productName || !requestData.backUrl) {
       return new Response(
@@ -117,14 +136,18 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Creating checkout with amount:", numericAmount);
 
-    // S'assurer que les URLs sont complètes
-    const baseUrl = req.url.split('/functions/')[0];
+    // Construction des URLs
+    const baseUrl = new URL(req.url).origin;
+    console.log("Base URL:", baseUrl);
+
     const webhookUrl = `${baseUrl}/functions/v1/chargily-webhook`;
-    
-    // S'assurer que backUrl est une URL complète
-    const successUrl = requestData.backUrl.startsWith('http') 
-      ? requestData.backUrl 
-      : `${baseUrl}${requestData.backUrl}`;
+    console.log("Webhook URL:", webhookUrl);
+
+    let successUrl = requestData.backUrl;
+    if (!successUrl.startsWith('http')) {
+      successUrl = `${baseUrl}${successUrl.startsWith('/') ? '' : '/'}${successUrl}`;
+    }
+    console.log("Success URL:", successUrl);
 
     const checkoutData = {
       invoice: {
@@ -143,7 +166,7 @@ const handler = async (req: Request): Promise<Response> => {
       lang: "fr"
     };
 
-    console.log("Sending checkout request to Chargily:", checkoutData);
+    console.log("Sending checkout request to Chargily:", JSON.stringify(checkoutData, null, 2));
 
     const response = await client.createCheckout(checkoutData);
     console.log("Checkout response from Chargily:", response);
