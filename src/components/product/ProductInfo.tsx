@@ -32,8 +32,12 @@ const ProductInfo = ({
 
   const handleOrder = async () => {
     try {
-      // Ensure we have an absolute URL
-      const backUrl = window.location.href;
+      // Construct the absolute URL with protocol
+      const protocol = window.location.protocol;
+      const host = window.location.host;
+      const path = window.location.pathname;
+      const backUrl = `${protocol}//${host}${path}`;
+      
       console.log("Initiating payment with backUrl:", backUrl);
 
       // Extract numeric value from price string and ensure it's a valid number

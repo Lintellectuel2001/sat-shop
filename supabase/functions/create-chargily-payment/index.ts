@@ -69,6 +69,26 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Validate backUrl format
+    try {
+      new URL(requestData.backUrl);
+    } catch (urlError) {
+      return new Response(
+        JSON.stringify({
+          error: "Invalid backUrl format",
+          details: "backUrl must be a valid URL",
+          receivedUrl: requestData.backUrl
+        }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        }
+      );
+    }
+
     const apiKey = Deno.env.get("CHARGILY_API_KEY");
     if (!apiKey) {
       return new Response(
@@ -109,9 +129,14 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Ensure backUrl doesn't end with a slash
+    const backUrl = requestData.backUrl.replace(/\/$/, '');
+    console.log("Using backUrl:", backUrl);
+
     // Utilisation de l'URL de base de la requête pour le webhook
     const baseUrl = new URL(req.url).origin;
     const webhookUrl = `${baseUrl}/functions/v1/chargily-webhook`;
+    console.log("Using webhookUrl:", webhookUrl);
 
     const checkoutData = {
       invoice: {
@@ -123,8 +148,8 @@ const handler = async (req: Request): Promise<Response> => {
         description: requestData.productName,
       },
       mode: "EDAHABIA",
-      successUrl: requestData.backUrl,
-      errorUrl: requestData.backUrl,
+      successUrl: backUrl,
+      errorUrl: backUrl,
       webhookUrl: webhookUrl,
       feeOnClient: false,
       lang: "fr"
