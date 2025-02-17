@@ -1,12 +1,12 @@
 
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { ChargilyPay } from 'npm:@chargily/chargily-pay';
+// Import npm packages using the npm: prefix
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { ChargilyPay } from "npm:@chargily/chargily-pay@2.1.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Max-Age': '86400',
 };
 
 interface PaymentRequest {
@@ -38,7 +38,7 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (!apiKey) {
-      throw new Error("CHARGILY_API_KEY is not configured");
+      throw new Error("CHARGILY_API_KEY not configured");
     }
 
     const chargilyPay = new ChargilyPay({
@@ -47,13 +47,14 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     const webhookUrl = `${req.url.split('/functions/')[0]}/functions/v1/chargily-webhook`;
+    console.log("Webhook URL:", webhookUrl);
 
     const paymentData = {
       amount: parseFloat(amount),
       currency: "DZD",
-      payment_method: "EDAHABIA", // Changed from CIB to EDAHABIA for better compatibility
-      customer_name: name,
-      customer_phone: "213700000000", // Default phone number
+      payment_method: "EDAHABIA",
+      customer_name: name || "Customer",
+      customer_phone: "213700000000",
       customer_email: "customer@email.com",
       description: `Payment for ${productName}`,
       webhook_url: webhookUrl,
@@ -66,32 +67,23 @@ const handler = async (req: Request): Promise<Response> => {
     const response = await chargilyPay.createPayment(paymentData);
     console.log("Payment response from Chargily:", response);
 
-    if (!response.checkout_url) {
-      throw new Error("No checkout URL received from Chargily");
-    }
-
     return new Response(
       JSON.stringify(response),
       {
-        status: 200,
         headers: {
           'Content-Type': 'application/json',
           ...corsHeaders,
         },
       }
     );
-  } catch (error: any) {
-    console.error("Error creating payment:", {
-      message: error.message,
-      stack: error.stack,
-      details: error.details || 'No additional details'
-    });
+
+  } catch (error) {
+    console.error("Error in payment processing:", error);
     
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: error.message,
-        stack: error.stack,
-        details: error.details || 'No additional details'
+        details: "Payment creation failed"
       }),
       {
         status: 500,
