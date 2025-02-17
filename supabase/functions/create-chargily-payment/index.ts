@@ -122,32 +122,26 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Creating checkout with amount:", numericAmount);
 
-    // Création du checkout selon la documentation officielle
+    const webhookUrl = `${req.url.split('/functions/')[0]}/functions/v1/chargily-webhook`;
+
+    // Création du checkout selon la documentation officielle avec tous les champs requis
     const checkoutData = {
-      items: [
-        {
-          price: {
-            amount: numericAmount,
-            currency: 'dzd'
-          },
-          quantity: 1
-        }
-      ],
-      success_url: requestData.backUrl,
-      failure_url: requestData.backUrl,
-      payment_method: 'edahabia',
-      locale: 'fr',
-      pass_fees_to_customer: false,
-      metadata: {
-        product_name: requestData.productName,
-        customer_name: requestData.name || 'Customer'
-      }
+      amount: numericAmount,
+      currency: "DZD",
+      client_name: requestData.name || "Customer",
+      client_email: "customer@example.com",
+      client_phone: "213555555555",
+      description: `Payment for ${requestData.productName}`,
+      back_url: requestData.backUrl,
+      webhook_url: webhookUrl,
+      payment_method: "EDAHABIA",
+      feeOnCustomer: false,
     };
 
-    console.log("Sending checkout request to Chargily:", checkoutData);
+    console.log("Sending payment request to Chargily:", checkoutData);
 
-    const response = await client.createCheckout(checkoutData);
-    console.log("Checkout response from Chargily:", response);
+    const response = await client.createPayment(checkoutData);
+    console.log("Payment response from Chargily:", response);
 
     if (!response || !response.checkout_url) {
       return new Response(
