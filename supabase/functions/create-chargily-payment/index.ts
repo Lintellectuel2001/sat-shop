@@ -69,26 +69,6 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Validate backUrl format
-    try {
-      new URL(requestData.backUrl);
-    } catch (urlError) {
-      return new Response(
-        JSON.stringify({
-          error: "Invalid backUrl format",
-          details: "backUrl must be a valid URL",
-          receivedUrl: requestData.backUrl
-        }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders,
-          },
-        }
-      );
-    }
-
     const apiKey = Deno.env.get("CHARGILY_API_KEY");
     if (!apiKey) {
       return new Response(
@@ -131,14 +111,18 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Utilisation de l'URL de base de la requête pour le webhook
-    const baseUrl = new URL(req.url).origin;
-    const webhookUrl = `${baseUrl}/functions/v1/chargily-webhook`;
+    // Utilisation d'une URL fixe pour les tests
+    const fallbackDomain = "https://kyjuwizqndxvbuswmkiw.supabase.co";
+    
+    // Construction des URLs
+    const successUrl = fallbackDomain + "/success";
+    const errorUrl = fallbackDomain + "/error";
+    const webhookUrl = fallbackDomain + "/functions/v1/chargily-webhook";
 
-    console.log("Creating checkout with data:", {
-      amount: numericAmount,
-      backUrl: requestData.backUrl,
-      webhookUrl: webhookUrl
+    console.log("Using URLs:", {
+      successUrl,
+      errorUrl,
+      webhookUrl
     });
 
     const checkoutData = {
@@ -151,9 +135,9 @@ const handler = async (req: Request): Promise<Response> => {
         description: requestData.productName,
       },
       mode: "EDAHABIA",
-      successUrl: requestData.backUrl,
-      errorUrl: requestData.backUrl,
-      webhookUrl: webhookUrl,
+      successUrl,
+      errorUrl,
+      webhookUrl,
       feeOnClient: false,
       lang: "fr"
     };
