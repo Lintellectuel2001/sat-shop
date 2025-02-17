@@ -1,7 +1,6 @@
 
-// Import npm packages using the npm: prefix
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { ChargilyPay } from "npm:@chargily/chargily-pay@2.1.0";
+import Chargily from "npm:@chargily/chargily-pay@2.1.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -41,7 +40,8 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("CHARGILY_API_KEY not configured");
     }
 
-    const chargilyPay = new ChargilyPay({
+    // Create Chargily instance using the default export
+    const chargilyPay = new Chargily.ChargilyPay({
       apiKey: apiKey,
       mode: 'live',
     });
