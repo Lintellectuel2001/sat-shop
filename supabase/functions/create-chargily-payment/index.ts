@@ -117,21 +117,27 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Creating checkout with amount:", numericAmount);
 
-    const webhookUrl = `${req.url.split('/functions/')[0]}/functions/v1/chargily-webhook`;
+    // S'assurer que les URLs sont complètes
+    const baseUrl = req.url.split('/functions/')[0];
+    const webhookUrl = `${baseUrl}/functions/v1/chargily-webhook`;
+    
+    // S'assurer que backUrl est une URL complète
+    const successUrl = requestData.backUrl.startsWith('http') 
+      ? requestData.backUrl 
+      : `${baseUrl}${requestData.backUrl}`;
 
-    // Mise à jour de la structure selon la documentation la plus récente
     const checkoutData = {
       invoice: {
         amount: numericAmount,
         currency: "DZD",
         name: requestData.name || "Customer",
-        email: "client@example.com", // Requis par l'API
-        phone: "+213555555555", // Requis par l'API
+        email: "client@example.com",
+        phone: "+213555555555",
         description: requestData.productName,
       },
       mode: "EDAHABIA",
-      successUrl: requestData.backUrl,
-      errorUrl: requestData.backUrl,
+      successUrl: successUrl,
+      errorUrl: successUrl,
       webhookUrl: webhookUrl,
       feeOnClient: false,
       lang: "fr"
