@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { ChargilyPay } from "npm:@chargily/chargily-pay@2.0.0";
+import { ChargilyClient } from "npm:@chargily/chargily-pay@2.0.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -94,7 +94,10 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const chargilyPay = new ChargilyPay(apiKey, 'live');
+    const client = new ChargilyClient({
+      api_key: apiKey,
+      mode: 'live'
+    });
     console.log("Chargily client initialized");
 
     const webhookUrl = `${req.url.split('/functions/')[0]}/functions/v1/chargily-webhook`;
@@ -119,23 +122,31 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const paymentData = {
-      amount: numericAmount,
-      currency: "DZD",
-      payment_method: "EDAHABIA",
-      customer_name: requestData.name || "Customer",
-      customer_phone: "213700000000",
-      customer_email: "customer@email.com",
-      description: `Payment for ${requestData.productName}`,
-      webhook_url: webhookUrl,
-      back_url: requestData.backUrl,
-      feeOnCustomer: false,
+    console.log("Creating checkout with amount:", numericAmount);
+
+    const checkoutData = {
+      items: [{
+        price: {
+          amount: numericAmount,
+          currency: "dzd",
+          product_id: requestData.productName
+        },
+        quantity: 1
+      }],
+      success_url: requestData.backUrl,
+      failure_url: requestData.backUrl,
+      payment_method: "edahabia",
+      locale: "fr",
+      pass_fees_to_customer: false,
+      metadata: {
+        product_name: requestData.productName
+      }
     };
 
-    console.log("Sending payment request to Chargily:", paymentData);
+    console.log("Sending checkout request to Chargily:", checkoutData);
 
-    const response = await chargilyPay.createPayment(paymentData);
-    console.log("Payment response from Chargily:", response);
+    const response = await client.createCheckout(checkoutData);
+    console.log("Checkout response from Chargily:", response);
 
     if (!response || !response.checkout_url) {
       return new Response(
