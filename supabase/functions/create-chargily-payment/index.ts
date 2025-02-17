@@ -26,9 +26,6 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    console.log("Request method:", req.method);
-    console.log("Request headers:", Object.fromEntries(req.headers.entries()));
-
     const rawBody = await req.text();
     console.log("Raw request body:", rawBody);
 
@@ -54,12 +51,12 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Validation plus stricte des données d'entrée
-    if (!requestData?.backUrl) {
+    // Validation des données
+    if (!requestData?.backUrl || !requestData?.amount || !requestData?.productName) {
       return new Response(
         JSON.stringify({
-          error: "Missing backUrl",
-          details: "backUrl is required",
+          error: "Missing required fields",
+          details: "backUrl, amount, and productName are required",
           receivedData: requestData
         }),
         {
@@ -72,11 +69,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log("BackUrl from request:", requestData.backUrl);
-
     const apiKey = Deno.env.get("CHARGILY_API_KEY");
-    console.log("API Key exists:", !!apiKey);
-
     if (!apiKey) {
       return new Response(
         JSON.stringify({
@@ -97,7 +90,6 @@ const handler = async (req: Request): Promise<Response> => {
       api_key: apiKey,
       mode: 'live'
     });
-    console.log("Chargily client initialized");
 
     const numericAmount = parseFloat(requestData.amount);
     if (isNaN(numericAmount)) {
@@ -117,21 +109,9 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log("Creating checkout with amount:", numericAmount);
-
-    // Ensure we have a complete URL for the webhook
+    // Utilisation de l'URL de base de la requête pour le webhook
     const baseUrl = new URL(req.url).origin;
     const webhookUrl = `${baseUrl}/functions/v1/chargily-webhook`;
-
-    // Ensure success/error URL is complete
-    let successUrl = requestData.backUrl;
-    try {
-      // Test if it's a valid URL
-      new URL(successUrl);
-    } catch {
-      // If not, assume it's a path and construct full URL
-      successUrl = new URL(successUrl, baseUrl).toString();
-    }
 
     const checkoutData = {
       invoice: {
@@ -143,8 +123,8 @@ const handler = async (req: Request): Promise<Response> => {
         description: requestData.productName,
       },
       mode: "EDAHABIA",
-      successUrl: successUrl,
-      errorUrl: successUrl,
+      successUrl: requestData.backUrl,
+      errorUrl: requestData.backUrl,
       webhookUrl: webhookUrl,
       feeOnClient: false,
       lang: "fr"
