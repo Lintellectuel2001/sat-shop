@@ -18,7 +18,6 @@ interface PaymentRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
@@ -27,11 +26,9 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Log request details for debugging
     console.log("Request method:", req.method);
     console.log("Request headers:", Object.fromEntries(req.headers.entries()));
 
-    // Log raw request for debugging
     const rawBody = await req.text();
     console.log("Raw request body:", rawBody);
 
@@ -94,14 +91,12 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Initialisation du client Chargily selon la documentation officielle
     const client = new ChargilyClient({
       api_key: apiKey,
-      mode: 'live' // mode production
+      mode: 'live'
     });
     console.log("Chargily client initialized");
 
-    // Ensure amount is a valid number
     const numericAmount = parseFloat(requestData.amount);
     if (isNaN(numericAmount)) {
       return new Response(
@@ -124,24 +119,22 @@ const handler = async (req: Request): Promise<Response> => {
 
     const webhookUrl = `${req.url.split('/functions/')[0]}/functions/v1/chargily-webhook`;
 
-    // Structure de données pour createCheckout selon la documentation v2
+    // Mise à jour de la structure selon la documentation la plus récente
     const checkoutData = {
-      items: [{
-        price: {
-          amount: numericAmount,
-          currency: "dzd"
-        },
-        quantity: 1
-      }],
-      success_url: requestData.backUrl,
-      failure_url: requestData.backUrl,
-      payment_method: "edahabia",
-      locale: "fr",
-      pass_fees_to_customer: false,
-      metadata: {
-        product_name: requestData.productName,
-        customer_name: requestData.name || "Customer"
-      }
+      invoice: {
+        amount: numericAmount,
+        currency: "DZD",
+        name: requestData.name || "Customer",
+        email: "client@example.com", // Requis par l'API
+        phone: "+213555555555", // Requis par l'API
+        description: requestData.productName,
+      },
+      mode: "EDAHABIA",
+      successUrl: requestData.backUrl,
+      errorUrl: requestData.backUrl,
+      webhookUrl: webhookUrl,
+      feeOnClient: false,
+      lang: "fr"
     };
 
     console.log("Sending checkout request to Chargily:", checkoutData);
