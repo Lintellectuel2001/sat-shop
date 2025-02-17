@@ -22,19 +22,20 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const requestData = await req.text();
-    console.log("Raw request data:", requestData);
+    // Verify content type
+    if (req.headers.get("content-type") !== "application/json") {
+      throw new Error("Content-Type must be application/json");
+    }
 
-    const { amount, name, productName, backUrl }: PaymentRequest = JSON.parse(requestData);
+    const requestData = await req.json();
+    console.log("Parsed request data:", requestData);
+
+    if (!requestData.amount || !requestData.productName || !requestData.backUrl) {
+      throw new Error("Missing required fields: amount, productName, or backUrl");
+    }
+
     const apiKey = Deno.env.get("CHARGILY_API_KEY");
-
-    console.log("Processing payment request with details:", {
-      amount,
-      name,
-      productName,
-      backUrl,
-      apiKeyExists: !!apiKey
-    });
+    console.log("API Key exists:", !!apiKey);
 
     if (!apiKey) {
       throw new Error("CHARGILY_API_KEY not configured");
@@ -49,16 +50,22 @@ const handler = async (req: Request): Promise<Response> => {
     const webhookUrl = `${req.url.split('/functions/')[0]}/functions/v1/chargily-webhook`;
     console.log("Webhook URL:", webhookUrl);
 
+    // Ensure amount is a valid number
+    const numericAmount = parseFloat(requestData.amount);
+    if (isNaN(numericAmount)) {
+      throw new Error("Invalid amount value");
+    }
+
     const paymentData = {
-      amount: parseFloat(amount),
+      amount: numericAmount,
       currency: "DZD",
       payment_method: "EDAHABIA",
-      customer_name: name || "Customer",
+      customer_name: requestData.name || "Customer",
       customer_phone: "213700000000",
       customer_email: "customer@email.com",
-      description: `Payment for ${productName}`,
+      description: `Payment for ${requestData.productName}`,
       webhook_url: webhookUrl,
-      back_url: backUrl,
+      back_url: requestData.backUrl,
       feeOnCustomer: false,
     };
 
@@ -66,6 +73,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     const response = await chargilyPay.createPayment(paymentData);
     console.log("Payment response from Chargily:", response);
+
+    if (!response || !response.checkout_url) {
+      throw new Error("Invalid response from Chargily");
+    }
 
     return new Response(
       JSON.stringify(response),
@@ -82,7 +93,7 @@ const handler = async (req: Request): Promise<Response> => {
     
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: error.message || "Unknown error occurred",
         details: "Payment creation failed"
       }),
       {
