@@ -87,10 +87,11 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     console.log("API Key exists:", !!apiKey);
+    console.log("API Key first 10 chars:", apiKey.substring(0, 10));
 
     const client = new ChargilyClient({
       api_key: apiKey,
-      mode: 'live'
+      mode: 'test' // Changement en mode test
     });
 
     const numericAmount = parseFloat(requestData.amount);
@@ -111,19 +112,8 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Utilisation d'une URL fixe pour les tests
-    const fallbackDomain = "https://kyjuwizqndxvbuswmkiw.supabase.co";
-    
-    // Construction des URLs
-    const successUrl = fallbackDomain + "/success";
-    const errorUrl = fallbackDomain + "/error";
-    const webhookUrl = fallbackDomain + "/functions/v1/chargily-webhook";
-
-    console.log("Using URLs:", {
-      successUrl,
-      errorUrl,
-      webhookUrl
-    });
+    // Construction des URLs avec un domaine statique
+    const baseUrl = "https://kyjuwizqndxvbuswmkiw.supabase.co";
 
     const checkoutData = {
       invoice: {
@@ -134,10 +124,9 @@ const handler = async (req: Request): Promise<Response> => {
         phone: "+213555555555",
         description: requestData.productName,
       },
-      mode: "EDAHABIA",
-      successUrl,
-      errorUrl,
-      webhookUrl,
+      mode: "CIB",  // Utilisation de CIB au lieu de EDAHABIA
+      back_url: requestData.backUrl, // Utilisation de back_url au lieu de successUrl/errorUrl
+      webhook_url: `${baseUrl}/functions/v1/chargily-webhook`,
       feeOnClient: false,
       lang: "fr"
     };
