@@ -94,14 +94,12 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Initialisation du client Chargily selon la documentation officielle
     const client = new ChargilyClient({
       api_key: apiKey,
-      mode: 'live'
+      mode: 'live' // mode production
     });
     console.log("Chargily client initialized");
-
-    const webhookUrl = `${req.url.split('/functions/')[0]}/functions/v1/chargily-webhook`;
-    console.log("Webhook URL:", webhookUrl);
 
     // Ensure amount is a valid number
     const numericAmount = parseFloat(requestData.amount);
@@ -124,22 +122,25 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Creating checkout with amount:", numericAmount);
 
+    // Création du checkout selon la documentation officielle
     const checkoutData = {
-      items: [{
-        price: {
-          amount: numericAmount,
-          currency: "dzd",
-          product_id: requestData.productName
-        },
-        quantity: 1
-      }],
+      items: [
+        {
+          price: {
+            amount: numericAmount,
+            currency: 'dzd'
+          },
+          quantity: 1
+        }
+      ],
       success_url: requestData.backUrl,
       failure_url: requestData.backUrl,
-      payment_method: "edahabia",
-      locale: "fr",
+      payment_method: 'edahabia',
+      locale: 'fr',
       pass_fees_to_customer: false,
       metadata: {
-        product_name: requestData.productName
+        product_name: requestData.productName,
+        customer_name: requestData.name || 'Customer'
       }
     };
 
