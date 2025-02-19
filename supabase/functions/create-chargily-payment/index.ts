@@ -1,183 +1,64 @@
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { ChargilyClient } from "npm:@chargily/chargily-pay@2.1.0";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { ChargilyClient } from 'npm:@chargily/chargily-pay';
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Max-Age': '86400',
-  'Access-Control-Allow-Credentials': 'true',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
 interface PaymentRequest {
   amount: string;
   name: string;
   productName: string;
-  backUrl: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 204,
-      headers: corsHeaders
-    });
+  // Handle CORS preflight requests
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const rawBody = await req.text();
-    console.log("Raw request body:", rawBody);
-
-    let requestData;
-    try {
-      requestData = JSON.parse(rawBody);
-      console.log("Parsed request data:", JSON.stringify(requestData, null, 2));
-    } catch (parseError) {
-      console.error("JSON parse error:", parseError);
-      return new Response(
-        JSON.stringify({
-          error: "Invalid JSON in request body",
-          details: parseError.message,
-          receivedBody: rawBody
-        }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders,
-          },
-        }
-      );
-    }
-
-    // Validation des données
-    if (!requestData?.backUrl || !requestData?.amount || !requestData?.productName) {
-      return new Response(
-        JSON.stringify({
-          error: "Missing required fields",
-          details: "backUrl, amount, and productName are required",
-          receivedData: requestData
-        }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders,
-          },
-        }
-      );
-    }
-
-    const apiKey = Deno.env.get("CHARGILY_API_KEY");
-    if (!apiKey) {
-      return new Response(
-        JSON.stringify({
-          error: "Configuration error",
-          details: "CHARGILY_API_KEY not configured"
-        }),
-        {
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders,
-          },
-        }
-      );
-    }
-
-    console.log("API Key exists:", !!apiKey);
-    console.log("API Key first 10 chars:", apiKey.substring(0, 10));
+    const { amount, name, productName }: PaymentRequest = await req.json();
 
     const client = new ChargilyClient({
-      api_key: apiKey,
-      mode: 'test' // Changement en mode test
+      api_key: Deno.env.get("CHARGILY_API_KEY") || '',
+      mode: 'live',
     });
 
-    const numericAmount = parseFloat(requestData.amount);
-    if (isNaN(numericAmount)) {
-      return new Response(
-        JSON.stringify({
-          error: "Invalid amount",
-          details: "Amount must be a valid number",
-          receivedAmount: requestData.amount
-        }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders,
-          },
-        }
-      );
-    }
+    console.log("Creating payment for:", { amount, name, productName });
 
-    // Construction des URLs avec un domaine statique
-    const baseUrl = "https://kyjuwizqndxvbuswmkiw.supabase.co";
+    const payment = await client.createPayment({
+      amount: parseFloat(amount),
+      currency: "DZD",
+      payment_method: "CIB", // Or "EDAHABIA"
+      customer_name: name,
+      customer_phone: "213XXXXXXXX", // This should be provided by the customer
+      customer_email: "customer@email.com", // This should be provided by the customer
+      description: `Payment for ${productName}`,
+      webhook_url: "https://your-webhook-url.com", // You should set up a webhook endpoint
+      back_url: window.location.origin, // This will redirect back to your site
+      feeOnCustomer: false,
+    });
 
-    const checkoutData = {
-      invoice: {
-        amount: numericAmount,
-        currency: "DZD",
-        name: requestData.name || "Customer",
-        email: "client@example.com",
-        phone: "+213555555555",
-        description: requestData.productName,
+    console.log("Payment created successfully:", payment);
+
+    return new Response(JSON.stringify(payment), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        ...corsHeaders,
       },
-      mode: "CIB",  // Utilisation de CIB au lieu de EDAHABIA
-      back_url: requestData.backUrl, // Utilisation de back_url au lieu de successUrl/errorUrl
-      webhook_url: `${baseUrl}/functions/v1/chargily-webhook`,
-      feeOnClient: false,
-      lang: "fr"
-    };
-
-    console.log("Sending checkout request to Chargily:", JSON.stringify(checkoutData, null, 2));
-
-    const response = await client.createCheckout(checkoutData);
-    console.log("Checkout response from Chargily:", response);
-
-    if (!response || !response.checkout_url) {
-      return new Response(
-        JSON.stringify({
-          error: "Invalid Chargily response",
-          details: "Response missing checkout_url",
-          response: response
-        }),
-        {
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders,
-          },
-        }
-      );
-    }
-
+    });
+  } catch (error: any) {
+    console.error("Error creating payment:", error);
     return new Response(
-      JSON.stringify(response),
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          ...corsHeaders,
-        },
-      }
-    );
-
-  } catch (error) {
-    console.error("Error in payment processing:", error);
-    
-    return new Response(
-      JSON.stringify({
-        error: error.message || "Unknown error occurred",
-        details: "Payment creation failed",
-        stack: error.stack
-      }),
+      JSON.stringify({ error: error.message }),
       {
         status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          ...corsHeaders,
-        },
+        headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
   }

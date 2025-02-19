@@ -1,8 +1,1 @@
-
 project_id = "kyjuwizqndxvbuswmkiw"
-
-[functions.create-chargily-payment]
-verify_jwt = false
-
-[functions.chargily-webhook]
-verify_jwt = false
