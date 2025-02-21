@@ -63,8 +63,8 @@ const ProductDetails = () => {
     try {
       setProcessingPayment(true);
       
-      // Extraire uniquement les chiffres du prix
-      const numericAmount = product.price.replace(/[^0-9]/g, '');
+      // Extraire uniquement les chiffres du prix et convertir en centimes
+      const numericAmount = parseInt(product.price.replace(/[^0-9]/g, '')) * 100;
       if (!numericAmount) {
         throw new Error('Format de prix invalide');
       }
@@ -93,7 +93,7 @@ const ProductDetails = () => {
           .from('cart_history')
           .insert([{
             action_type: 'purchase',
-            product_id: product.name
+            product_id: product.id
           }]);
 
         // Rediriger vers la page de paiement Chargily
