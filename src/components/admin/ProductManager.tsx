@@ -12,6 +12,9 @@ interface Product {
   image: string;
   category: string;
   features?: string[];
+  payment_link?: string;
+  rating?: number;
+  reviews?: number;
 }
 
 interface ProductManagerProps {

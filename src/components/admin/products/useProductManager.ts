@@ -12,6 +12,7 @@ interface Product {
   image: string;
   category: string;
   features?: string[];
+  payment_link?: string;
 }
 
 export const useProductManager = (onProductsChange: () => void) => {
@@ -21,6 +22,7 @@ export const useProductManager = (onProductsChange: () => void) => {
     price: '',
     category: '',
     image: '',
+    payment_link: ''
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -48,14 +50,15 @@ export const useProductManager = (onProductsChange: () => void) => {
 
       const { data, error } = await supabase
         .from('products')
-        .insert([{
+        .insert({
           name: newProduct.name,
           price: newProduct.price,
           category: newProduct.category,
           image: newProduct.image,
           description: newProduct.description,
           features: newProduct.features,
-        }])
+          payment_link: null // On force payment_link à null puisqu'on utilise Chargily
+        })
         .select();
 
       if (error) {
@@ -80,6 +83,7 @@ export const useProductManager = (onProductsChange: () => void) => {
         price: '',
         category: '',
         image: '',
+        payment_link: ''
       });
       
       onProductsChange();
@@ -115,7 +119,10 @@ export const useProductManager = (onProductsChange: () => void) => {
 
       const { error } = await supabase
         .from('products')
-        .update(updatedProduct)
+        .update({
+          ...updatedProduct,
+          payment_link: null // On force payment_link à null puisqu'on utilise Chargily
+        })
         .eq('id', updatedProduct.id);
 
       if (error) {
