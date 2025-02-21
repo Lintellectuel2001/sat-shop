@@ -1,10 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import ProductHeader from "./ProductHeader";
 import ProductDescription from "./ProductDescription";
 import ProductFeatures from "./ProductFeatures";
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -16,7 +16,6 @@ interface ProductInfoProps {
   description: string;
   features: string[];
   downloadInfo?: any;
-  paymentLink: string;
 }
 
 const ProductInfo = ({ 
@@ -27,58 +26,63 @@ const ProductInfo = ({
   description, 
   features, 
   downloadInfo,
-  paymentLink
 }: ProductInfoProps) => {
-  const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
 
   const handleOrder = async () => {
     try {
-      // Record the purchase attempt
-      const { error: cartError } = await supabase
-        .from('cart_history')
-        .insert([{
-          action_type: 'purchase',
-          product_id: name
-        }]);
+      setLoading(true);
+      
+      // Extraire uniquement les chiffres du prix
+      const numericAmount = price.replace(/[^0-9]/g, '');
+      if (!numericAmount) {
+        throw new Error('Invalid price format');
+      }
 
-      if (cartError) throw cartError;
+      console.log("Processing payment for amount:", numericAmount);
 
-      // Create payment using the Edge Function
-      const { data: payment, error } = await supabase.functions.invoke('create-chargily-payment', {
-        body: {
-          amount: price.replace(/[^0-9]/g, ''), // Remove any non-numeric characters
-          name: "Customer", // This should be replaced with actual customer name
-          productName: name
+      // Créer le paiement via la fonction Edge
+      const { data: payment, error } = await supabase.functions.invoke(
+        'create-chargily-payment',
+        {
+          body: {
+            amount: numericAmount,
+            name: "Customer",
+            productName: name
+          }
         }
-      });
+      );
 
       if (error) throw error;
 
-      // If payment creation is successful, proceed with the order
+      console.log("Payment response:", payment);
+
       if (payment && payment.checkout_url) {
+        // Enregistrer la tentative d'achat
+        await supabase
+          .from('cart_history')
+          .insert([{
+            action_type: 'purchase',
+            product_id: name
+          }]);
+
+        // Rediriger vers la page de paiement Chargily
         window.location.href = payment.checkout_url;
       } else {
-        throw new Error('Payment URL not received');
+        throw new Error('URL de paiement non reçue');
       }
-
-      // Send notification email in the background
-      supabase.functions.invoke('send-order-notification', {
-        body: {
-          productName: name,
-          productPrice: price,
-        },
-      }).catch((error) => {
-        console.error('Error sending notification:', error);
-      });
 
     } catch (error) {
       console.error('Error processing order:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Une erreur est survenue lors du traitement de la commande"
+        description: "Une erreur est survenue lors du traitement de la commande. Veuillez réessayer."
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -101,8 +105,9 @@ const ProductInfo = ({
       <Button 
         onClick={handleOrder}
         className="w-full lg:w-auto text-lg py-6 bg-primary hover:bg-primary/90"
+        disabled={loading}
       >
-        Commander Maintenant
+        {loading ? 'Traitement en cours...' : 'Commander Maintenant'}
       </Button>
 
       <div className="bg-muted p-4 rounded-lg mt-8">

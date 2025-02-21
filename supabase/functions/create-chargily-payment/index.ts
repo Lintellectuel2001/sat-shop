@@ -1,11 +1,10 @@
 
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { ChargilyClient } from 'npm:@chargily/chargily-pay';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { ChargilyClient } from "npm:@chargily/chargily-pay@2.1.0";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 interface PaymentRequest {
@@ -15,50 +14,75 @@ interface PaymentRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      headers: corsHeaders
+    });
   }
 
   try {
     const { amount, name, productName }: PaymentRequest = await req.json();
 
+    const apiKey = Deno.env.get("CHARGILY_API_KEY");
+    if (!apiKey) {
+      throw new Error("CHARGILY_API_KEY not configured");
+    }
+
     const client = new ChargilyClient({
-      api_key: Deno.env.get("CHARGILY_API_KEY") || '',
-      mode: 'live',
+      api_key: apiKey,
+      mode: 'test' // Utilisez 'live' pour la production
     });
 
-    console.log("Creating payment for:", { amount, name, productName });
+    const numericAmount = parseFloat(amount);
+    if (isNaN(numericAmount)) {
+      throw new Error("Invalid amount");
+    }
 
-    const payment = await client.createPayment({
-      amount: parseFloat(amount),
-      currency: "DZD",
-      payment_method: "CIB", // Or "EDAHABIA"
-      customer_name: name,
-      customer_phone: "213XXXXXXXX", // This should be provided by the customer
-      customer_email: "customer@email.com", // This should be provided by the customer
-      description: `Payment for ${productName}`,
-      webhook_url: "https://your-webhook-url.com", // You should set up a webhook endpoint
-      back_url: window.location.origin, // This will redirect back to your site
-      feeOnCustomer: false,
-    });
-
-    console.log("Payment created successfully:", payment);
-
-    return new Response(JSON.stringify(payment), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        ...corsHeaders,
+    const checkoutData = {
+      invoice: {
+        amount: numericAmount,
+        currency: "DZD",
+        name: name || "Customer",
+        email: "client@example.com", // À remplacer par l'email du client
+        phone: "+213555555555", // À remplacer par le téléphone du client
+        description: productName,
       },
-    });
-  } catch (error: any) {
-    console.error("Error creating payment:", error);
+      mode: "CIB",
+      back_url: window.location.origin,
+      webhook_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/chargily-webhook`,
+      feeOnClient: false,
+      lang: "fr"
+    };
+
+    console.log("Creating payment with data:", checkoutData);
+
+    const response = await client.createCheckout(checkoutData);
+    console.log("Payment created:", response);
+
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify(response),
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          ...corsHeaders,
+        },
+      }
+    );
+
+  } catch (error) {
+    console.error("Error in payment processing:", error);
+    return new Response(
+      JSON.stringify({
+        error: error.message || "Unknown error occurred",
+        details: "Payment creation failed",
+        stack: error.stack
+      }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        headers: {
+          'Content-Type': 'application/json',
+          ...corsHeaders,
+        },
       }
     );
   }
