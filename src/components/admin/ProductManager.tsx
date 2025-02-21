@@ -1,3 +1,4 @@
+
 import React from 'react';
 import ProductHeader from './products/ProductHeader';
 import ProductGrid from './products/ProductGrid';
@@ -11,7 +12,6 @@ interface Product {
   image: string;
   category: string;
   features?: string[];
-  payment_link: string;
 }
 
 interface ProductManagerProps {
@@ -32,7 +32,7 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
 
   const handleCreateSuccess = async () => {
     await handleProductCreate();
-    onProductsChange(); // Appeler explicitement onProductsChange après la création
+    onProductsChange();
   };
 
   return (

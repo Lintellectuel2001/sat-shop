@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,7 +15,6 @@ interface ProductFormProps {
     category: string;
     description?: string;
     image: string;
-    payment_link: string;
   };
   onProductChange: (field: string, value: string) => void;
   onSubmit: () => void;
@@ -38,7 +38,7 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
       return;
     }
 
-    if (!product.name || !product.price || !product.category || !product.payment_link) {
+    if (!product.name || !product.price || !product.category) {
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -131,17 +131,6 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
           placeholder="Catégorie"
           value={product.category}
           onChange={(e) => onProductChange('category', e.target.value)}
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="payment_link">Lien de paiement *</Label>
-        <Input
-          id="payment_link"
-          placeholder="Lien de paiement"
-          value={product.payment_link}
-          onChange={(e) => onProductChange('payment_link', e.target.value)}
           required
         />
       </div>

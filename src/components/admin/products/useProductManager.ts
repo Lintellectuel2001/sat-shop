@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -11,7 +12,6 @@ interface Product {
   image: string;
   category: string;
   features?: string[];
-  payment_link: string;
 }
 
 export const useProductManager = (onProductsChange: () => void) => {
@@ -21,7 +21,6 @@ export const useProductManager = (onProductsChange: () => void) => {
     price: '',
     category: '',
     image: '',
-    payment_link: '',
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -38,7 +37,7 @@ export const useProductManager = (onProductsChange: () => void) => {
         return;
       }
 
-      if (!newProduct.name || !newProduct.price || !newProduct.category || !newProduct.image || !newProduct.payment_link) {
+      if (!newProduct.name || !newProduct.price || !newProduct.category || !newProduct.image) {
         toast({
           variant: "destructive",
           title: "Erreur",
@@ -54,7 +53,6 @@ export const useProductManager = (onProductsChange: () => void) => {
           price: newProduct.price,
           category: newProduct.category,
           image: newProduct.image,
-          payment_link: newProduct.payment_link,
           description: newProduct.description,
           features: newProduct.features,
         }])
@@ -82,10 +80,8 @@ export const useProductManager = (onProductsChange: () => void) => {
         price: '',
         category: '',
         image: '',
-        payment_link: '',
       });
       
-      // Appeler onProductsChange après une création réussie
       onProductsChange();
     } catch (error) {
       console.error('Unexpected error creating product:', error);
@@ -108,7 +104,7 @@ export const useProductManager = (onProductsChange: () => void) => {
         return;
       }
 
-      if (!updatedProduct.name || !updatedProduct.price || !updatedProduct.category || !updatedProduct.image || !updatedProduct.payment_link) {
+      if (!updatedProduct.name || !updatedProduct.price || !updatedProduct.category || !updatedProduct.image) {
         toast({
           variant: "destructive",
           title: "Erreur",
