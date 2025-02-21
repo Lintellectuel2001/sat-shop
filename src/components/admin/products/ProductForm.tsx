@@ -8,14 +8,19 @@ import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 
+interface Product {
+  name: string;
+  price: string;
+  category: string;
+  description?: string;
+  image: string;
+  features?: string[];
+  rating?: number;
+  reviews?: number;
+}
+
 interface ProductFormProps {
-  product: {
-    name: string;
-    price: string;
-    category: string;
-    description?: string;
-    image: string;
-  };
+  product: Product;
   onProductChange: (field: string, value: string) => void;
   onSubmit: () => void;
   submitLabel: string;
