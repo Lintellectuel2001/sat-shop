@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -12,7 +11,8 @@ interface Product {
   image: string;
   category: string;
   features?: string[];
-  payment_link?: string;
+  rating?: number;
+  reviews?: number;
 }
 
 export const useProductManager = (onProductsChange: () => void) => {
@@ -22,7 +22,6 @@ export const useProductManager = (onProductsChange: () => void) => {
     price: '',
     category: '',
     image: '',
-    payment_link: ''
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -57,7 +56,7 @@ export const useProductManager = (onProductsChange: () => void) => {
           image: newProduct.image,
           description: newProduct.description,
           features: newProduct.features,
-          payment_link: null // On force payment_link à null puisqu'on utilise Chargily
+          payment_link: null
         })
         .select();
 
@@ -83,7 +82,6 @@ export const useProductManager = (onProductsChange: () => void) => {
         price: '',
         category: '',
         image: '',
-        payment_link: ''
       });
       
       onProductsChange();
@@ -121,7 +119,7 @@ export const useProductManager = (onProductsChange: () => void) => {
         .from('products')
         .update({
           ...updatedProduct,
-          payment_link: null // On force payment_link à null puisqu'on utilise Chargily
+          payment_link: null
         })
         .eq('id', updatedProduct.id);
 

@@ -273,7 +273,7 @@ export type Database = {
           image: string
           is_physical: boolean | null
           name: string
-          payment_link: string
+          payment_link: string | null
           price: string
           rating: number | null
           reviews: number | null
@@ -290,7 +290,7 @@ export type Database = {
           image: string
           is_physical?: boolean | null
           name: string
-          payment_link: string
+          payment_link?: string | null
           price: string
           rating?: number | null
           reviews?: number | null
@@ -307,7 +307,7 @@ export type Database = {
           image?: string
           is_physical?: boolean | null
           name?: string
-          payment_link?: string
+          payment_link?: string | null
           price?: string
           rating?: number | null
           reviews?: number | null

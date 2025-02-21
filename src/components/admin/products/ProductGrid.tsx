@@ -21,6 +21,8 @@ interface Product {
   image: string;
   category: string;
   features?: string[];
+  rating?: number;
+  reviews?: number;
 }
 
 interface ProductGridProps {
