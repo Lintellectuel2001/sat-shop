@@ -33,12 +33,12 @@ const handler = async (req: Request): Promise<Response> => {
 
     const client = new ChargilyClient({
       api_key: apiKey,
-      mode: 'live' // Mode production
+      mode: 'live'
     });
 
-    // Obtenir l'URL de base de la requête
-    const url = new URL(req.url);
-    const baseUrl = `${url.protocol}//${url.hostname}`;
+    // URL de retour fixe vers l'application
+    const backUrl = "https://100dd593-28f8-4b90-bf1f-697c285ac699.lovableproject.com";
+    console.log("Using back URL:", backUrl);
 
     const checkoutData = {
       invoice: {
@@ -50,16 +50,16 @@ const handler = async (req: Request): Promise<Response> => {
         description: productName,
       },
       mode: "CIB",
-      back_url: baseUrl,
+      back_url: backUrl,
       webhook_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/chargily-webhook`,
       feeOnClient: false,
       lang: "fr"
     };
 
-    console.log("Sending checkout request with data:", checkoutData);
+    console.log("Sending checkout request with data:", JSON.stringify(checkoutData, null, 2));
 
     const response = await client.createCheckout(checkoutData);
-    console.log("Payment created:", response);
+    console.log("Payment response:", JSON.stringify(response, null, 2));
 
     return new Response(
       JSON.stringify(response),
@@ -72,7 +72,12 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
   } catch (error) {
-    console.error("Error in payment processing:", error);
+    console.error("Error details:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    
     return new Response(
       JSON.stringify({
         error: error.message || "Unknown error occurred",
