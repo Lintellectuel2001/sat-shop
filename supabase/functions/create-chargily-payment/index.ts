@@ -8,12 +8,13 @@ const corsHeaders = {
 };
 
 interface PaymentRequest {
-  amount: string;
+  amount: number;
   name: string;
   productName: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  // Handle CORS preflight request
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       headers: corsHeaders
@@ -28,33 +29,30 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("CHARGILY_API_KEY not configured");
     }
 
+    console.log("Creating payment with amount:", amount);
+
     const client = new ChargilyClient({
       api_key: apiKey,
       mode: 'test' // Utilisez 'live' pour la production
     });
 
-    const numericAmount = parseFloat(amount);
-    if (isNaN(numericAmount)) {
-      throw new Error("Invalid amount");
-    }
-
     const checkoutData = {
       invoice: {
-        amount: numericAmount,
+        amount: amount, // Le montant est déjà en centimes
         currency: "DZD",
-        name: name || "Customer",
+        name: name,
         email: "client@example.com", // À remplacer par l'email du client
         phone: "+213555555555", // À remplacer par le téléphone du client
         description: productName,
       },
       mode: "CIB",
-      back_url: window.location.origin,
+      back_url: "https://id-preview--100dd593-28f8-4b90-bf1f-697c285ac699.lovable.app",
       webhook_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/chargily-webhook`,
       feeOnClient: false,
       lang: "fr"
     };
 
-    console.log("Creating payment with data:", checkoutData);
+    console.log("Sending checkout request with data:", checkoutData);
 
     const response = await client.createCheckout(checkoutData);
     console.log("Payment created:", response);
