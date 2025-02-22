@@ -33,20 +33,20 @@ const handler = async (req: Request): Promise<Response> => {
 
     const client = new ChargilyClient({
       api_key: apiKey,
-      mode: 'test' // Utilisez 'live' pour la production
+      mode: 'live' // Passage en mode production
     });
 
     const checkoutData = {
       invoice: {
-        amount: amount, // Le montant est déjà en centimes
+        amount: amount,
         currency: "DZD",
         name: name,
-        email: "client@example.com", // À remplacer par l'email du client
-        phone: "+213555555555", // À remplacer par le téléphone du client
+        email: "client@example.com",
+        phone: "+213555555555",
         description: productName,
       },
       mode: "CIB",
-      back_url: "https://id-preview--100dd593-28f8-4b90-bf1f-697c285ac699.lovable.app",
+      back_url: window.location.origin,
       webhook_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/chargily-webhook`,
       feeOnClient: false,
       lang: "fr"
