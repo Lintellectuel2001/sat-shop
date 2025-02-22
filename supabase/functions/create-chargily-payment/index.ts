@@ -33,8 +33,12 @@ const handler = async (req: Request): Promise<Response> => {
 
     const client = new ChargilyClient({
       api_key: apiKey,
-      mode: 'live' // Passage en mode production
+      mode: 'live' // Mode production
     });
+
+    // Obtenir l'URL de base de la requête
+    const url = new URL(req.url);
+    const baseUrl = `${url.protocol}//${url.hostname}`;
 
     const checkoutData = {
       invoice: {
@@ -46,7 +50,7 @@ const handler = async (req: Request): Promise<Response> => {
         description: productName,
       },
       mode: "CIB",
-      back_url: window.location.origin,
+      back_url: baseUrl,
       webhook_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/chargily-webhook`,
       feeOnClient: false,
       lang: "fr"
