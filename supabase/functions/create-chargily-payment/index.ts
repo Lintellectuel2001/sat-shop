@@ -41,15 +41,19 @@ const handler = async (req: Request): Promise<Response> => {
     const backUrl = "https://100dd593-28f8-4b90-bf1f-697c285ac699.lovableproject.com";
     const webhookUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/chargily-webhook`;
     
-    console.log("Using URLs:", {
+    // Convertir le montant de centimes en dinars pour Chargily
+    const amountInDinars = Math.floor(amount / 100);
+    
+    console.log("Using URLs and amount:", {
       backUrl,
       webhookUrl,
-      amount
+      originalAmount: amount,
+      amountInDinars
     });
 
     const checkoutData = {
       invoice: {
-        amount: amount,
+        amount: amountInDinars,
         currency: "DZD",
         name: name,
         email: "client@example.com",
@@ -79,6 +83,7 @@ const handler = async (req: Request): Promise<Response> => {
           payment_id: response.id || `chargily_${Date.now()}`
         }),
         {
+          status: 200,
           headers: {
             'Content-Type': 'application/json',
             ...corsHeaders,
@@ -93,7 +98,7 @@ const handler = async (req: Request): Promise<Response> => {
           details: chargilyError.message
         }),
         {
-          status: 400,
+          status: 200, // Changé à 200 pour éviter l'erreur FunctionsHttpError
           headers: {
             'Content-Type': 'application/json',
             ...corsHeaders,
@@ -110,7 +115,7 @@ const handler = async (req: Request): Promise<Response> => {
         details: error.message
       }),
       {
-        status: 400,
+        status: 200, // Changé à 200 pour éviter l'erreur FunctionsHttpError
         headers: {
           'Content-Type': 'application/json',
           ...corsHeaders,
