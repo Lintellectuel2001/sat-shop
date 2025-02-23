@@ -68,9 +68,9 @@ const ProductDetails = () => {
       setProcessingPayment(true);
       console.log("Starting payment process for:", product);
       
-      // Nettoyer le prix et convertir en nombre
+      // Nettoyer le prix et convertir en nombre (en centimes)
       const priceString = product.price.replace(/[^0-9]/g, '');
-      const numericAmount = parseInt(priceString);
+      const numericAmount = parseInt(priceString) * 100; // Convertir en centimes
       
       console.log("Extracted amount:", {
         originalPrice: product.price,
@@ -82,13 +82,16 @@ const ProductDetails = () => {
         throw new Error('Prix invalide');
       }
 
-      // Enregistrer d'abord la tentative d'achat
-      const { error: cartError } = await supabase
+      // Enregistrer d'abord la tentative d'achat avec le statut initial
+      const { data: cartEntry, error: cartError } = await supabase
         .from('cart_history')
         .insert([{
           action_type: 'purchase_initiated',
-          product_id: product.id
-        }]);
+          product_id: product.id,
+          payment_status: 'pending'
+        }])
+        .select()
+        .single();
 
       if (cartError) {
         console.error("Error recording purchase attempt:", cartError);
@@ -99,7 +102,8 @@ const ProductDetails = () => {
       console.log("Calling create-chargily-payment with data:", {
         amount: numericAmount,
         name: "Customer",
-        productName: product.name
+        productName: product.name,
+        cartId: cartEntry.id
       });
 
       const { data, error } = await supabase.functions.invoke(
@@ -108,7 +112,8 @@ const ProductDetails = () => {
           body: {
             amount: numericAmount,
             name: "Customer",
-            productName: product.name
+            productName: product.name,
+            cartId: cartEntry.id
           }
         }
       );
@@ -117,10 +122,26 @@ const ProductDetails = () => {
 
       if (error) {
         console.error("Payment function error:", error);
+        // Mettre à jour le statut en cas d'erreur
+        await supabase
+          .from('cart_history')
+          .update({ payment_status: 'error' })
+          .eq('id', cartEntry.id);
         throw error;
       }
 
       if (data && data.checkout_url) {
+        // Mettre à jour l'entrée avec l'ID de paiement
+        if (data.payment_id) {
+          await supabase
+            .from('cart_history')
+            .update({ 
+              payment_id: data.payment_id,
+              payment_status: 'checkout_created'
+            })
+            .eq('id', cartEntry.id);
+        }
+
         console.log("Redirecting to checkout URL:", data.checkout_url);
         window.location.href = data.checkout_url;
       } else {

@@ -11,6 +11,7 @@ interface PaymentRequest {
   amount: number;
   name: string;
   productName: string;
+  cartId: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -22,8 +23,8 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { amount, name, productName }: PaymentRequest = await req.json();
-    console.log("Received payment request:", { amount, name, productName });
+    const { amount, name, productName, cartId }: PaymentRequest = await req.json();
+    console.log("Received payment request:", { amount, name, productName, cartId });
 
     const apiKey = Deno.env.get("CHARGILY_API_KEY");
     if (!apiKey) {
@@ -45,14 +46,17 @@ const handler = async (req: Request): Promise<Response> => {
       webhookUrl
     });
 
+    // Convertir le montant en dinars car Chargily s'attend à des dinars, pas des centimes
+    const amountInDinars = Math.floor(amount / 100);
+    
     const checkoutData = {
       invoice: {
-        amount: amount,
+        amount: amountInDinars,
         currency: "DZD",
         name: name,
         email: "client@example.com",
         phone: "+213555555555",
-        description: productName,
+        description: `${productName} (${cartId})`,
       },
       mode: "CIB",
       back_url: backUrl,
@@ -70,8 +74,14 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Invalid response from Chargily");
     }
 
+    // Ajouter l'ID de la transaction à la réponse
+    const responseData = {
+      ...response,
+      payment_id: response.id || `chargily_${Date.now()}`
+    };
+
     return new Response(
-      JSON.stringify(response),
+      JSON.stringify(responseData),
       {
         headers: {
           'Content-Type': 'application/json',
