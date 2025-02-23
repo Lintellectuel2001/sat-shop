@@ -40,6 +40,7 @@ const ProductDetails = () => {
           throw error;
         }
 
+        console.log("Fetched product:", data);
         setProduct(data);
       } catch (error) {
         console.error('Error fetching product:', error);
@@ -58,23 +59,49 @@ const ProductDetails = () => {
   }, [id, navigate, toast]);
 
   const handleOrder = async () => {
-    if (!product) return;
+    if (!product) {
+      console.error("No product data available");
+      return;
+    }
     
     try {
       setProcessingPayment(true);
-      console.log("Starting payment process for:", product.name);
+      console.log("Starting payment process for:", product);
       
-      // Extraire uniquement les chiffres du prix
+      // Nettoyer le prix et convertir en nombre
       const priceString = product.price.replace(/[^0-9]/g, '');
       const numericAmount = parseInt(priceString);
+      
+      console.log("Extracted amount:", {
+        originalPrice: product.price,
+        cleanedPrice: priceString,
+        numericAmount: numericAmount
+      });
       
       if (isNaN(numericAmount)) {
         throw new Error('Prix invalide');
       }
 
-      console.log("Processing payment with amount:", numericAmount);
+      // Enregistrer d'abord la tentative d'achat
+      const { error: cartError } = await supabase
+        .from('cart_history')
+        .insert([{
+          action_type: 'purchase_initiated',
+          product_id: product.id
+        }]);
+
+      if (cartError) {
+        console.error("Error recording purchase attempt:", cartError);
+        throw cartError;
+      }
 
       // Créer le paiement via la fonction Edge
+      console.log("Calling create-chargily-payment with data:", {
+        amount: numericAmount,
+        name: "Customer",
+        productName: product.name
+      });
+
       const { data, error } = await supabase.functions.invoke(
         'create-chargily-payment',
         {
@@ -86,25 +113,18 @@ const ProductDetails = () => {
         }
       );
 
-      console.log("Payment response:", data);
+      console.log("Payment function response:", data);
 
       if (error) {
-        console.error("Payment error:", error);
+        console.error("Payment function error:", error);
         throw error;
       }
 
       if (data && data.checkout_url) {
-        // Enregistrer la tentative d'achat
-        await supabase
-          .from('cart_history')
-          .insert([{
-            action_type: 'purchase',
-            product_id: product.id
-          }]);
-
-        // Rediriger vers la page de paiement Chargily
+        console.log("Redirecting to checkout URL:", data.checkout_url);
         window.location.href = data.checkout_url;
       } else {
+        console.error("No checkout URL in response:", data);
         throw new Error('URL de paiement non reçue');
       }
 
@@ -141,6 +161,9 @@ const ProductDetails = () => {
       </div>
     );
   }
+
+  // Ajouter un log pour voir le produit qui est rendu
+  console.log("Rendering product:", product);
 
   return (
     <div className="min-h-screen bg-background">
