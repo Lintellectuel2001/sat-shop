@@ -43,15 +43,13 @@ const handler = async (req: Request): Promise<Response> => {
     
     console.log("Using URLs:", {
       backUrl,
-      webhookUrl
+      webhookUrl,
+      amount
     });
 
-    // Convertir le montant en dinars car Chargily s'attend à des dinars, pas des centimes
-    const amountInDinars = Math.floor(amount / 100);
-    
     const checkoutData = {
       invoice: {
-        amount: amountInDinars,
+        amount: amount,
         currency: "DZD",
         name: name,
         email: "client@example.com",
@@ -65,46 +63,54 @@ const handler = async (req: Request): Promise<Response> => {
       lang: "fr"
     };
 
-    console.log("Creating checkout with data:", JSON.stringify(checkoutData, null, 2));
+    console.log("Sending checkout request with data:", JSON.stringify(checkoutData, null, 2));
 
-    const response = await client.createCheckout(checkoutData);
-    console.log("Chargily response:", JSON.stringify(response, null, 2));
+    try {
+      const response = await client.createCheckout(checkoutData);
+      console.log("Chargily response:", JSON.stringify(response, null, 2));
 
-    if (!response || !response.checkout_url) {
-      throw new Error("Invalid response from Chargily");
+      if (!response || !response.checkout_url) {
+        throw new Error("Invalid response from Chargily");
+      }
+
+      return new Response(
+        JSON.stringify({
+          checkout_url: response.checkout_url,
+          payment_id: response.id || `chargily_${Date.now()}`
+        }),
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        }
+      );
+    } catch (chargilyError) {
+      console.error("Chargily API error:", chargilyError);
+      return new Response(
+        JSON.stringify({
+          error: "Erreur lors de la création du paiement",
+          details: chargilyError.message
+        }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        }
+      );
     }
 
-    // Ajouter l'ID de la transaction à la réponse
-    const responseData = {
-      ...response,
-      payment_id: response.id || `chargily_${Date.now()}`
-    };
-
-    return new Response(
-      JSON.stringify(responseData),
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          ...corsHeaders,
-        },
-      }
-    );
-
   } catch (error) {
-    console.error("Error details:", {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    });
-    
+    console.error("General error:", error);
     return new Response(
       JSON.stringify({
-        error: error.message || "Unknown error occurred",
-        details: "Payment creation failed",
-        stack: error.stack
+        error: "Une erreur est survenue",
+        details: error.message
       }),
       {
-        status: 500,
+        status: 400,
         headers: {
           'Content-Type': 'application/json',
           ...corsHeaders,
