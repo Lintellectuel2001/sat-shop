@@ -23,22 +23,27 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const { amount, name, productName }: PaymentRequest = await req.json();
+    console.log("Received payment request:", { amount, name, productName });
 
     const apiKey = Deno.env.get("CHARGILY_API_KEY");
     if (!apiKey) {
       throw new Error("CHARGILY_API_KEY not configured");
     }
 
-    console.log("Creating payment with amount:", amount);
-
+    console.log("Creating Chargily client...");
     const client = new ChargilyClient({
       api_key: apiKey,
       mode: 'live'
     });
 
-    // URL de retour fixe vers l'application
+    // URL de retour absolue vers l'application
     const backUrl = "https://100dd593-28f8-4b90-bf1f-697c285ac699.lovableproject.com";
-    console.log("Using back URL:", backUrl);
+    const webhookUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/chargily-webhook`;
+    
+    console.log("Using URLs:", {
+      backUrl,
+      webhookUrl
+    });
 
     const checkoutData = {
       invoice: {
@@ -51,15 +56,19 @@ const handler = async (req: Request): Promise<Response> => {
       },
       mode: "CIB",
       back_url: backUrl,
-      webhook_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/chargily-webhook`,
+      webhook_url: webhookUrl,
       feeOnClient: false,
       lang: "fr"
     };
 
-    console.log("Sending checkout request with data:", JSON.stringify(checkoutData, null, 2));
+    console.log("Creating checkout with data:", JSON.stringify(checkoutData, null, 2));
 
     const response = await client.createCheckout(checkoutData);
-    console.log("Payment response:", JSON.stringify(response, null, 2));
+    console.log("Chargily response:", JSON.stringify(response, null, 2));
+
+    if (!response || !response.checkout_url) {
+      throw new Error("Invalid response from Chargily");
+    }
 
     return new Response(
       JSON.stringify(response),

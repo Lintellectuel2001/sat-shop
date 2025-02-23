@@ -62,17 +62,20 @@ const ProductDetails = () => {
     
     try {
       setProcessingPayment(true);
+      console.log("Starting payment process for:", product.name);
       
-      // Extraire uniquement les chiffres du prix et convertir en centimes
-      const numericAmount = parseInt(product.price.replace(/[^0-9]/g, '')) * 100;
-      if (!numericAmount) {
-        throw new Error('Format de prix invalide');
+      // Extraire uniquement les chiffres du prix
+      const priceString = product.price.replace(/[^0-9]/g, '');
+      const numericAmount = parseInt(priceString);
+      
+      if (isNaN(numericAmount)) {
+        throw new Error('Prix invalide');
       }
 
-      console.log("Processing payment for amount:", numericAmount);
+      console.log("Processing payment with amount:", numericAmount);
 
       // Créer le paiement via la fonction Edge
-      const { data: payment, error } = await supabase.functions.invoke(
+      const { data, error } = await supabase.functions.invoke(
         'create-chargily-payment',
         {
           body: {
@@ -83,11 +86,14 @@ const ProductDetails = () => {
         }
       );
 
-      if (error) throw error;
+      console.log("Payment response:", data);
 
-      console.log("Payment response:", payment);
+      if (error) {
+        console.error("Payment error:", error);
+        throw error;
+      }
 
-      if (payment && payment.checkout_url) {
+      if (data && data.checkout_url) {
         // Enregistrer la tentative d'achat
         await supabase
           .from('cart_history')
@@ -97,7 +103,7 @@ const ProductDetails = () => {
           }]);
 
         // Rediriger vers la page de paiement Chargily
-        window.location.href = payment.checkout_url;
+        window.location.href = data.checkout_url;
       } else {
         throw new Error('URL de paiement non reçue');
       }
