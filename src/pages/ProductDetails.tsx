@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -68,17 +67,17 @@ const ProductDetails = () => {
       setProcessingPayment(true);
       console.log("Starting payment process for:", product);
       
-      // Nettoyer le prix et convertir en nombre (en centimes)
+      // Convertir directement en nombre sans multiplication
       const priceString = product.price.replace(/[^0-9]/g, '');
-      const numericAmount = parseInt(priceString) * 100; // Convertir en centimes
+      const amount = parseInt(priceString);
       
       console.log("Extracted amount:", {
         originalPrice: product.price,
         cleanedPrice: priceString,
-        numericAmount: numericAmount
+        amount: amount
       });
       
-      if (isNaN(numericAmount)) {
+      if (isNaN(amount)) {
         throw new Error('Prix invalide');
       }
 
@@ -100,7 +99,7 @@ const ProductDetails = () => {
 
       // Créer le paiement via la fonction Edge
       console.log("Calling create-chargily-payment with data:", {
-        amount: numericAmount,
+        amount: amount,
         name: "Customer",
         productName: product.name,
         cartId: cartEntry.id
@@ -110,7 +109,7 @@ const ProductDetails = () => {
         'create-chargily-payment',
         {
           body: {
-            amount: numericAmount,
+            amount: amount,
             name: "Customer",
             productName: product.name,
             cartId: cartEntry.id
@@ -122,7 +121,6 @@ const ProductDetails = () => {
 
       if (error) {
         console.error("Payment function error:", error);
-        // Mettre à jour le statut en cas d'erreur
         await supabase
           .from('cart_history')
           .update({ payment_status: 'error' })
@@ -131,7 +129,6 @@ const ProductDetails = () => {
       }
 
       if (data && data.checkout_url) {
-        // Mettre à jour l'entrée avec l'ID de paiement
         if (data.payment_id) {
           await supabase
             .from('cart_history')
@@ -183,7 +180,6 @@ const ProductDetails = () => {
     );
   }
 
-  // Ajouter un log pour voir le produit qui est rendu
   console.log("Rendering product:", product);
 
   return (

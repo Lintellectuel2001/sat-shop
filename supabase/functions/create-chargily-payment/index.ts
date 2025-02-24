@@ -28,10 +28,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     const apiKey = Deno.env.get("CHARGILY_API_KEY");
     if (!apiKey) {
+      console.error("CHARGILY_API_KEY not found");
       throw new Error("CHARGILY_API_KEY not configured");
     }
 
-    console.log("Creating Chargily client...");
+    console.log("Creating Chargily client with API key length:", apiKey.length);
     const client = new ChargilyClient({
       api_key: apiKey,
       mode: 'live'
@@ -41,19 +42,17 @@ const handler = async (req: Request): Promise<Response> => {
     const backUrl = "https://100dd593-28f8-4b90-bf1f-697c285ac699.lovableproject.com";
     const webhookUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/chargily-webhook`;
     
-    // Convertir le montant de centimes en dinars pour Chargily
-    const amountInDinars = Math.floor(amount / 100);
-    
-    console.log("Using URLs and amount:", {
+    // Le montant est déjà en dinars, pas besoin de conversion
+    console.log("Using configuration:", {
       backUrl,
       webhookUrl,
-      originalAmount: amount,
-      amountInDinars
+      amount,
+      apiKeyPresent: !!apiKey
     });
 
     const checkoutData = {
       invoice: {
-        amount: amountInDinars,
+        amount: amount,
         currency: "DZD",
         name: name,
         email: "client@example.com",
@@ -67,7 +66,7 @@ const handler = async (req: Request): Promise<Response> => {
       lang: "fr"
     };
 
-    console.log("Sending checkout request with data:", JSON.stringify(checkoutData, null, 2));
+    console.log("Creating checkout with data:", JSON.stringify(checkoutData, null, 2));
 
     try {
       const response = await client.createCheckout(checkoutData);
@@ -91,14 +90,20 @@ const handler = async (req: Request): Promise<Response> => {
         }
       );
     } catch (chargilyError) {
-      console.error("Chargily API error:", chargilyError);
+      console.error("Chargily API error:", {
+        message: chargilyError.message,
+        stack: chargilyError.stack,
+        name: chargilyError.name
+      });
+      
       return new Response(
         JSON.stringify({
           error: "Erreur lors de la création du paiement",
-          details: chargilyError.message
+          details: chargilyError.message,
+          stack: chargilyError.stack
         }),
         {
-          status: 200, // Changé à 200 pour éviter l'erreur FunctionsHttpError
+          status: 200,
           headers: {
             'Content-Type': 'application/json',
             ...corsHeaders,
@@ -108,14 +113,20 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
   } catch (error) {
-    console.error("General error:", error);
+    console.error("General error:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    
     return new Response(
       JSON.stringify({
         error: "Une erreur est survenue",
-        details: error.message
+        details: error.message,
+        stack: error.stack
       }),
       {
-        status: 200, // Changé à 200 pour éviter l'erreur FunctionsHttpError
+        status: 200,
         headers: {
           'Content-Type': 'application/json',
           ...corsHeaders,
