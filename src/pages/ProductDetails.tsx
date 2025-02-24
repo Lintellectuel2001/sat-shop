@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -66,12 +67,19 @@ const ProductDetails = () => {
     try {
       setProcessingPayment(true);
       console.log("Starting payment process for:", product);
+
+      // Si le produit a déjà un lien de paiement Chargily, l'utiliser directement
+      if (product.payment_link) {
+        console.log("Using existing payment link:", product.payment_link);
+        window.location.href = product.payment_link;
+        return;
+      }
       
-      // Convertir directement en nombre sans multiplication
+      // Convertir le prix en nombre en enlevant tout sauf les chiffres
       const priceString = product.price.replace(/[^0-9]/g, '');
       const amount = parseInt(priceString);
       
-      console.log("Extracted amount:", {
+      console.log("Processing payment with amount:", {
         originalPrice: product.price,
         cleanedPrice: priceString,
         amount: amount
@@ -97,38 +105,35 @@ const ProductDetails = () => {
         throw cartError;
       }
 
-      // Créer le paiement via la fonction Edge
-      console.log("Calling create-chargily-payment with data:", {
-        amount: amount,
-        name: "Customer",
-        productName: product.name,
-        cartId: cartEntry.id
-      });
+      console.log("Created cart entry:", cartEntry);
 
+      // Créer le paiement via la fonction Edge
       const { data, error } = await supabase.functions.invoke(
         'create-chargily-payment',
         {
-          body: {
+          body: JSON.stringify({
             amount: amount,
             name: "Customer",
             productName: product.name,
             cartId: cartEntry.id
-          }
+          })
         }
       );
 
       console.log("Payment function response:", data);
 
-      if (error) {
-        console.error("Payment function error:", error);
+      if (error || (data && data.error)) {
+        console.error("Payment function error:", error || data.error);
         await supabase
           .from('cart_history')
           .update({ payment_status: 'error' })
           .eq('id', cartEntry.id);
-        throw error;
+        throw new Error(data?.error || error.message);
       }
 
       if (data && data.checkout_url) {
+        console.log("Got checkout URL:", data.checkout_url);
+        
         if (data.payment_id) {
           await supabase
             .from('cart_history')
@@ -139,10 +144,8 @@ const ProductDetails = () => {
             .eq('id', cartEntry.id);
         }
 
-        console.log("Redirecting to checkout URL:", data.checkout_url);
         window.location.href = data.checkout_url;
       } else {
-        console.error("No checkout URL in response:", data);
         throw new Error('URL de paiement non reçue');
       }
 
@@ -179,8 +182,6 @@ const ProductDetails = () => {
       </div>
     );
   }
-
-  console.log("Rendering product:", product);
 
   return (
     <div className="min-h-screen bg-background">
