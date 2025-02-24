@@ -75,7 +75,7 @@ const ProductDetails = () => {
         return;
       }
       
-      // Convertir le prix en nombre en enlevant tout sauf les chiffres
+      // Convertir le prix en nombre en enlevant "DZD" et les espaces
       const priceString = product.price.replace(/[^0-9]/g, '');
       const amount = parseInt(priceString);
       
@@ -108,19 +108,21 @@ const ProductDetails = () => {
       console.log("Created cart entry:", cartEntry);
 
       // Créer le paiement via la fonction Edge
-      const { data, error } = await supabase.functions.invoke(
+      const response = await supabase.functions.invoke(
         'create-chargily-payment',
         {
-          body: JSON.stringify({
+          body: {
             amount: amount,
             name: "Customer",
             productName: product.name,
             cartId: cartEntry.id
-          })
+          }
         }
       );
 
-      console.log("Payment function response:", data);
+      console.log("Payment function response:", response);
+
+      const { data, error } = response;
 
       if (error || (data && data.error)) {
         console.error("Payment function error:", error || data.error);
@@ -128,7 +130,7 @@ const ProductDetails = () => {
           .from('cart_history')
           .update({ payment_status: 'error' })
           .eq('id', cartEntry.id);
-        throw new Error(data?.error || error.message);
+        throw new Error(data?.error || error?.message || 'Erreur de paiement');
       }
 
       if (data && data.checkout_url) {
