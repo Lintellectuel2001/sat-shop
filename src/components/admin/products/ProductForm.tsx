@@ -61,7 +61,26 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
       return;
     }
 
+    // Vérifier que le prix est un nombre valide
+    const priceValue = product.price.replace(/[^0-9]/g, '');
+    if (!priceValue || isNaN(Number(priceValue))) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Le prix doit être un nombre valide",
+      });
+      return;
+    }
+
     onSubmit();
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Nettoyer le prix pour ne garder que les chiffres
+    let value = e.target.value.replace(/[^0-9]/g, '');
+    // Formater le prix avec DZD
+    const formattedPrice = value ? `${value} DZD` : '';
+    onProductChange('price', formattedPrice);
   };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -119,12 +138,12 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="price">Prix *</Label>
+        <Label htmlFor="price">Prix * (DZD)</Label>
         <Input
           id="price"
-          placeholder="Prix"
+          placeholder="Prix (ex: 1000 DZD)"
           value={product.price}
-          onChange={(e) => onProductChange('price', e.target.value)}
+          onChange={handlePriceChange}
           required
         />
       </div>
