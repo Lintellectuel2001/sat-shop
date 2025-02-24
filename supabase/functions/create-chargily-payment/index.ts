@@ -26,27 +26,24 @@ const handler = async (req: Request): Promise<Response> => {
     const requestBody = await req.json();
     console.log("Raw request body:", requestBody);
     
-    let { amount, name, productName, cartId }: PaymentRequest;
-    try {
-      // Si le corps est une chaîne JSON, la parser
-      if (typeof requestBody === 'string') {
-        const parsed = JSON.parse(requestBody);
-        amount = parsed.amount;
-        name = parsed.name;
-        productName = parsed.productName;
-        cartId = parsed.cartId;
-      } else {
-        // Sinon utiliser directement l'objet
-        amount = requestBody.amount;
-        name = requestBody.name;
-        productName = requestBody.productName;
-        cartId = requestBody.cartId;
-      }
-    } catch (parseError) {
-      console.error("Error parsing request body:", parseError);
-      throw new Error(`Invalid request format: ${parseError.message}`);
+    // Initialisation des variables avec des valeurs par défaut
+    const paymentRequest: PaymentRequest = {
+      amount: 0,
+      name: '',
+      productName: '',
+      cartId: ''
+    };
+    
+    // Parse le corps de la requête
+    if (typeof requestBody === 'string') {
+      const parsed = JSON.parse(requestBody);
+      Object.assign(paymentRequest, parsed);
+    } else {
+      Object.assign(paymentRequest, requestBody);
     }
 
+    const { amount, name, productName, cartId } = paymentRequest;
+    
     console.log("Parsed payment request:", { amount, name, productName, cartId });
 
     const apiKey = Deno.env.get("CHARGILY_API_KEY");
