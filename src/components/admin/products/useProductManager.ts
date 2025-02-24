@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -47,16 +48,24 @@ export const useProductManager = (onProductsChange: () => void) => {
         return;
       }
 
+      // S'assurer que le prix est au bon format
+      let formattedPrice = newProduct.price;
+      if (!formattedPrice.includes('DZD')) {
+        formattedPrice = `${formattedPrice} DZD`;
+      }
+
       const { data, error } = await supabase
         .from('products')
         .insert({
           name: newProduct.name,
-          price: newProduct.price,
+          price: formattedPrice,
           category: newProduct.category,
           image: newProduct.image,
           description: newProduct.description,
           features: newProduct.features,
-          payment_link: null
+          payment_link: null,
+          rating: 5,
+          reviews: 0
         })
         .select();
 
@@ -69,6 +78,8 @@ export const useProductManager = (onProductsChange: () => void) => {
         });
         return;
       }
+      
+      console.log("Created product:", data);
       
       toast({
         title: "Succès",
@@ -115,10 +126,17 @@ export const useProductManager = (onProductsChange: () => void) => {
         return;
       }
 
+      // S'assurer que le prix est au bon format pour la mise à jour
+      let formattedPrice = updatedProduct.price;
+      if (!formattedPrice.includes('DZD')) {
+        formattedPrice = `${formattedPrice} DZD`;
+      }
+
       const { error } = await supabase
         .from('products')
         .update({
           ...updatedProduct,
+          price: formattedPrice,
           payment_link: null
         })
         .eq('id', updatedProduct.id);
