@@ -1,135 +1,138 @@
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { ChargilyClient } from "npm:@chargily/chargily-pay@2.1.0";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.5'
+import { ChargilyClient, Currency, CheckoutMode, Locale } from 'https://esm.sh/@chargily/chargily-pay@2.1.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-interface PaymentRequest {
-  amount: number;
-  name: string;
-  productName: string;
-  cartId: string;
 }
 
-const handler = async (req: Request): Promise<Response> => {
+Deno.serve(async (req) => {
   // Handle CORS preflight request
   if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      headers: corsHeaders
-    });
+    return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const requestBody = await req.json();
-    console.log("Raw request body:", requestBody);
-    
-    // Initialisation des variables avec des valeurs par défaut
-    const paymentRequest: PaymentRequest = {
-      amount: 0,
-      name: '',
-      productName: '',
-      cartId: ''
-    };
-    
-    // Parse le corps de la requête
-    if (typeof requestBody === 'string') {
-      const parsed = JSON.parse(requestBody);
-      Object.assign(paymentRequest, parsed);
-    } else {
-      Object.assign(paymentRequest, requestBody);
-    }
-
-    const { amount, name, productName, cartId } = paymentRequest;
-    
-    console.log("Parsed payment request:", { amount, name, productName, cartId });
-
-    const apiKey = Deno.env.get("CHARGILY_API_KEY");
-    if (!apiKey) {
-      console.error("CHARGILY_API_KEY not found");
-      throw new Error("CHARGILY_API_KEY not configured");
-    }
-
-    console.log("Creating Chargily client...");
-    const client = new ChargilyClient({
-      api_key: apiKey,
-      mode: 'live'
-    });
-
-    // URLs pour le paiement
-    const backUrl = "https://100dd593-28f8-4b90-bf1f-697c285ac699.lovableproject.com";
-    const webhookUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/chargily-webhook`;
-    
-    console.log("Configuration:", {
-      backUrl,
-      webhookUrl,
-      amount,
-      apiKeyPresent: !!apiKey
-    });
-
-    const checkoutData = {
-      invoice: {
-        amount: amount,
-        currency: "DZD",
-        name: name,
-        email: "client@example.com",
-        phone: "+213555555555",
-        description: `${productName} (${cartId})`,
-      },
-      mode: "CIB",
-      back_url: backUrl,
-      webhook_url: webhookUrl,
-      feeOnClient: false,
-      lang: "fr"
-    };
-
-    console.log("Sending checkout request with data:", JSON.stringify(checkoutData, null, 2));
-
-    const response = await client.createCheckout(checkoutData);
-    console.log("Chargily response:", JSON.stringify(response, null, 2));
-
-    if (!response || !response.checkout_url) {
-      throw new Error("Invalid response from Chargily");
-    }
-
-    return new Response(
-      JSON.stringify({
-        checkout_url: response.checkout_url,
-        payment_id: response.id || `chargily_${Date.now()}`
-      }),
+    // Create a Supabase client with the Auth context of the logged in user
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          ...corsHeaders,
+        global: {
+          headers: { Authorization: req.headers.get('Authorization')! },
         },
       }
-    );
+    )
 
+    // Get the request body
+    const { amount, productName, cartId, name = "Customer", productId } = await req.json()
+
+    // Validation des entrées
+    if (!amount || !productName) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Le montant et le nom du produit sont obligatoires" 
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      )
+    }
+
+    // Vérifier que le montant est un nombre
+    const numericAmount = Number(amount)
+    if (isNaN(numericAmount)) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Le montant doit être un nombre valide" 
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      )
+    }
+
+    console.log("Processing payment request:", { amount: numericAmount, productName, cartId, productId })
+
+    // Initialiser le client Chargily
+    const chargilyClient = new ChargilyClient({
+      apiKey: Deno.env.get('CHARGILY_API_KEY') || '',
+      secretKey: Deno.env.get('CHARGILY_SECRET_KEY') || '',
+    })
+
+    // Base URL de l'application pour le webhook
+    const baseUrl = Deno.env.get('APP_URL') || 'https://example.com'
+
+    // Créer un checkout Chargily
+    const checkoutData = await chargilyClient.createCheckout({
+      amount: numericAmount,
+      currency: Currency.DZD,
+      checkoutMode: CheckoutMode.PAYMENT,
+      successUrl: `${baseUrl}/payment/success?cart_id=${cartId || ''}`,
+      failureUrl: `${baseUrl}/payment/failure?cart_id=${cartId || ''}`,
+      webhookEndpoint: `${Deno.env.get('SUPABASE_URL')}/functions/v1/chargily-webhook`,
+      customerInfo: {
+        name: name,
+        email: "customer@example.com", // Email fictif pour test
+        phoneNumber: "+213000000000", // Numéro fictif pour test
+      },
+      items: [
+        {
+          name: productName,
+          price: numericAmount,
+          quantity: 1,
+        },
+      ],
+      locale: Locale.FR,
+      metadata: {
+        cart_id: cartId || '',
+        product_id: productId || '',
+      }
+    })
+
+    console.log("Chargily checkout created:", checkoutData)
+
+    // Mettre à jour le lien de paiement dans la table products si productId est fourni
+    if (productId) {
+      const { error: updateError } = await supabaseClient
+        .from('products')
+        .update({ payment_link: checkoutData.checkout_url })
+        .eq('id', productId)
+      
+      if (updateError) {
+        console.error("Error updating product payment link:", updateError)
+      } else {
+        console.log("Product payment link updated successfully")
+      }
+    }
+
+    // Retourner l'URL de checkout et l'ID du paiement
+    return new Response(
+      JSON.stringify({
+        checkout_url: checkoutData.checkout_url,
+        payment_id: checkoutData.id,
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      }
+    )
   } catch (error) {
-    console.error("Error details:", {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    });
+    console.error("Error processing payment:", error)
     
     return new Response(
       JSON.stringify({
         error: "Une erreur est survenue lors du traitement du paiement",
         details: error.message,
-        stack: error.stack
+        stack: error.stack,
       }),
       {
-        status: 200, // Gardons 200 pour éviter l'erreur FunctionsHttpError
-        headers: {
-          'Content-Type': 'application/json',
-          ...corsHeaders,
-        },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500,
       }
-    );
+    )
   }
-};
-
-serve(handler);
+})

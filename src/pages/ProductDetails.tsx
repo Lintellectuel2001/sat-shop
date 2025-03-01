@@ -115,7 +115,8 @@ const ProductDetails = () => {
             amount: amount,
             name: "Customer",
             productName: product.name,
-            cartId: cartEntry.id
+            cartId: cartEntry.id,
+            productId: product.id // Ajouter l'ID du produit pour le lien avec la commande
           }
         }
       );
@@ -144,6 +145,14 @@ const ProductDetails = () => {
               payment_status: 'checkout_created'
             })
             .eq('id', cartEntry.id);
+        }
+
+        // Mettre à jour le produit avec le lien de paiement si ce n'est pas déjà fait
+        if (!product.payment_link) {
+          await supabase
+            .from('products')
+            .update({ payment_link: data.checkout_url })
+            .eq('id', product.id);
         }
 
         window.location.href = data.checkout_url;
