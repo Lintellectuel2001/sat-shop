@@ -81,6 +81,12 @@ export const useProductManager = (onProductsChange: () => void) => {
       
       console.log("Created product:", data);
       
+      // Après avoir créé le produit, générer automatiquement un lien de paiement
+      if (data && data.length > 0) {
+        const createdProduct = data[0];
+        await createPaymentLink(createdProduct);
+      }
+      
       toast({
         title: "Succès",
         description: "Produit créé avec succès",
@@ -102,6 +108,75 @@ export const useProductManager = (onProductsChange: () => void) => {
         variant: "destructive",
         title: "Erreur",
         description: "Une erreur inattendue s'est produite",
+      });
+    }
+  };
+
+  // Fonction pour créer un lien de paiement Chargily Pay
+  const createPaymentLink = async (product: any) => {
+    try {
+      // Extraction du prix numérique (sans "DZD")
+      const priceValue = product.price.replace(/[^0-9]/g, '');
+      const numericPrice = parseInt(priceValue, 10);
+      
+      if (isNaN(numericPrice)) {
+        console.error('Prix invalide:', product.price);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Le prix du produit n'est pas un nombre valide",
+        });
+        return;
+      }
+      
+      console.log("Generating payment link for product:", product.id, "with price:", numericPrice);
+      
+      const { data, error } = await supabase.functions.invoke('create-chargily-payment', {
+        body: {
+          productId: product.id,
+          amount: numericPrice,
+          productName: product.name
+        }
+      });
+      
+      if (error) {
+        console.error('Error creating payment link:', error);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Impossible de créer le lien de paiement: " + error.message,
+        });
+        return;
+      }
+      
+      console.log("Payment link generated:", data);
+      
+      if (data && data.checkout_url) {
+        // Mettre à jour le produit avec le lien de paiement
+        const { error: updateError } = await supabase
+          .from('products')
+          .update({
+            payment_link: data.checkout_url
+          })
+          .eq('id', product.id);
+          
+        if (updateError) {
+          console.error('Error updating product with payment link:', updateError);
+          toast({
+            variant: "destructive",
+            title: "Erreur",
+            description: "Impossible de mettre à jour le produit avec le lien de paiement",
+          });
+        } else {
+          console.log("Product updated with payment link");
+        }
+      }
+    } catch (error) {
+      console.error('Unexpected error creating payment link:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur inattendue s'est produite lors de la création du lien de paiement",
       });
     }
   };
@@ -149,6 +224,17 @@ export const useProductManager = (onProductsChange: () => void) => {
           description: "Impossible de mettre à jour le produit: " + error.message,
         });
         return;
+      }
+
+      // Après avoir mis à jour le produit, régénérer le lien de paiement
+      const { data: productData } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', updatedProduct.id)
+        .single();
+        
+      if (productData) {
+        await createPaymentLink(productData);
       }
 
       toast({
