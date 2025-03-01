@@ -107,17 +107,16 @@ const ProductDetails = () => {
 
       console.log("Created cart entry:", cartEntry);
 
-      // Générer directement un lien de paiement sans passer par la fonction Edge
-      // Utiliser le format standard de Chargily Pay
-      const chargilyUrl = `https://pay.chargily.dz/checkout`;
-      const fallbackUrl = `${chargilyUrl}?amount=${amount}&client_name=Customer&back_url=${encodeURIComponent(window.location.origin)}&webhook_url=${encodeURIComponent(window.location.origin + '/api/webhook')}&mode=FIXE&comment=${encodeURIComponent(product.name)}`;
+      // Générer correctement l'URL Chargily Pay
+      const chargilyBaseUrl = "https://pay.chargily.net/checkout";
+      const paymentUrl = `${chargilyBaseUrl}?amount=${amount}&client_name=Customer&back_url=${encodeURIComponent(window.location.origin)}&webhook_url=${encodeURIComponent(window.location.origin + '/api/webhook')}&mode=CIB&comment=${encodeURIComponent(product.name)}`;
       
-      console.log("Generated direct payment URL:", fallbackUrl);
+      console.log("Generated payment URL:", paymentUrl);
       
       // Mettre à jour le produit avec le lien de paiement
       await supabase
         .from('products')
-        .update({ payment_link: fallbackUrl })
+        .update({ payment_link: paymentUrl })
         .eq('id', product.id);
         
       // Mettre à jour le statut de l'entrée du panier
@@ -129,7 +128,7 @@ const ProductDetails = () => {
         .eq('id', cartEntry.id);
         
       // Rediriger vers le lien de paiement
-      window.location.href = fallbackUrl;
+      window.location.href = paymentUrl;
 
     } catch (error) {
       console.error('Error processing order:', error);
