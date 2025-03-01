@@ -107,85 +107,30 @@ const ProductDetails = () => {
 
       console.log("Created cart entry:", cartEntry);
 
-      try {
-        // Créer le paiement via la fonction Edge
-        const response = await supabase.functions.invoke(
-          'create-chargily-payment',
-          {
-            body: {
-              amount: amount,
-              name: "Customer",
-              productName: product.name,
-              cartId: cartEntry.id,
-              productId: product.id // Ajouter l'ID du produit pour le lien avec la commande
-            }
-          }
-        );
-
-        console.log("Payment function response:", response);
-
-        const { data, error } = response;
-
-        if (error || (data && data.error)) {
-          console.error("Payment function error:", error || data.error);
-          await supabase
-            .from('cart_history')
-            .update({ payment_status: 'error' })
-            .eq('id', cartEntry.id);
-          throw new Error(data?.error || error?.message || 'Erreur de paiement');
-        }
-
-        if (data && data.checkout_url) {
-          console.log("Got checkout URL:", data.checkout_url);
-          
-          if (data.payment_id) {
-            await supabase
-              .from('cart_history')
-              .update({ 
-                payment_id: data.payment_id,
-                payment_status: 'checkout_created'
-              })
-              .eq('id', cartEntry.id);
-          }
-
-          // Mettre à jour le produit avec le lien de paiement si ce n'est pas déjà fait
-          if (!product.payment_link) {
-            await supabase
-              .from('products')
-              .update({ payment_link: data.checkout_url })
-              .eq('id', product.id);
-          }
-
-          window.location.href = data.checkout_url;
-        } else {
-          throw new Error('URL de paiement non reçue');
-        }
-      } catch (invokeError) {
-        console.error('Error invoking function:', invokeError);
+      // Générer directement un lien de paiement sans passer par la fonction Edge
+      // Utiliser le format standard de Chargily Pay
+      const chargilyUrl = `https://pay.chargily.dz/checkout`;
+      const fallbackUrl = `${chargilyUrl}?amount=${amount}&client_name=Customer&back_url=${encodeURIComponent(window.location.origin)}&webhook_url=${encodeURIComponent(window.location.origin + '/api/webhook')}&mode=FIXE&comment=${encodeURIComponent(product.name)}`;
+      
+      console.log("Generated direct payment URL:", fallbackUrl);
+      
+      // Mettre à jour le produit avec le lien de paiement
+      await supabase
+        .from('products')
+        .update({ payment_link: fallbackUrl })
+        .eq('id', product.id);
         
-        // Si la fonction Edge échoue, essayer la génération direct du lien
-        // Note: Cette partie n'est exécutée que si la fonction Edge échoue
-        const fallbackUrl = `https://pay.chargily.dz/checkout?amount=${amount}&name=${encodeURIComponent(product.name)}`;
+      // Mettre à jour le statut de l'entrée du panier
+      await supabase
+        .from('cart_history')
+        .update({ 
+          payment_status: 'direct_checkout_created',
+        })
+        .eq('id', cartEntry.id);
         
-        console.log("Using fallback payment URL:", fallbackUrl);
-        
-        // Mettre à jour le produit avec le lien de paiement de secours
-        await supabase
-          .from('products')
-          .update({ payment_link: fallbackUrl })
-          .eq('id', product.id);
-          
-        // Mettre à jour le statut de l'entrée du panier
-        await supabase
-          .from('cart_history')
-          .update({ 
-            payment_status: 'fallback_checkout',
-          })
-          .eq('id', cartEntry.id);
-          
-        // Rediriger vers l'URL de secours
-        window.location.href = fallbackUrl;
-      }
+      // Rediriger vers le lien de paiement
+      window.location.href = fallbackUrl;
+
     } catch (error) {
       console.error('Error processing order:', error);
       toast({
