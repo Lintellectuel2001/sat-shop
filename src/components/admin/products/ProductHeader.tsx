@@ -1,13 +1,13 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import ProductForm from './ProductForm';
 
@@ -19,8 +19,7 @@ interface Product {
   image: string;
   category: string;
   features?: string[];
-  rating?: number;
-  reviews?: number;
+  payment_link: string;
 }
 
 interface ProductHeaderProps {
@@ -33,7 +32,6 @@ interface ProductHeaderProps {
 }
 
 const ProductHeader = ({
-  productsCount,
   isDialogOpen,
   setIsDialogOpen,
   newProduct,
@@ -41,18 +39,21 @@ const ProductHeader = ({
   onSubmit
 }: ProductHeaderProps) => {
   return (
-    <div className="flex items-center justify-between">
-      <h2 className="text-2xl font-bold">Produits ({productsCount})</h2>
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="text-2xl font-semibold">Liste des Produits</h2>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
           <Button>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Ajouter un produit
+            <Plus className="mr-2 h-4 w-4" />
+            Nouveau Produit
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Ajouter un nouveau produit</DialogTitle>
+            <DialogTitle>Ajouter un Produit</DialogTitle>
+            <DialogDescription>
+              Remplissez les informations pour créer un nouveau produit.
+            </DialogDescription>
           </DialogHeader>
           <ProductForm
             product={newProduct}

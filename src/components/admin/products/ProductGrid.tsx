@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Pencil, Trash2 } from "lucide-react";
@@ -21,8 +20,7 @@ interface Product {
   image: string;
   category: string;
   features?: string[];
-  rating?: number;
-  reviews?: number;
+  payment_link: string;
 }
 
 interface ProductGridProps {
@@ -44,6 +42,7 @@ const ProductGrid = ({ products, onEdit, onDelete }: ProductGridProps) => {
             <TableHead>Prix</TableHead>
             <TableHead>Catégorie</TableHead>
             <TableHead>Description</TableHead>
+            <TableHead>Lien de paiement</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -64,6 +63,9 @@ const ProductGrid = ({ products, onEdit, onDelete }: ProductGridProps) => {
               <TableCell>{product.category}</TableCell>
               <TableCell className="max-w-[200px] truncate">
                 {product.description || '-'}
+              </TableCell>
+              <TableCell className="max-w-[200px] truncate">
+                {product.payment_link}
               </TableCell>
               <TableCell className="text-right space-x-2">
                 <Dialog>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,19 +7,15 @@ import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 
-interface Product {
-  name: string;
-  price: string;
-  category: string;
-  description?: string;
-  image: string;
-  features?: string[];
-  rating?: number;
-  reviews?: number;
-}
-
 interface ProductFormProps {
-  product: Product;
+  product: {
+    name: string;
+    price: string;
+    category: string;
+    description?: string;
+    image: string;
+    payment_link: string;
+  };
   onProductChange: (field: string, value: string) => void;
   onSubmit: () => void;
   submitLabel: string;
@@ -43,7 +38,7 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
       return;
     }
 
-    if (!product.name || !product.price || !product.category) {
+    if (!product.name || !product.price || !product.category || !product.payment_link) {
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -61,26 +56,7 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
       return;
     }
 
-    // Vérifier que le prix est un nombre valide
-    const priceValue = product.price.replace(/[^0-9]/g, '');
-    if (!priceValue || isNaN(Number(priceValue))) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Le prix doit être un nombre valide",
-      });
-      return;
-    }
-
     onSubmit();
-  };
-
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Nettoyer le prix pour ne garder que les chiffres
-    let value = e.target.value.replace(/[^0-9]/g, '');
-    // Formater le prix avec DZD
-    const formattedPrice = value ? `${value} DZD` : '';
-    onProductChange('price', formattedPrice);
   };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,12 +114,12 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="price">Prix * (DZD)</Label>
+        <Label htmlFor="price">Prix *</Label>
         <Input
           id="price"
-          placeholder="Prix (ex: 1000 DZD)"
+          placeholder="Prix"
           value={product.price}
-          onChange={handlePriceChange}
+          onChange={(e) => onProductChange('price', e.target.value)}
           required
         />
       </div>
@@ -155,6 +131,17 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
           placeholder="Catégorie"
           value={product.category}
           onChange={(e) => onProductChange('category', e.target.value)}
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="payment_link">Lien de paiement *</Label>
+        <Input
+          id="payment_link"
+          placeholder="Lien de paiement"
+          value={product.payment_link}
+          onChange={(e) => onProductChange('payment_link', e.target.value)}
           required
         />
       </div>

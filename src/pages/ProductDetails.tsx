@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -14,7 +13,7 @@ interface Product {
   image: string;
   category: string;
   features?: string[];
-  payment_link?: string;
+  payment_link: string;
   rating?: number;
   reviews?: number;
 }
@@ -25,7 +24,6 @@ const ProductDetails = () => {
   const { toast } = useToast();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  const [processingPayment, setProcessingPayment] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -40,7 +38,6 @@ const ProductDetails = () => {
           throw error;
         }
 
-        console.log("Fetched product:", data);
         setProduct(data);
       } catch (error) {
         console.error('Error fetching product:', error);
@@ -58,88 +55,21 @@ const ProductDetails = () => {
     fetchProduct();
   }, [id, navigate, toast]);
 
-  const handleOrder = async () => {
-    if (!product) {
-      console.error("No product data available");
-      return;
-    }
-    
-    try {
-      setProcessingPayment(true);
-      console.log("Starting payment process for:", product);
+  const handleOrder = () => {
+    if (!product) return;
 
-      // Si le produit a déjà un lien de paiement Chargily, l'utiliser directement
-      if (product.payment_link) {
-        console.log("Using existing payment link:", product.payment_link);
-        window.location.href = product.payment_link;
-        return;
-      }
-      
-      // Convertir le prix en nombre en enlevant "DZD" et les espaces
-      const priceString = product.price.replace(/[^0-9]/g, '');
-      const amount = parseInt(priceString);
-      
-      console.log("Processing payment with amount:", {
-        originalPrice: product.price,
-        cleanedPrice: priceString,
-        amount: amount
-      });
-      
-      if (isNaN(amount)) {
-        throw new Error('Prix invalide');
-      }
+    // Redirect immediately to payment link
+    window.location.href = product.payment_link;
 
-      // Enregistrer d'abord la tentative d'achat avec le statut initial
-      const { data: cartEntry, error: cartError } = await supabase
-        .from('cart_history')
-        .insert([{
-          action_type: 'purchase_initiated',
-          product_id: product.id,
-          payment_status: 'pending'
-        }])
-        .select()
-        .single();
-
-      if (cartError) {
-        console.error("Error recording purchase attempt:", cartError);
-        throw cartError;
-      }
-
-      console.log("Created cart entry:", cartEntry);
-
-      // Générer correctement l'URL Chargily Pay
-      const chargilyBaseUrl = "https://pay.chargily.net/checkout";
-      const paymentUrl = `${chargilyBaseUrl}?amount=${amount}&client_name=Customer&back_url=${encodeURIComponent(window.location.origin)}&webhook_url=${encodeURIComponent(window.location.origin + '/api/webhook')}&mode=CIB&comment=${encodeURIComponent(product.name)}`;
-      
-      console.log("Generated payment URL:", paymentUrl);
-      
-      // Mettre à jour le produit avec le lien de paiement
-      await supabase
-        .from('products')
-        .update({ payment_link: paymentUrl })
-        .eq('id', product.id);
-        
-      // Mettre à jour le statut de l'entrée du panier
-      await supabase
-        .from('cart_history')
-        .update({ 
-          payment_status: 'direct_checkout_created',
-        })
-        .eq('id', cartEntry.id);
-        
-      // Rediriger vers le lien de paiement
-      window.location.href = paymentUrl;
-
-    } catch (error) {
-      console.error('Error processing order:', error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Une erreur est survenue lors du traitement de la commande. Veuillez réessayer."
-      });
-    } finally {
-      setProcessingPayment(false);
-    }
+    // Send notification email in the background
+    supabase.functions.invoke('send-order-notification', {
+      body: {
+        productName: product.name,
+        productPrice: product.price,
+      },
+    }).catch((error) => {
+      console.error('Error sending notification:', error);
+    });
   };
 
   if (loading) {
@@ -209,9 +139,8 @@ const ProductDetails = () => {
             <Button 
               onClick={handleOrder}
               className="w-full lg:w-auto text-lg py-6"
-              disabled={processingPayment}
             >
-              {processingPayment ? 'Traitement en cours...' : 'Commander Maintenant'}
+              Commander Maintenant
             </Button>
 
             <div className="bg-muted p-4 rounded-lg mt-8">
