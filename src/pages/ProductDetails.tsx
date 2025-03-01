@@ -107,59 +107,85 @@ const ProductDetails = () => {
 
       console.log("Created cart entry:", cartEntry);
 
-      // Créer le paiement via la fonction Edge
-      const response = await supabase.functions.invoke(
-        'create-chargily-payment',
-        {
-          body: {
-            amount: amount,
-            name: "Customer",
-            productName: product.name,
-            cartId: cartEntry.id,
-            productId: product.id // Ajouter l'ID du produit pour le lien avec la commande
+      try {
+        // Créer le paiement via la fonction Edge
+        const response = await supabase.functions.invoke(
+          'create-chargily-payment',
+          {
+            body: {
+              amount: amount,
+              name: "Customer",
+              productName: product.name,
+              cartId: cartEntry.id,
+              productId: product.id // Ajouter l'ID du produit pour le lien avec la commande
+            }
           }
-        }
-      );
+        );
 
-      console.log("Payment function response:", response);
+        console.log("Payment function response:", response);
 
-      const { data, error } = response;
+        const { data, error } = response;
 
-      if (error || (data && data.error)) {
-        console.error("Payment function error:", error || data.error);
-        await supabase
-          .from('cart_history')
-          .update({ payment_status: 'error' })
-          .eq('id', cartEntry.id);
-        throw new Error(data?.error || error?.message || 'Erreur de paiement');
-      }
-
-      if (data && data.checkout_url) {
-        console.log("Got checkout URL:", data.checkout_url);
-        
-        if (data.payment_id) {
+        if (error || (data && data.error)) {
+          console.error("Payment function error:", error || data.error);
           await supabase
             .from('cart_history')
-            .update({ 
-              payment_id: data.payment_id,
-              payment_status: 'checkout_created'
-            })
+            .update({ payment_status: 'error' })
             .eq('id', cartEntry.id);
+          throw new Error(data?.error || error?.message || 'Erreur de paiement');
         }
 
-        // Mettre à jour le produit avec le lien de paiement si ce n'est pas déjà fait
-        if (!product.payment_link) {
-          await supabase
-            .from('products')
-            .update({ payment_link: data.checkout_url })
-            .eq('id', product.id);
-        }
+        if (data && data.checkout_url) {
+          console.log("Got checkout URL:", data.checkout_url);
+          
+          if (data.payment_id) {
+            await supabase
+              .from('cart_history')
+              .update({ 
+                payment_id: data.payment_id,
+                payment_status: 'checkout_created'
+              })
+              .eq('id', cartEntry.id);
+          }
 
-        window.location.href = data.checkout_url;
-      } else {
-        throw new Error('URL de paiement non reçue');
+          // Mettre à jour le produit avec le lien de paiement si ce n'est pas déjà fait
+          if (!product.payment_link) {
+            await supabase
+              .from('products')
+              .update({ payment_link: data.checkout_url })
+              .eq('id', product.id);
+          }
+
+          window.location.href = data.checkout_url;
+        } else {
+          throw new Error('URL de paiement non reçue');
+        }
+      } catch (invokeError) {
+        console.error('Error invoking function:', invokeError);
+        
+        // Si la fonction Edge échoue, essayer la génération direct du lien
+        // Note: Cette partie n'est exécutée que si la fonction Edge échoue
+        const fallbackUrl = `https://pay.chargily.dz/checkout?amount=${amount}&name=${encodeURIComponent(product.name)}`;
+        
+        console.log("Using fallback payment URL:", fallbackUrl);
+        
+        // Mettre à jour le produit avec le lien de paiement de secours
+        await supabase
+          .from('products')
+          .update({ payment_link: fallbackUrl })
+          .eq('id', product.id);
+          
+        // Mettre à jour le statut de l'entrée du panier
+        await supabase
+          .from('cart_history')
+          .update({ 
+            payment_status: 'fallback_checkout',
+          })
+          .eq('id', cartEntry.id);
+          
+        // Rediriger vers l'URL de secours
+        window.location.href = fallbackUrl;
       }
-
     } catch (error) {
       console.error('Error processing order:', error);
       toast({
