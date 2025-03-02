@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,16 @@ import {
   DialogTrigger,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import ProductForm from './ProductForm';
 
 interface Product {
@@ -30,7 +41,27 @@ interface ProductGridProps {
 }
 
 const ProductGrid = ({ products, onEdit, onDelete }: ProductGridProps) => {
-  const [editingProduct, setEditingProduct] = React.useState<Product | null>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const handleDeleteClick = (id: string) => {
+    setProductToDelete(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (productToDelete) {
+      onDelete(productToDelete);
+      setProductToDelete(null);
+    }
+    setIsDeleteDialogOpen(false);
+  };
+
+  const cancelDelete = () => {
+    setProductToDelete(null);
+    setIsDeleteDialogOpen(false);
+  };
 
   return (
     <div className="rounded-md border">
@@ -105,7 +136,7 @@ const ProductGrid = ({ products, onEdit, onDelete }: ProductGridProps) => {
                 <Button
                   variant="destructive"
                   size="icon"
-                  onClick={() => onDelete(product.id)}
+                  onClick={() => handleDeleteClick(product.id)}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -114,6 +145,26 @@ const ProductGrid = ({ products, onEdit, onDelete }: ProductGridProps) => {
           ))}
         </TableBody>
       </Table>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer ce produit ? Cette action ne peut pas être annulée.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelDelete}>Annuler</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
