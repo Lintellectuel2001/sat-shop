@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import StatsCards from './StatsCards';
@@ -49,7 +48,6 @@ const StatisticsPanel = () => {
     try {
       console.log('Récupération des statistiques...');
       
-      // Nombre total de produits
       const { count: productsCount } = await supabase
         .from('products')
         .select('*', { count: 'exact', head: true });
@@ -57,7 +55,6 @@ const StatisticsPanel = () => {
       console.log('Nombre total de produits:', productsCount);
       setTotalProducts(productsCount || 0);
 
-      // Nombre total de commandes depuis cart_history
       const { data: ordersData, error: ordersError } = await supabase
         .from('cart_history')
         .select('*')
@@ -71,7 +68,6 @@ const StatisticsPanel = () => {
         setTotalOrders(totalOrderCount);
       }
 
-      // Analyse des catégories de produits
       const { data: products, error: productsError } = await supabase
         .from('products')
         .select('category');
@@ -108,7 +104,6 @@ const StatisticsPanel = () => {
     console.log('Initialisation du panneau de statistiques...');
     fetchStatistics();
     
-    // Mettre en place l'écoute en temps réel des nouvelles commandes
     const channel = supabase
       .channel('cart-changes')
       .on(
@@ -121,9 +116,7 @@ const StatisticsPanel = () => {
         },
         async (payload) => {
           console.log('Nouvelle commande détectée:', payload);
-          // Mettre à jour le compteur de commandes
           setTotalOrders(prev => prev + 1);
-          // Mettre à jour les données de vente
           await updateSalesData();
         }
       )
@@ -135,8 +128,13 @@ const StatisticsPanel = () => {
   }, []);
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-semibold">Statistiques</h2>
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">Statistiques</h2>
+        <div className="bg-subtle rounded-full px-4 py-2 text-sm font-medium text-accent">
+          Mise à jour en temps réel
+        </div>
+      </div>
       
       <StatsCards
         totalProducts={totalProducts}
@@ -145,7 +143,9 @@ const StatisticsPanel = () => {
         categoryPercentage={categoryPercentage}
       />
 
-      <SalesChart salesData={salesData} />
+      <div className="bg-white p-6 rounded-xl shadow-elegant">
+        <SalesChart salesData={salesData} />
+      </div>
     </div>
   );
 };
