@@ -178,7 +178,7 @@ const ProductDetails = () => {
             {showEmailInput ? (
               <div className="space-y-4">
                 <label htmlFor="email" className="block text-sm font-medium">
-                  Entrez votre email pour recevoir la confirmation de commande
+                  Entrez votre email pour recevoir la confirmation de commande, s'il vous plaît
                 </label>
                 <input
                   id="email"
