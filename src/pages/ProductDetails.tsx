@@ -25,6 +25,8 @@ const ProductDetails = () => {
   const { toast } = useToast();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [showEmailInput, setShowEmailInput] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -59,6 +61,11 @@ const ProductDetails = () => {
   const handleOrder = async () => {
     if (!product) return;
 
+    if (!customerEmail) {
+      setShowEmailInput(true);
+      return;
+    }
+
     try {
       // Record the purchase action in cart_history
       await supabase.from('cart_history').insert({
@@ -68,6 +75,22 @@ const ProductDetails = () => {
       });
 
       console.log('Order action recorded in statistics');
+      
+      // Send confirmation email
+      supabase.functions.invoke('send-order-email', {
+        body: {
+          customerEmail,
+          productName: product.name,
+          productPrice: product.price,
+        }
+      }).then(() => {
+        toast({
+          title: "Email de confirmation envoyé",
+          description: `Un email de confirmation a été envoyé à ${customerEmail}`,
+        });
+      }).catch((error) => {
+        console.error('Error sending confirmation email:', error);
+      });
       
       // Redirect to payment link
       window.location.href = product.payment_link;
@@ -152,12 +175,36 @@ const ProductDetails = () => {
               </div>
             )}
 
-            <Button 
-              onClick={handleOrder}
-              className="w-full lg:w-auto text-lg py-6"
-            >
-              Commander Maintenant
-            </Button>
+            {showEmailInput ? (
+              <div className="space-y-4">
+                <label htmlFor="email" className="block text-sm font-medium">
+                  Entrez votre email pour recevoir la confirmation de commande
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  value={customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2"
+                  placeholder="votre@email.com"
+                  required
+                />
+                <Button 
+                  onClick={handleOrder}
+                  className="w-full lg:w-auto text-lg py-6"
+                  disabled={!customerEmail}
+                >
+                  Continuer la commande
+                </Button>
+              </div>
+            ) : (
+              <Button 
+                onClick={handleOrder}
+                className="w-full lg:w-auto text-lg py-6"
+              >
+                Commander Maintenant
+              </Button>
+            )}
 
             <div className="bg-muted p-4 rounded-lg mt-8">
               <h3 className="font-semibold mb-2">Paiement sécurisé</h3>
