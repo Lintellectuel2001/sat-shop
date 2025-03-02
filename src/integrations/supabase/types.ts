@@ -29,6 +29,8 @@ export type Database = {
           action_type: string
           created_at: string
           id: string
+          payment_id: string | null
+          payment_status: string | null
           product_id: string | null
           user_id: string | null
         }
@@ -36,6 +38,8 @@ export type Database = {
           action_type: string
           created_at?: string
           id?: string
+          payment_id?: string | null
+          payment_status?: string | null
           product_id?: string | null
           user_id?: string | null
         }
@@ -43,6 +47,8 @@ export type Database = {
           action_type?: string
           created_at?: string
           id?: string
+          payment_id?: string | null
+          payment_status?: string | null
           product_id?: string | null
           user_id?: string | null
         }
@@ -273,7 +279,7 @@ export type Database = {
           image: string
           is_physical: boolean | null
           name: string
-          payment_link: string
+          payment_link: string | null
           price: string
           rating: number | null
           reviews: number | null
@@ -290,7 +296,7 @@ export type Database = {
           image: string
           is_physical?: boolean | null
           name: string
-          payment_link: string
+          payment_link?: string | null
           price: string
           rating?: number | null
           reviews?: number | null
@@ -307,7 +313,7 @@ export type Database = {
           image?: string
           is_physical?: boolean | null
           name?: string
-          payment_link?: string
+          payment_link?: string | null
           price?: string
           rating?: number | null
           reviews?: number | null

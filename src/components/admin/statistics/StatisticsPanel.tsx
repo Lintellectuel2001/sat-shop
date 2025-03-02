@@ -47,6 +47,8 @@ const StatisticsPanel = () => {
 
   const fetchStatistics = async () => {
     try {
+      console.log('Récupération des statistiques...');
+      
       // Nombre total de produits
       const { count: productsCount } = await supabase
         .from('products')

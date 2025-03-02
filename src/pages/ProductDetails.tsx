@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -55,21 +56,36 @@ const ProductDetails = () => {
     fetchProduct();
   }, [id, navigate, toast]);
 
-  const handleOrder = () => {
+  const handleOrder = async () => {
     if (!product) return;
 
-    // Redirect immediately to payment link
-    window.location.href = product.payment_link;
+    try {
+      // Record the purchase action in cart_history
+      await supabase.from('cart_history').insert({
+        product_id: product.id,
+        action_type: 'purchase',
+        payment_status: 'initiated',
+      });
 
-    // Send notification email in the background
-    supabase.functions.invoke('send-order-notification', {
-      body: {
-        productName: product.name,
-        productPrice: product.price,
-      },
-    }).catch((error) => {
-      console.error('Error sending notification:', error);
-    });
+      console.log('Order action recorded in statistics');
+      
+      // Redirect to payment link
+      window.location.href = product.payment_link;
+
+      // Send notification email in the background
+      supabase.functions.invoke('send-order-notification', {
+        body: {
+          productName: product.name,
+          productPrice: product.price,
+        },
+      }).catch((error) => {
+        console.error('Error sending notification:', error);
+      });
+    } catch (error) {
+      console.error('Error recording order action:', error);
+      // Still redirect to payment link even if tracking fails
+      window.location.href = product.payment_link;
+    }
   };
 
   if (loading) {
