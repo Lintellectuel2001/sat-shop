@@ -28,8 +28,15 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { productName, productPrice, adminEmail }: AdminNotificationRequest = await req.json();
+    const body = await req.json();
+    console.log("Received request body:", body);
+    
+    const { productName, productPrice, adminEmail }: AdminNotificationRequest = body;
     console.log("Processing admin notification for:", { productName, productPrice, adminEmail });
+
+    if (!productName || !productPrice || !adminEmail) {
+      throw new Error("Missing required fields: productName, productPrice, or adminEmail");
+    }
 
     const emailResponse = await resend.emails.send({
       from: "Sat-shop <onboarding@resend.dev>",

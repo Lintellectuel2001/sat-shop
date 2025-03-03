@@ -69,16 +69,25 @@ const ProductDetails = () => {
 
       console.log('Order action recorded in statistics');
       
-      // Send notification email to admin
-      await supabase.functions.invoke('send-admin-notification', {
-        body: {
-          productName: product.name,
-          productPrice: product.price,
-          adminEmail: "mehalli.rabie@gmail.com"
-        },
-      }).catch((error) => {
-        console.error('Error sending admin notification:', error);
-      });
+      // Send notification email to admin with improved error handling
+      try {
+        const adminNotificationResponse = await supabase.functions.invoke('send-admin-notification', {
+          body: {
+            productName: product.name,
+            productPrice: product.price,
+            adminEmail: "mehalli.rabie@gmail.com"
+          },
+        });
+        
+        console.log('Admin notification response:', adminNotificationResponse);
+        
+        if (adminNotificationResponse.error) {
+          throw new Error(`Admin notification failed: ${adminNotificationResponse.error.message}`);
+        }
+      } catch (notificationError) {
+        console.error('Error sending admin notification:', notificationError);
+        // Don't block the order process if notification fails
+      }
       
       // Redirect to payment link
       window.location.href = product.payment_link;
