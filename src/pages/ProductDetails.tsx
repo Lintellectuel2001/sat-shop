@@ -25,6 +25,7 @@ const ProductDetails = () => {
   const { toast } = useToast();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [orderLoading, setOrderLoading] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -58,7 +59,9 @@ const ProductDetails = () => {
 
   const handleOrder = async () => {
     if (!product) return;
-
+    
+    setOrderLoading(true);
+    
     try {
       // Record the purchase action in cart_history
       await supabase.from('cart_history').insert({
@@ -69,10 +72,7 @@ const ProductDetails = () => {
 
       console.log('Order action recorded in statistics');
       
-      // Redirect to payment link
-      window.location.href = product.payment_link;
-
-      // Send notification email in the background
+      // Send notification email in the background without waiting for result
       supabase.functions.invoke('send-order-notification', {
         body: {
           productName: product.name,
@@ -81,8 +81,18 @@ const ProductDetails = () => {
       }).catch((error) => {
         console.error('Error sending notification:', error);
       });
+      
+      // Immediately redirect to payment link
+      window.location.href = product.payment_link;
     } catch (error) {
       console.error('Error recording order action:', error);
+      setOrderLoading(false);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Un problème est survenu lors de la commande",
+      });
+      
       // Still redirect to payment link even if tracking fails
       window.location.href = product.payment_link;
     }
@@ -155,8 +165,9 @@ const ProductDetails = () => {
             <Button 
               onClick={handleOrder}
               className="w-full lg:w-auto text-lg py-6"
+              disabled={orderLoading}
             >
-              Commander Maintenant
+              {orderLoading ? 'Redirection...' : 'Commander Maintenant'}
             </Button>
 
             <div className="bg-muted p-4 rounded-lg mt-8">
