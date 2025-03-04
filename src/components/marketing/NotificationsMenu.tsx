@@ -45,14 +45,14 @@ const NotificationsMenu = ({ userId }: NotificationsMenuProps) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="end" 
-        className="w-[350px] p-0 overflow-hidden rounded-xl border border-secondary shadow-elegant"
+        className="w-[350px] p-0 overflow-hidden rounded-xl border border-gray-200 shadow-elegant bg-white"
       >
-        <div className="bg-accent text-white py-3 px-4 font-semibold">
+        <div className="bg-white text-black py-3 px-4 font-semibold border-b border-gray-100">
           Notifications
         </div>
         <ScrollArea className="h-[400px]">
           {notifications.length === 0 ? (
-            <div className="p-6 text-center text-sm text-muted-foreground">
+            <div className="p-6 text-center text-sm text-black">
               Aucune notification
             </div>
           ) : (
@@ -61,17 +61,17 @@ const NotificationsMenu = ({ userId }: NotificationsMenuProps) => {
                 key={notification.id}
                 onClick={() => handleNotificationClick(notification.id)}
                 className={cn(
-                  "flex flex-col items-start p-4 space-y-1 cursor-pointer border-b border-gray-100 hover:bg-secondary transition-colors",
-                  !notification.is_read && "bg-soft"
+                  "flex flex-col items-start p-4 space-y-1 cursor-pointer border-b border-gray-100 hover:bg-gray-50 transition-colors text-black",
+                  !notification.is_read && "bg-gray-50"
                 )}
               >
-                <div className="font-medium text-primary">{notification.title}</div>
-                <div className="text-sm text-muted-foreground">{notification.message}</div>
-                <div className="text-xs text-muted-foreground">
+                <div className="font-medium text-black">{notification.title}</div>
+                <div className="text-sm text-gray-700">{notification.message}</div>
+                <div className="text-xs text-gray-500">
                   {new Date(notification.created_at).toLocaleDateString()}
                 </div>
                 {!notification.is_read && (
-                  <Badge variant="secondary" className="mt-2 bg-accent text-white">Nouveau</Badge>
+                  <Badge variant="outline" className="mt-2 bg-gray-100 text-black border border-gray-200">Nouveau</Badge>
                 )}
               </DropdownMenuItem>
             ))
