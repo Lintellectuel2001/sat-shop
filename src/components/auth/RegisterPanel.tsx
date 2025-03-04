@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -121,7 +120,7 @@ const RegisterPanel = () => {
           toast({
             title: "Inscription réussie",
             description: "Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.",
-            variant: "success",
+            variant: "default",
           });
           
           // Automatically navigate to login page after successful registration
