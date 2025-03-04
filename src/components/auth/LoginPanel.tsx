@@ -52,18 +52,23 @@ const LoginPanel = () => {
     setLoading(true);
 
     try {
+      // Normalize the email (trim and lowercase)
+      const normalizedEmail = email.toLowerCase().trim();
+      console.log("Attempting login with:", normalizedEmail);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.toLowerCase().trim(),
+        email: normalizedEmail,
         password,
       });
 
       if (error) {
         console.error("Login error details:", error);
         
+        // Handle specific error cases
         if (error.message.includes('Invalid login credentials')) {
           toast({
             title: "Identifiants incorrects",
-            description: "L'email ou le mot de passe est incorrect",
+            description: "L'email ou le mot de passe est incorrect. Vérifiez vos informations ou créez un nouveau compte.",
             variant: "destructive",
           });
         } else if (error.message.includes('Email not confirmed')) {
@@ -75,14 +80,11 @@ const LoginPanel = () => {
         } else {
           toast({
             title: "Erreur de connexion",
-            description: "Une erreur est survenue lors de la connexion",
+            description: error.message || "Une erreur est survenue lors de la connexion",
             variant: "destructive",
           });
         }
-        return;
-      }
-
-      if (data?.user) {
+      } else if (data?.user) {
         toast({
           title: "Connexion réussie",
           description: "Vous êtes maintenant connecté.",
