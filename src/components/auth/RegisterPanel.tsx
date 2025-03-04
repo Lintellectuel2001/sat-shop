@@ -1,9 +1,19 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const RegisterPanel = () => {
   const [fullName, setFullName] = useState("");
@@ -12,6 +22,7 @@ const RegisterPanel = () => {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -117,14 +128,14 @@ const RegisterPanel = () => {
             variant: "destructive",
           });
         } else {
+          // Show success dialog instead of automatically navigating
+          setShowSuccessDialog(true);
+          
           toast({
             title: "Inscription réussie",
             description: "Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.",
             variant: "default",
           });
-          
-          // Automatically navigate to login page after successful registration
-          navigate("/login");
         }
       }
     } catch (error: any) {
@@ -137,6 +148,11 @@ const RegisterPanel = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSuccessDialogAction = () => {
+    setShowSuccessDialog(false);
+    navigate("/login");
   };
 
   return (
@@ -246,6 +262,22 @@ const RegisterPanel = () => {
           </form>
         </div>
       </div>
+
+      <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Inscription réussie !</AlertDialogTitle>
+            <AlertDialogDescription>
+              Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter avec vos identifiants.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={handleSuccessDialogAction}>
+              Aller à la page de connexion
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
