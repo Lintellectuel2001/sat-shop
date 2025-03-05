@@ -13,7 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-interface NotificationsMenuProps {
+export interface NotificationsMenuProps {
   userId: string;
 }
 

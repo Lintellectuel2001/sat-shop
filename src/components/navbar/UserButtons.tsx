@@ -9,17 +9,23 @@ import { supabase } from "@/integrations/supabase/client";
 import NotificationsMenu from "../marketing/NotificationsMenu";
 import ThemeToggle from "./ThemeToggle";
 
-export default function UserButtons() {
+interface UserButtonsProps {
+  onLogout?: () => Promise<void>;
+}
+
+export default function UserButtons({ onLogout }: UserButtonsProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [cartItemsCount, setCartItemsCount] = useState(0);
   const [wishlistItemsCount, setWishlistItemsCount] = useState(0);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
       const { data } = await supabase.auth.getSession();
       setIsLoggedIn(!!data.session);
+      setUserId(data.session?.user?.id || null);
     };
     
     checkAuth();
@@ -27,14 +33,14 @@ export default function UserButtons() {
     const fetchCounts = async () => {
       // Fetch cart count
       const { data: cartData } = await supabase
-        .from('cart_items')
+        .from('saved_carts')
         .select('id', { count: 'exact' });
       
       setCartItemsCount(cartData?.length || 0);
       
       // Fetch wishlist count
       const { data: wishlistData } = await supabase
-        .from('wishlist_items')
+        .from('wishlists')
         .select('id', { count: 'exact' });
       
       setWishlistItemsCount(wishlistData?.length || 0);
@@ -46,6 +52,11 @@ export default function UserButtons() {
   }, [isLoggedIn]);
 
   const handleSignOut = async () => {
+    if (onLogout) {
+      await onLogout();
+      return;
+    }
+
     const { error } = await supabase.auth.signOut();
     
     if (error) {
@@ -98,9 +109,9 @@ export default function UserButtons() {
         )}
       </Button>
       
-      {isLoggedIn && (
+      {isLoggedIn && userId && (
         <>
-          <NotificationsMenu />
+          <NotificationsMenu userId={userId} />
           
           <Button
             variant="ghost"
