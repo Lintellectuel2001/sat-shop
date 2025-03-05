@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "../components/Navbar";
 import { Button } from "@/components/ui/button";
+import ShareButtons from "../components/product/ShareButtons";
 
 interface Product {
   id: string;
@@ -175,6 +176,11 @@ const ProductDetails = () => {
               <p className="text-sm text-accent">
                 Paiement sécurisé via Chargily. Livraison immédiate après confirmation du paiement.
               </p>
+            </div>
+            
+            {/* Ajout des boutons de partage social */}
+            <div className="mt-8 border-t pt-6">
+              <ShareButtons productName={product.name} productId={product.id} />
             </div>
           </div>
         </div>

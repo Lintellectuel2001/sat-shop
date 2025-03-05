@@ -1,7 +1,9 @@
 
-import { Star } from "lucide-react";
+import { Star, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import WishlistButton from "./wishlist/WishlistButton";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProductCardProps {
   id?: string;
@@ -15,10 +17,46 @@ interface ProductCardProps {
 
 const ProductCard = ({ id = "1", name, price, image, rating, reviews, paymentLink }: ProductCardProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isSharing, setIsSharing] = useState(false);
 
   const handleClick = () => {
     if (id) {
       navigate(`/product/${id}`);
+    }
+  };
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Éviter de naviguer vers la page produit
+    setIsSharing(true);
+    
+    const shareUrl = `${window.location.origin}/product/${id}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: name,
+        text: `Découvrez ${name}`,
+        url: shareUrl,
+      })
+      .catch((error) => console.log('Erreur de partage', error))
+      .finally(() => setIsSharing(false));
+    } else {
+      // Copier le lien si le partage natif n'est pas supporté
+      navigator.clipboard.writeText(shareUrl)
+        .then(() => {
+          toast({
+            title: "Lien copié",
+            description: "Le lien du produit a été copié dans le presse-papier",
+          });
+        })
+        .catch(() => {
+          toast({
+            variant: "destructive",
+            title: "Erreur",
+            description: "Impossible de copier le lien",
+          });
+        })
+        .finally(() => setIsSharing(false));
     }
   };
 
@@ -33,7 +71,15 @@ const ProductCard = ({ id = "1", name, price, image, rating, reviews, paymentLin
           alt={name}
           className="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-300"
         />
-        <div className="absolute top-2 right-2">
+        <div className="absolute top-2 right-2 flex gap-2">
+          <button
+            onClick={handleShare}
+            className="bg-white/80 hover:bg-white p-2 rounded-full text-accent hover:text-accent/80 transition-colors"
+            disabled={isSharing}
+            aria-label="Partager ce produit"
+          >
+            <Share2 size={18} />
+          </button>
           <WishlistButton 
             productId={id} 
             className="bg-white/80 hover:bg-white"
