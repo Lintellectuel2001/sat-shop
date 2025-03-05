@@ -10,6 +10,7 @@ import Admin from "./pages/Admin";
 import Wishlist from "./pages/Wishlist";
 import LoginPanel from "./components/auth/LoginPanel";
 import RegisterPanel from "./components/auth/RegisterPanel";
+import ChatSupportButton from "./components/chat/ChatSupportButton";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/login" element={<LoginPanel />} />
         <Route path="/register" element={<RegisterPanel />} />
       </Routes>
+      <ChatSupportButton />
     </Router>
   );
 }
