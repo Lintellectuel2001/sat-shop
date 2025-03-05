@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,11 +11,17 @@ const LoginPanel = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Reset previous errors
+    setEmailError("");
+    setPasswordError("");
     
     // Basic validation
     if (!email.trim() || !password.trim()) {
@@ -27,6 +34,7 @@ const LoginPanel = () => {
     }
 
     if (!validateEmail(email)) {
+      setEmailError("Veuillez entrer une adresse email valide");
       toast({
         title: "Email invalide",
         description: "Veuillez entrer une adresse email valide",
@@ -36,6 +44,7 @@ const LoginPanel = () => {
     }
 
     if (!validatePassword(password)) {
+      setPasswordError("Le mot de passe doit contenir au moins 6 caractères");
       toast({
         title: "Mot de passe invalide",
         description: "Le mot de passe doit contenir au moins 6 caractères",
@@ -61,6 +70,7 @@ const LoginPanel = () => {
         
         // Handle specific error cases
         if (error.message.includes('Invalid login credentials')) {
+          setPasswordError("Mot de passe incorrect");
           toast({
             title: "Identifiants incorrects",
             description: "Le mot de passe est incorrect. Veuillez vérifier vos informations.",
@@ -120,9 +130,10 @@ const LoginPanel = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="votre@email.com"
-                className="w-full"
+                className={`w-full ${emailError ? "border-red-500" : ""}`}
                 required
               />
+              {emailError && <p className="text-red-500 text-xs mt-1">{emailError}</p>}
             </div>
 
             <div className="space-y-2">
@@ -135,10 +146,11 @@ const LoginPanel = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full"
+                className={`w-full ${passwordError ? "border-red-500" : ""}`}
                 required
                 minLength={6}
               />
+              {passwordError && <p className="text-red-500 text-xs mt-1">{passwordError}</p>}
             </div>
 
             <Button
