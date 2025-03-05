@@ -1,10 +1,10 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { validateEmail, validatePassword } from "@/utils/validation";
 
 const LoginPanel = () => {
   const [email, setEmail] = useState("");
@@ -12,11 +12,6 @@ const LoginPanel = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,7 +35,7 @@ const LoginPanel = () => {
       return;
     }
 
-    if (password.length < 6) {
+    if (!validatePassword(password)) {
       toast({
         title: "Mot de passe invalide",
         description: "Le mot de passe doit contenir au moins 6 caractères",
@@ -68,7 +63,7 @@ const LoginPanel = () => {
         if (error.message.includes('Invalid login credentials')) {
           toast({
             title: "Identifiants incorrects",
-            description: "L'email ou le mot de passe est incorrect. Vérifiez vos informations ou créez un nouveau compte.",
+            description: "Le mot de passe est incorrect. Veuillez vérifier vos informations.",
             variant: "destructive",
           });
         } else if (error.message.includes('Email not confirmed')) {
