@@ -31,10 +31,12 @@ export default {
         primary: {
           DEFAULT: "#1A1F2C",
           foreground: "#FFFFFF",
+          dark: "#0A0F1C",
         },
         secondary: {
           DEFAULT: "#F1F0FB",
           foreground: "#1A1F2C",
+          dark: "#252836",
         },
         accent: {
           DEFAULT: "#8B5CF6",
@@ -43,10 +45,20 @@ export default {
         muted: {
           DEFAULT: "#F8F9FA",
           foreground: "#64748B",
+          dark: "#171923",
         },
-        subtle: "#E5DEFF",
-        soft: "#F6F5FF",
-        card: "#FFFFFF",
+        subtle: {
+          DEFAULT: "#E5DEFF",
+          dark: "#2D2B55",
+        },
+        soft: {
+          DEFAULT: "#F6F5FF", 
+          dark: "#252836",
+        },
+        card: {
+          DEFAULT: "#FFFFFF",
+          dark: "#1A1F2C",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -55,6 +67,7 @@ export default {
       },
       boxShadow: {
         'elegant': '0 4px 20px rgba(0, 0, 0, 0.05)',
+        'elegant-dark': '0 4px 20px rgba(0, 0, 0, 0.2)',
       },
     },
   },

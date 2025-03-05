@@ -10,8 +10,21 @@ import Admin from "./pages/Admin";
 import Wishlist from "./pages/Wishlist";
 import LoginPanel from "./components/auth/LoginPanel";
 import RegisterPanel from "./components/auth/RegisterPanel";
+import { useEffect } from "react";
 
 function App() {
+  // Initialiser le thème au chargement de l'application
+  useEffect(() => {
+    const storedTheme = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    
+    if (storedTheme === "dark" || (!storedTheme && prefersDark)) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
+
   return (
     <Router>
       <Routes>

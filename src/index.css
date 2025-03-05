@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -11,9 +12,18 @@
     --radius: 1rem;
   }
 
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+  }
+
   body {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    @apply bg-muted text-primary antialiased;
+    @apply bg-muted text-primary antialiased transition-colors duration-300;
+  }
+
+  .dark body {
+    @apply bg-primary text-white;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -24,6 +34,10 @@
 @layer components {
   .nav-link {
     @apply relative px-4 py-2 text-primary/80 hover:text-accent transition-colors duration-300;
+  }
+
+  .dark .nav-link {
+    @apply text-white/80 hover:text-accent;
   }
 
   .nav-link::after {
@@ -37,5 +51,9 @@
 
   .glass-effect {
     @apply bg-white/90 backdrop-blur-md border border-white/20 shadow-elegant;
+  }
+
+  .dark .glass-effect {
+    @apply bg-primary/90 backdrop-blur-md border border-white/10 shadow-elegant;
   }
 }
