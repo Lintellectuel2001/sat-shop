@@ -8,6 +8,7 @@ import Logo from "./navbar/Logo";
 import NavLinks from "./navbar/NavLinks";
 import AuthButtons from "./navbar/AuthButtons";
 import UserButtons from "./navbar/UserButtons";
+import NotificationsMenu from "./marketing/NotificationsMenu";
 
 interface SiteSettings {
   logo_url: string;
@@ -175,7 +176,10 @@ const Navbar = () => {
 
           <div className="flex items-center gap-6">
             {isLoggedIn ? (
-              <UserButtons onLogout={handleLogout} />
+              <>
+                {userId && <NotificationsMenu userId={userId} />}
+                <UserButtons onLogout={handleLogout} />
+              </>
             ) : (
               <AuthButtons />
             )}
