@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -37,5 +38,33 @@
 
   .glass-effect {
     @apply bg-white/90 backdrop-blur-md border border-white/20 shadow-elegant;
+  }
+  
+  .animate-in {
+    animation-duration: 150ms;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    animation-fill-mode: forwards;
+  }
+  
+  .fade-in {
+    opacity: 0;
+    animation-name: fade-in;
+  }
+  
+  .zoom-in {
+    transform: scale(0.95);
+    animation-name: zoom-in;
+  }
+  
+  @keyframes fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes zoom-in {
+    to {
+      transform: scale(1);
+    }
   }
 }

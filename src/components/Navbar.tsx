@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +8,8 @@ import NavLinks from "./navbar/NavLinks";
 import AuthButtons from "./navbar/AuthButtons";
 import UserButtons from "./navbar/UserButtons";
 import NotificationsMenu from "./marketing/NotificationsMenu";
+import MobileMenu from "./navbar/MobileMenu";
+import { Menu } from "lucide-react";
 
 interface SiteSettings {
   logo_url: string;
@@ -18,6 +19,7 @@ interface SiteSettings {
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const { data: settings } = useQuery({
@@ -162,6 +164,10 @@ const Navbar = () => {
     }
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass-effect">
       <div className="container mx-auto">
@@ -172,9 +178,11 @@ const Navbar = () => {
             altText={settings?.logo_text || "Sat-shop"}
           />
           
-          <NavLinks />
+          <div className="hidden md:block">
+            <NavLinks />
+          </div>
 
-          <div className="flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-6">
             {isLoggedIn ? (
               <>
                 {userId && <NotificationsMenu userId={userId} />}
@@ -184,8 +192,25 @@ const Navbar = () => {
               <AuthButtons />
             )}
           </div>
+
+          <button 
+            className="md:hidden p-2 text-accent rounded-full hover:bg-primary/5"
+            onClick={toggleMobileMenu}
+            aria-label="Menu"
+          >
+            <Menu size={24} />
+          </button>
         </div>
       </div>
+
+      {isMobileMenuOpen && (
+        <MobileMenu 
+          isLoggedIn={isLoggedIn} 
+          onLogout={handleLogout} 
+          userId={userId}
+          onClose={() => setIsMobileMenuOpen(false)}
+        />
+      )}
     </nav>
   );
 };

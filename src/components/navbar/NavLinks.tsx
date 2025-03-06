@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
@@ -18,7 +19,7 @@ const NavLinks = () => {
   };
 
   return (
-    <div className="hidden md:flex items-center space-x-8">
+    <div className="flex items-center space-x-8">
       <Link 
         to="/" 
         className="nav-link font-medium"
