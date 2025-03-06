@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Menu } from "lucide-react";
 import Logo from "./navbar/Logo";
@@ -55,14 +54,13 @@ const Navbar = () => {
         </div>
       </div>
 
-      {isMobileMenuOpen && (
-        <MobileMenu 
-          isLoggedIn={isLoggedIn} 
-          onLogout={handleSignOut} 
-          userId={userId}
-          onClose={() => setIsMobileMenuOpen(false)}
-        />
-      )}
+      <MobileMenu 
+        isLoggedIn={isLoggedIn} 
+        onLogout={handleSignOut} 
+        userId={userId}
+        onClose={() => setIsMobileMenuOpen(false)}
+        isOpen={isMobileMenuOpen}
+      />
     </nav>
   );
 };

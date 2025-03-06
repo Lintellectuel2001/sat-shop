@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { X, ShoppingCart, User, UserCog, LogOut } from "lucide-react";
@@ -9,11 +8,12 @@ interface MobileMenuProps {
   userId: string | null;
   onLogout: () => void;
   onClose: () => void;
+  isOpen: boolean;
 }
 
-const MobileMenu = ({ isLoggedIn, userId, onLogout, onClose }: MobileMenuProps) => {
+const MobileMenu = ({ isLoggedIn, userId, onLogout, onClose, isOpen }: MobileMenuProps) => {
   return (
-    <div className="mobile-menu animate-in fade-in zoom-in">
+    <div className={`mobile-menu ${isOpen ? 'active' : ''}`}>
       <div className="container mx-auto px-4 py-6">
         <div className="flex justify-end mb-6">
           <button 
