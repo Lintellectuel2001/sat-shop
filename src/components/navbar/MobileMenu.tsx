@@ -1,4 +1,5 @@
-import React from "react";
+
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { X, ShoppingCart, User, UserCog, LogOut } from "lucide-react";
 import NotificationsMenu from "../marketing/NotificationsMenu";
@@ -12,6 +13,18 @@ interface MobileMenuProps {
 }
 
 const MobileMenu = ({ isLoggedIn, userId, onLogout, onClose, isOpen }: MobileMenuProps) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   return (
     <div className={`mobile-menu ${isOpen ? 'active' : ''}`}>
       <div className="container mx-auto px-4 py-6">

@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -41,12 +42,14 @@
   
   .mobile-menu {
     @apply fixed inset-0 z-50 bg-white/95 backdrop-blur-sm;
+    visibility: hidden;
     opacity: 0;
     transform: translateY(-100%);
-    transition: all 0.3s ease-in-out;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .mobile-menu.active {
+    visibility: visible;
     opacity: 1;
     transform: translateY(0);
   }
