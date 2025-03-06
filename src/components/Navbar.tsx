@@ -1,169 +1,19 @@
 
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState } from "react";
+import { Menu } from "lucide-react";
 import Logo from "./navbar/Logo";
 import NavLinks from "./navbar/NavLinks";
 import AuthButtons from "./navbar/AuthButtons";
 import UserButtons from "./navbar/UserButtons";
 import NotificationsMenu from "./marketing/NotificationsMenu";
 import MobileMenu from "./navbar/MobileMenu";
-import { Menu } from "lucide-react";
-
-interface SiteSettings {
-  logo_url: string;
-  logo_text: string;
-}
+import { useAuthState } from "@/hooks/useAuthState";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const Navbar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const navigate = useNavigate();
-
-  const { data: settings } = useQuery({
-    queryKey: ['site-settings'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('site_settings')
-        .select('*')
-        .single();
-
-      if (error) {
-        console.error('Error fetching site settings:', error);
-        return {
-          logo_url: "/lovable-uploads/d7990538-4e18-4b76-bb29-4e16e74bf512.png",
-          logo_text: "Sat-shop"
-        };
-      }
-      return data as SiteSettings;
-    },
-  });
-
-  useEffect(() => {
-    let mounted = true;
-
-    const handleSignOut = async () => {
-      try {
-        await supabase.auth.signOut();
-        if (mounted) {
-          setIsLoggedIn(false);
-          setUserId(null);
-          navigate('/login');
-          toast({
-            title: "Session expirée",
-            description: "Votre session a expiré. Veuillez vous reconnecter.",
-          });
-        }
-      } catch (error) {
-        console.error('Error signing out:', error);
-      }
-    };
-
-    const checkAuthStatus = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Session check error:', error);
-          if (mounted) {
-            setIsLoggedIn(false);
-            setUserId(null);
-            if (error.message.includes('refresh_token_not_found')) {
-              await handleSignOut();
-            } else {
-              toast({
-                title: "Erreur de session",
-                description: "Une erreur est survenue lors de la vérification de votre session",
-                variant: "destructive",
-              });
-            }
-          }
-          return;
-        }
-
-        if (mounted) {
-          setIsLoggedIn(!!session);
-          setUserId(session?.user?.id || null);
-        }
-      } catch (error: any) {
-        console.error('Session check error:', error);
-        if (mounted) {
-          setIsLoggedIn(false);
-          setUserId(null);
-          toast({
-            title: "Erreur de session",
-            description: "Une erreur est survenue lors de la vérification de votre session",
-            variant: "destructive",
-          });
-        }
-      }
-    };
-
-    checkAuthStatus();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted) return;
-
-      console.log('Auth state changed:', event);
-
-      switch (event) {
-        case 'SIGNED_IN':
-          setIsLoggedIn(true);
-          setUserId(session?.user?.id || null);
-          break;
-        case 'SIGNED_OUT':
-          setIsLoggedIn(false);
-          setUserId(null);
-          navigate('/');
-          break;
-        case 'TOKEN_REFRESHED':
-          setIsLoggedIn(!!session);
-          setUserId(session?.user?.id || null);
-          break;
-        case 'USER_UPDATED':
-          setIsLoggedIn(!!session);
-          setUserId(session?.user?.id || null);
-          break;
-        default:
-          const { error: authError } = await supabase.auth.getSession();
-          if (authError?.message?.includes('refresh_token_not_found')) {
-            await handleSignOut();
-          } else {
-            setIsLoggedIn(!!session);
-            setUserId(session?.user?.id || null);
-          }
-          break;
-      }
-    });
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, [navigate]);
-
-  const handleLogout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      toast({
-        title: "Déconnexion réussie",
-        description: "À bientôt !",
-      });
-      navigate('/');
-    } catch (error: any) {
-      console.error('Erreur lors de la déconnexion:', error);
-      toast({
-        title: "Erreur lors de la déconnexion",
-        description: "Veuillez réessayer",
-        variant: "destructive",
-      });
-    }
-  };
+  const { isLoggedIn, userId, handleSignOut } = useAuthState();
+  const { data: settings } = useSiteSettings();
 
   const toggleMobileMenu = () => {
     console.log("Toggling mobile menu", !isMobileMenuOpen);
@@ -188,7 +38,7 @@ const Navbar = () => {
             {isLoggedIn ? (
               <>
                 {userId && <NotificationsMenu userId={userId} />}
-                <UserButtons onLogout={handleLogout} />
+                <UserButtons onLogout={handleSignOut} />
               </>
             ) : (
               <AuthButtons />
@@ -208,7 +58,7 @@ const Navbar = () => {
       {isMobileMenuOpen && (
         <MobileMenu 
           isLoggedIn={isLoggedIn} 
-          onLogout={handleLogout} 
+          onLogout={handleSignOut} 
           userId={userId}
           onClose={() => setIsMobileMenuOpen(false)}
         />
