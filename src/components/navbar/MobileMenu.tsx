@@ -13,7 +13,7 @@ interface MobileMenuProps {
 
 const MobileMenu = ({ isLoggedIn, userId, onLogout, onClose }: MobileMenuProps) => {
   return (
-    <div className="md:hidden fixed inset-0 z-50 bg-white animate-in fade-in zoom-in">
+    <div className="mobile-menu animate-in fade-in zoom-in">
       <div className="container mx-auto px-4 py-6">
         <div className="flex justify-end mb-6">
           <button 
