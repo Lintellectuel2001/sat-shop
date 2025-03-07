@@ -27,7 +27,7 @@ const MobileMenu = ({
     };
   }, [isOpen]);
   return <div className={`mobile-menu ${isOpen ? 'active' : ''}`}>
-      <div className="container mx-auto px-4 py-6 bg-slate-50">
+      <div className="container mx-auto px-4 py-6 bg-sky-500">
         <div className="flex justify-end mb-6">
           <button onClick={onClose} className="p-2 text-accent rounded-full hover:bg-muted transition-colors" aria-label="Fermer le menu">
             <X size={24} />
