@@ -1,20 +1,28 @@
+
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 
 const categories = [
-  { name: "Mobile phone", icon: "📱" },
-  { name: "Laptop", icon: "💻" },
-  { name: "Gadget", icon: "⌚" },
-  { name: "TV", icon: "📺" },
-  { name: "Tablet", icon: "📱" },
-  { name: "Headphone", icon: "🎧" },
+  { name: "IPTV", icon: "📺", value: "iptv" },
+  { name: "Sharing", icon: "🔗", value: "sharing" },
+  { name: "VOD", icon: "🎬", value: "vod" },
+  { name: "Tous", icon: "🛒", value: "all" },
 ];
 
 const CategoryNav = () => {
+  const navigate = useNavigate();
+
+  const handleCategoryClick = (categoryValue: string) => {
+    navigate(`/marketplace?category=${categoryValue}`);
+  };
+
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 px-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-4">
       {categories.map((category) => (
         <button
           key={category.name}
+          onClick={() => handleCategoryClick(category.value)}
           className="group p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center justify-center space-y-2"
         >
           <span className="text-3xl">{category.icon}</span>

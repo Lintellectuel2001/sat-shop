@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Navbar from "../components/Navbar";
 import MarketplaceHeader from '@/components/marketplace/MarketplaceHeader';
@@ -19,12 +20,12 @@ const Marketplace = () => {
           .from('products')
           .select('*');
 
-        // Appliquer le filtre par catégorie
+        // Apply category filter
         if (category !== "all") {
           query = query.eq('category', category);
         }
 
-        // Appliquer le tri
+        // Apply sorting
         switch (sortOrder) {
           case "newest":
             query = query.order('created_at', { ascending: false });
@@ -48,6 +49,10 @@ const Marketplace = () => {
           throw error;
         }
 
+        // Log for debugging
+        console.log('Fetched products:', data);
+        console.log('Current category:', category);
+        
         setProducts(data || []);
       } catch (error) {
         console.error('Error fetching products:', error);
