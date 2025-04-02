@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Navbar from "../components/Navbar";
 import MarketplaceHeader from '@/components/marketplace/MarketplaceHeader';
 import FilterBar from '@/components/marketplace/FilterBar';
@@ -12,6 +13,15 @@ const Marketplace = () => {
   const [sortOrder, setSortOrder] = useState("newest");
   const [category, setCategory] = useState("all");
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+
+  // Initialize category from URL parameter if available
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+    if (categoryParam) {
+      setCategory(categoryParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -67,6 +77,11 @@ const Marketplace = () => {
     fetchProducts();
   }, [category, sortOrder, toast]);
 
+  // Handle category change
+  const handleCategoryChange = (newCategory: string) => {
+    setCategory(newCategory);
+  };
+
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
       <Navbar />
@@ -76,7 +91,7 @@ const Marketplace = () => {
         <FilterBar 
           productsCount={products.length}
           category={category}
-          setCategory={setCategory}
+          setCategory={handleCategoryChange}
           sortOrder={sortOrder}
           setSortOrder={setSortOrder}
         />

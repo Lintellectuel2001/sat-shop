@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -16,7 +17,7 @@ const FilterBar = ({ productsCount, category, setCategory, sortOrder, setSortOrd
         <div className="text-sm text-accent">{productsCount} produit(s)</div>
         
         <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] bg-white">
             <SelectValue placeholder="Catégories" />
           </SelectTrigger>
           <SelectContent>
@@ -29,7 +30,7 @@ const FilterBar = ({ productsCount, category, setCategory, sortOrder, setSortOrd
       </div>
 
       <Select value={sortOrder} onValueChange={setSortOrder}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-[180px] bg-white">
           <SelectValue placeholder="Trier par" />
         </SelectTrigger>
         <SelectContent>

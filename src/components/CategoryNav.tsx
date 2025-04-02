@@ -14,7 +14,12 @@ const CategoryNav = () => {
   const navigate = useNavigate();
 
   const handleCategoryClick = (categoryValue: string) => {
-    navigate(`/marketplace?category=${categoryValue}`);
+    if (categoryValue === "all") {
+      // For "all" category, don't add a parameter
+      navigate(`/marketplace`);
+    } else {
+      navigate(`/marketplace?category=${categoryValue}`);
+    }
   };
 
   return (
