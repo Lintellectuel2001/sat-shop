@@ -71,10 +71,6 @@ const ProductCard = ({
     }
   };
 
-  if (!isAvailable) {
-    return null;
-  }
-
   return (
     <div 
       className="group bg-white rounded-2xl overflow-hidden shadow-elegant hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
@@ -100,6 +96,16 @@ const ProductCard = ({
             className="bg-white/80 hover:bg-white"
           />
         </div>
+        {/* Availability badge */}
+        <Badge 
+          className={`absolute top-2 left-2 ${
+            isAvailable 
+              ? 'bg-green-500 hover:bg-green-600' 
+              : 'bg-red-500 hover:bg-red-600'
+          }`}
+        >
+          {isAvailable ? 'Disponible' : 'Non Disponible'}
+        </Badge>
       </div>
       <div className="p-6">
         <h3 className="text-lg font-semibold text-primary">{name}</h3>

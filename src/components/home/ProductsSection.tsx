@@ -24,7 +24,7 @@ const ProductsSection = () => {
           query = query.ilike('name', `%${searchQuery}%`);
         }
 
-        // Toujours récupérer tous les produits et filtrer côté client
+        // Toujours récupérer tous les produits
         const { data, error } = await query;
 
         if (error) {
@@ -65,10 +65,7 @@ const ProductsSection = () => {
     };
   }, [toast, searchQuery]);
 
-  // Filtrer les produits non disponibles
-  const availableProducts = products.filter(product => product.is_available !== false);
-
-  if (availableProducts.length === 0 && searchQuery) {
+  if (products.length === 0 && searchQuery) {
     return (
       <section className="py-16">
         <div className="container mx-auto px-4">
@@ -91,7 +88,7 @@ const ProductsSection = () => {
           </p>
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
-          {availableProducts.map((product) => (
+          {products.map((product) => (
             <ProductCard
               key={product.id}
               id={product.id}
