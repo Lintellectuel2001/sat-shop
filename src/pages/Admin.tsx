@@ -1,8 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { Home } from 'lucide-react'; // Import the Home icon
+import { Button } from "@/components/ui/button"; // Import Button component
 import ProductManager from '@/components/admin/ProductManager';
 import SlideManager from '@/components/admin/SlideManager';
 import SiteSettingsManager from '@/components/admin/settings/SiteSettingsManager';
@@ -88,7 +91,15 @@ const Admin = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8">Panneau d'Administration | Dashboard</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Panneau d'Administration | Dashboard</h1>
+        <Button variant="outline" asChild>
+          <Link to="/" className="flex items-center">
+            <Home className="mr-2 h-4 w-4" />
+            Retour à l'accueil
+          </Link>
+        </Button>
+      </div>
       
       <Tabs defaultValue="statistics">
         <TabsList className="mb-6">
