@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import ProductCard from "../ProductCard";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +24,7 @@ const ProductsSection = () => {
           query = query.ilike('name', `%${searchQuery}%`);
         }
 
+        // Toujours récupérer tous les produits et filtrer côté client
         const { data, error } = await query;
 
         if (error) {
@@ -41,9 +43,32 @@ const ProductsSection = () => {
     };
 
     fetchProducts();
+
+    // Abonnement aux mises à jour en temps réel
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'products'
+        },
+        () => {
+          fetchProducts();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [toast, searchQuery]);
 
-  if (products.length === 0 && searchQuery) {
+  // Filtrer les produits non disponibles
+  const availableProducts = products.filter(product => product.is_available !== false);
+
+  if (availableProducts.length === 0 && searchQuery) {
     return (
       <section className="py-16">
         <div className="container mx-auto px-4">
@@ -66,7 +91,7 @@ const ProductsSection = () => {
           </p>
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
-          {products.map((product) => (
+          {availableProducts.map((product) => (
             <ProductCard
               key={product.id}
               id={product.id}
@@ -76,6 +101,7 @@ const ProductsSection = () => {
               rating={product.rating || 5}
               reviews={product.reviews || 0}
               paymentLink={product.payment_link}
+              isAvailable={product.is_available !== false}
             />
           ))}
         </div>

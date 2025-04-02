@@ -277,6 +277,7 @@ export type Database = {
           features: string[] | null
           id: string
           image: string
+          is_available: boolean | null
           is_physical: boolean | null
           name: string
           payment_link: string | null
@@ -294,6 +295,7 @@ export type Database = {
           features?: string[] | null
           id?: string
           image: string
+          is_available?: boolean | null
           is_physical?: boolean | null
           name: string
           payment_link?: string | null
@@ -311,6 +313,7 @@ export type Database = {
           features?: string[] | null
           id?: string
           image?: string
+          is_available?: boolean | null
           is_physical?: boolean | null
           name?: string
           payment_link?: string | null

@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -32,15 +33,17 @@ interface Product {
   category: string;
   features?: string[];
   payment_link: string;
+  is_available?: boolean;
 }
 
 interface ProductGridProps {
   products: Product[];
   onEdit: (product: Product) => void;
   onDelete: (id: string) => void;
+  onToggleAvailability: (id: string, newStatus: boolean) => void;
 }
 
-const ProductGrid = ({ products, onEdit, onDelete }: ProductGridProps) => {
+const ProductGrid = ({ products, onEdit, onDelete, onToggleAvailability }: ProductGridProps) => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -63,6 +66,10 @@ const ProductGrid = ({ products, onEdit, onDelete }: ProductGridProps) => {
     setIsDeleteDialogOpen(false);
   };
 
+  const handleToggleAvailability = (id: string, currentStatus: boolean) => {
+    onToggleAvailability(id, !currentStatus);
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -74,6 +81,7 @@ const ProductGrid = ({ products, onEdit, onDelete }: ProductGridProps) => {
             <TableHead>Catégorie</TableHead>
             <TableHead>Description</TableHead>
             <TableHead>Lien de paiement</TableHead>
+            <TableHead>Disponibilité</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -81,11 +89,18 @@ const ProductGrid = ({ products, onEdit, onDelete }: ProductGridProps) => {
           {products.map((product) => (
             <TableRow key={product.id}>
               <TableCell>
-                <img 
-                  src={product.image} 
-                  alt={product.name} 
-                  className="w-16 h-16 object-cover rounded"
-                />
+                <div className="relative">
+                  <img 
+                    src={product.image} 
+                    alt={product.name} 
+                    className="w-16 h-16 object-cover rounded"
+                  />
+                  <Badge 
+                    className={`absolute -top-2 -left-2 ${product.is_available ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}
+                  >
+                    {product.is_available ? 'Disponible' : 'Non Disponible'}
+                  </Badge>
+                </div>
               </TableCell>
               <TableCell className="font-medium max-w-[200px] truncate">
                 {product.name}
@@ -97,6 +112,25 @@ const ProductGrid = ({ products, onEdit, onDelete }: ProductGridProps) => {
               </TableCell>
               <TableCell className="max-w-[200px] truncate">
                 {product.payment_link}
+              </TableCell>
+              <TableCell>
+                <Button
+                  variant={product.is_available ? "outline" : "destructive"}
+                  onClick={() => handleToggleAvailability(product.id, !!product.is_available)}
+                  className={`flex items-center gap-1 ${product.is_available ? 'border-green-500 text-green-600 hover:bg-green-50' : 'bg-red-500 hover:bg-red-600'}`}
+                >
+                  {product.is_available ? (
+                    <>
+                      <Check className="h-4 w-4" />
+                      <span>Disponible</span>
+                    </>
+                  ) : (
+                    <>
+                      <X className="h-4 w-4" />
+                      <span>Non Disponible</span>
+                    </>
+                  )}
+                </Button>
               </TableCell>
               <TableCell className="text-right space-x-2">
                 <Dialog>

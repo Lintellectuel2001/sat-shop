@@ -13,6 +13,7 @@ interface Product {
   category: string;
   features?: string[];
   payment_link: string;
+  is_available?: boolean;
 }
 
 interface ProductManagerProps {
@@ -29,6 +30,7 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
     handleProductCreate,
     handleProductUpdate,
     handleProductDelete,
+    handleToggleAvailability,
   } = useProductManager(onProductsChange);
 
   const handleCreateSuccess = async () => {
@@ -52,6 +54,7 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
         products={products}
         onEdit={handleProductUpdate}
         onDelete={handleProductDelete}
+        onToggleAvailability={handleToggleAvailability}
       />
     </div>
   );

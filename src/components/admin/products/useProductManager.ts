@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -12,6 +13,7 @@ interface Product {
   category: string;
   features?: string[];
   payment_link: string;
+  is_available?: boolean;
 }
 
 export const useProductManager = (onProductsChange: () => void) => {
@@ -22,10 +24,33 @@ export const useProductManager = (onProductsChange: () => void) => {
     category: '',
     image: '',
     payment_link: '',
+    is_available: true,
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   const { isAdmin } = useAdminCheck();
+
+  // Écouter les changements en temps réel sur la table des produits
+  useEffect(() => {
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'products'
+        },
+        () => {
+          onProductsChange();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [onProductsChange]);
 
   const handleProductCreate = async () => {
     try {
@@ -57,6 +82,7 @@ export const useProductManager = (onProductsChange: () => void) => {
           payment_link: newProduct.payment_link,
           description: newProduct.description,
           features: newProduct.features,
+          is_available: newProduct.is_available !== undefined ? newProduct.is_available : true,
         }])
         .select();
 
@@ -83,6 +109,7 @@ export const useProductManager = (onProductsChange: () => void) => {
         category: '',
         image: '',
         payment_link: '',
+        is_available: true,
       });
       
       // Appeler onProductsChange après une création réussie
@@ -137,7 +164,7 @@ export const useProductManager = (onProductsChange: () => void) => {
         description: "Produit mis à jour avec succès",
       });
       
-      onProductsChange();
+      // Pas besoin d'appeler onProductsChange ici, car le changement en temps réel le fera
     } catch (error) {
       console.error('Unexpected error updating product:', error);
       toast({
@@ -179,9 +206,51 @@ export const useProductManager = (onProductsChange: () => void) => {
         description: "Produit supprimé avec succès",
       });
       
-      onProductsChange();
+      // Pas besoin d'appeler onProductsChange ici, car le changement en temps réel le fera
     } catch (error) {
       console.error('Unexpected error deleting product:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur inattendue s'est produite",
+      });
+    }
+  };
+
+  const handleToggleAvailability = async (id: string, newStatus: boolean) => {
+    try {
+      if (!isAdmin) {
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Vous n'avez pas les droits d'administration",
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('products')
+        .update({ is_available: newStatus })
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error toggling product availability:', error);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Impossible de modifier la disponibilité du produit: " + error.message,
+        });
+        return;
+      }
+
+      toast({
+        title: "Succès",
+        description: `Produit marqué comme ${newStatus ? 'disponible' : 'non disponible'}`,
+      });
+      
+      // Pas besoin d'appeler onProductsChange ici, car le changement en temps réel le fera
+    } catch (error) {
+      console.error('Unexpected error toggling product availability:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -198,5 +267,6 @@ export const useProductManager = (onProductsChange: () => void) => {
     handleProductCreate,
     handleProductUpdate,
     handleProductDelete,
+    handleToggleAvailability,
   };
 };

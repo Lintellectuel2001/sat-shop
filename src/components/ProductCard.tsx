@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import WishlistButton from "./wishlist/WishlistButton";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 interface ProductCardProps {
   id?: string;
@@ -13,9 +14,19 @@ interface ProductCardProps {
   rating: number;
   reviews: number;
   paymentLink?: string;
+  isAvailable?: boolean;
 }
 
-const ProductCard = ({ id = "1", name, price, image, rating, reviews, paymentLink }: ProductCardProps) => {
+const ProductCard = ({ 
+  id = "1", 
+  name, 
+  price, 
+  image, 
+  rating, 
+  reviews, 
+  paymentLink,
+  isAvailable = true
+}: ProductCardProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSharing, setIsSharing] = useState(false);
@@ -59,6 +70,10 @@ const ProductCard = ({ id = "1", name, price, image, rating, reviews, paymentLin
         .finally(() => setIsSharing(false));
     }
   };
+
+  if (!isAvailable) {
+    return null;
+  }
 
   return (
     <div 

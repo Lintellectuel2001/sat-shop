@@ -70,6 +70,24 @@
     animation-name: zoom-in;
   }
   
+  /* Styles pour les boutons de disponibilité */
+  .btn-availability-available {
+    @apply border-green-500 text-green-600 hover:bg-green-50;
+  }
+  
+  .btn-availability-unavailable {
+    @apply bg-red-500 text-white hover:bg-red-600;
+  }
+  
+  /* Styles pour les badges de disponibilité */
+  .badge-available {
+    @apply bg-green-500 text-white;
+  }
+  
+  .badge-unavailable {
+    @apply bg-red-500 text-white;
+  }
+  
   @keyframes fade-in {
     from {
       opacity: 0;
