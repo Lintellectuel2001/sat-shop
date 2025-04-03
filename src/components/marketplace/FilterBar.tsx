@@ -20,7 +20,7 @@ const FilterBar = ({ productsCount, category, setCategory, sortOrder, setSortOrd
           <SelectTrigger className="w-[180px] bg-white">
             <SelectValue placeholder="Catégories" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             <SelectItem value="all">Toutes les catégories</SelectItem>
             <SelectItem value="iptv">IPTV</SelectItem>
             <SelectItem value="sharing">Sharing</SelectItem>
@@ -33,7 +33,7 @@ const FilterBar = ({ productsCount, category, setCategory, sortOrder, setSortOrd
         <SelectTrigger className="w-[180px] bg-white">
           <SelectValue placeholder="Trier par" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white">
           <SelectItem value="newest">Plus récents</SelectItem>
           <SelectItem value="price-asc">Prix croissant</SelectItem>
           <SelectItem value="price-desc">Prix décroissant</SelectItem>
