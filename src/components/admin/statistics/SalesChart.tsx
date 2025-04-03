@@ -1,7 +1,20 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import { 
+  Bar, 
+  BarChart, 
+  ResponsiveContainer, 
+  XAxis, 
+  YAxis, 
+  Tooltip, 
+  CartesianGrid 
+} from "recharts";
+import { 
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent
+} from "@/components/ui/chart";
 
 interface SalesData {
   name: string;
@@ -19,7 +32,14 @@ const SalesChart = ({ salesData }: SalesChartProps) => {
         <CardTitle className="text-2xl font-bold text-primary">Aperçu des Ventes</CardTitle>
       </CardHeader>
       <CardContent className="pl-0">
-        <ResponsiveContainer width="100%" height={350}>
+        <ChartContainer 
+          config={{
+            sales: {
+              color: "#8B5CF6"
+            }
+          }}
+          className="h-[350px] w-full"
+        >
           <BarChart data={salesData}>
             <defs>
               <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
@@ -42,15 +62,34 @@ const SalesChart = ({ salesData }: SalesChartProps) => {
               axisLine={false}
               tickFormatter={(value) => `${value}`}
             />
-            <Tooltip
-              contentStyle={{
-                background: "#FFFFFF",
-                border: "none",
-                borderRadius: "8px",
-                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
+            <ChartTooltip
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  return (
+                    <div className="rounded-lg border bg-background p-2 shadow-sm">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex flex-col">
+                          <span className="text-[0.70rem] uppercase text-muted-foreground">
+                            Période
+                          </span>
+                          <span className="font-bold text-sm">
+                            {payload[0].payload.name}
+                          </span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[0.70rem] uppercase text-muted-foreground">
+                            Ventes
+                          </span>
+                          <span className="font-bold text-sm">
+                            {payload[0].value}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                }
+                return null
               }}
-              labelStyle={{ color: "#1A1F2C", fontWeight: "bold" }}
-              itemStyle={{ color: "#8B5CF6" }}
             />
             <Bar
               dataKey="sales"
@@ -59,7 +98,7 @@ const SalesChart = ({ salesData }: SalesChartProps) => {
               barSize={40}
             />
           </BarChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </CardContent>
     </Card>
   );
