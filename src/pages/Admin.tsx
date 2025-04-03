@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Home } from 'lucide-react'; // Import the Home icon
-import { Button } from "@/components/ui/button"; // Import Button component
+import { Home, LayoutDashboard } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 import ProductManager from '@/components/admin/ProductManager';
 import SlideManager from '@/components/admin/SlideManager';
 import SiteSettingsManager from '@/components/admin/settings/SiteSettingsManager';
@@ -90,51 +90,64 @@ const Admin = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Panneau d'Administration | Dashboard</h1>
-        <Button variant="outline" asChild>
-          <Link to="/" className="flex items-center">
-            <Home className="mr-2 h-4 w-4" />
-            Retour à l'accueil
-          </Link>
-        </Button>
-      </div>
-      
-      <Tabs defaultValue="statistics">
-        <TabsList className="mb-6">
-          <TabsTrigger value="statistics">Statistiques</TabsTrigger>
-          <TabsTrigger value="products">Produits</TabsTrigger>
-          <TabsTrigger value="slides">Diaporama</TabsTrigger>
-          <TabsTrigger value="promo">Codes Promo</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
-          <TabsTrigger value="settings">Gestion Logo</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="statistics">
-          <StatisticsPanel />
-        </TabsContent>
-
-        <TabsContent value="products">
-          <ProductManager products={products} onProductsChange={fetchProducts} />
-        </TabsContent>
-
-        <TabsContent value="slides">
-          <SlideManager slides={slides} onSlidesChange={fetchSlides} />
-        </TabsContent>
-
-        <TabsContent value="promo">
-          <PromoCodeManager />
-        </TabsContent>
+    <div className="min-h-screen bg-gradient-to-br from-white to-secondary/10">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div className="flex items-center">
+            <div className="bg-accent/10 p-3 rounded-lg mr-4">
+              <LayoutDashboard className="h-6 w-6 text-accent" />
+            </div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Administration
+            </h1>
+          </div>
+          <Button variant="outline" asChild className="shadow-sm border-accent/20 hover:bg-accent/5">
+            <Link to="/" className="flex items-center">
+              <Home className="mr-2 h-4 w-4" />
+              Retour à l'accueil
+            </Link>
+          </Button>
+        </div>
         
-        <TabsContent value="notifications">
-          <MarketingNotificationManager />
-        </TabsContent>
+        <div className="bg-white rounded-xl shadow-elegant p-6 mb-8">
+          <Tabs defaultValue="statistics" className="w-full">
+            <TabsList className="mb-6 w-full justify-start overflow-x-auto flex-nowrap whitespace-nowrap bg-secondary/50 p-1 rounded-lg">
+              <TabsTrigger value="statistics" className="data-[state=active]:bg-white data-[state=active]:text-accent">Statistiques</TabsTrigger>
+              <TabsTrigger value="products" className="data-[state=active]:bg-white data-[state=active]:text-accent">Produits</TabsTrigger>
+              <TabsTrigger value="slides" className="data-[state=active]:bg-white data-[state=active]:text-accent">Diaporama</TabsTrigger>
+              <TabsTrigger value="promo" className="data-[state=active]:bg-white data-[state=active]:text-accent">Codes Promo</TabsTrigger>
+              <TabsTrigger value="notifications" className="data-[state=active]:bg-white data-[state=active]:text-accent">Notifications</TabsTrigger>
+              <TabsTrigger value="settings" className="data-[state=active]:bg-white data-[state=active]:text-accent">Gestion Logo</TabsTrigger>
+            </TabsList>
 
-        <TabsContent value="settings">
-          <SiteSettingsManager />
-        </TabsContent>
-      </Tabs>
+            <div className="mt-4">
+              <TabsContent value="statistics">
+                <StatisticsPanel />
+              </TabsContent>
+
+              <TabsContent value="products">
+                <ProductManager products={products} onProductsChange={fetchProducts} />
+              </TabsContent>
+
+              <TabsContent value="slides">
+                <SlideManager slides={slides} onSlidesChange={fetchSlides} />
+              </TabsContent>
+
+              <TabsContent value="promo">
+                <PromoCodeManager />
+              </TabsContent>
+              
+              <TabsContent value="notifications">
+                <MarketingNotificationManager />
+              </TabsContent>
+
+              <TabsContent value="settings">
+                <SiteSettingsManager />
+              </TabsContent>
+            </div>
+          </Tabs>
+        </div>
+      </div>
     </div>
   );
 };
