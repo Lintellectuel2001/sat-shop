@@ -1,6 +1,5 @@
 
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 
 const categories = [
@@ -10,16 +9,14 @@ const categories = [
   { name: "Tous", icon: "🛒", value: "all" },
 ];
 
-const CategoryNav = () => {
-  const navigate = useNavigate();
+interface CategoryNavProps {
+  initialCategory?: string;
+  onCategoryChange: (category: string) => void;
+}
 
+const CategoryNav = ({ initialCategory = "all", onCategoryChange }: CategoryNavProps) => {
   const handleCategoryClick = (categoryValue: string) => {
-    if (categoryValue === "all") {
-      // For "all" category, don't add a parameter
-      navigate(`/marketplace`);
-    } else {
-      navigate(`/marketplace?category=${categoryValue}`);
-    }
+    onCategoryChange(categoryValue);
   };
 
   return (
@@ -28,7 +25,11 @@ const CategoryNav = () => {
         <button
           key={category.name}
           onClick={() => handleCategoryClick(category.value)}
-          className="group p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center justify-center space-y-2"
+          className={`group p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center justify-center space-y-2 ${
+            initialCategory === category.value 
+              ? "bg-primary/10 border-2 border-primary" 
+              : "bg-white"
+          }`}
         >
           <span className="text-3xl">{category.icon}</span>
           <div className="flex items-center space-x-1">

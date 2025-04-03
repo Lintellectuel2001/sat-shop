@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 import MarketplaceHeader from '@/components/marketplace/MarketplaceHeader';
 import FilterBar from '@/components/marketplace/FilterBar';
 import ProductGrid from '@/components/marketplace/ProductGrid';
+import CategoryNav from "@/components/CategoryNav";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -13,7 +14,7 @@ const Marketplace = () => {
   const [sortOrder, setSortOrder] = useState("newest");
   const [category, setCategory] = useState("all");
   const { toast } = useToast();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Initialize category from URL parameter if available
   useEffect(() => {
@@ -77,9 +78,22 @@ const Marketplace = () => {
     fetchProducts();
   }, [category, sortOrder, toast]);
 
-  // Handle category change
+  // Handle category change and update URL
   const handleCategoryChange = (newCategory: string) => {
     setCategory(newCategory);
+    
+    // Update URL with the new category
+    if (newCategory === "all") {
+      setSearchParams(params => {
+        params.delete('category');
+        return params;
+      });
+    } else {
+      setSearchParams(params => {
+        params.set('category', newCategory);
+        return params;
+      });
+    }
   };
 
   return (
@@ -88,6 +102,9 @@ const Marketplace = () => {
       
       <main className="container mx-auto px-4 pt-32 pb-16">
         <MarketplaceHeader />
+        <div className="mb-8">
+          <CategoryNav initialCategory={category} onCategoryChange={handleCategoryChange} />
+        </div>
         <FilterBar 
           productsCount={products.length}
           category={category}
