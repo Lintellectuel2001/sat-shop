@@ -63,8 +63,6 @@ const UserTable = ({ users, onToggleAdmin, onDeleteUser, refreshUsers }: UserTab
   const getInitials = (user: UserData) => {
     if (user.profile?.full_name) {
       return user.profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase();
-    } else if (user.user_metadata?.full_name) {
-      return user.user_metadata.full_name.split(' ').map(n => n[0]).join('').toUpperCase();
     } else if (user.email) {
       return user.email.substring(0, 2).toUpperCase();
     }
@@ -98,7 +96,7 @@ const UserTable = ({ users, onToggleAdmin, onDeleteUser, refreshUsers }: UserTab
   };
 
   const userName = (user: UserData) => {
-    return user.profile?.full_name || user.user_metadata?.full_name || 'Utilisateur';
+    return user.profile?.full_name || 'Utilisateur';
   };
 
   return (
