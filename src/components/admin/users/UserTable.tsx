@@ -12,42 +12,52 @@ import {
   TableRow 
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { 
-  Crown, 
-  Shield, 
-  CalendarDays,
-  Clock,
-  Mail,
-  Phone,
-  MapPin
-} from 'lucide-react';
 import { UserData } from './UserManager';
-import { Switch } from '@/components/ui/switch';
-import {
+import { 
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Switch } from '@/components/ui/switch';
+import { Mail, Phone, MapPin, CalendarDays, Clock, Shield, UserCog, Trash2, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface UserTableProps {
   users: UserData[];
   onToggleAdmin: (userId: string, isCurrentlyAdmin: boolean) => Promise<void>;
+  onDeleteUser: (userId: string) => Promise<void>;
   refreshUsers: () => Promise<void>;
 }
 
-const UserTable = ({ users, onToggleAdmin, refreshUsers }: UserTableProps) => {
+const UserTable = ({ users, onToggleAdmin, onDeleteUser, refreshUsers }: UserTableProps) => {
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+  const [userToDelete, setUserToDelete] = useState<UserData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Jamais';
-    return format(new Date(dateString), 'dd MMMM yyyy à HH:mm', { locale: fr });
+    try {
+      return format(new Date(dateString), 'dd MMMM yyyy à HH:mm', { locale: fr });
+    } catch (error) {
+      console.error("Erreur de formatage de date:", error);
+      return 'Date invalide';
+    }
   };
 
   const getInitials = (user: UserData) => {
@@ -61,42 +71,46 @@ const UserTable = ({ users, onToggleAdmin, refreshUsers }: UserTableProps) => {
     return 'U';
   };
 
-  const handleDeleteUser = async (userId: string) => {
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+    
+    setIsLoading(true);
     try {
-      if (!confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.")) {
-        return;
-      }
-
-      const { error } = await supabase.auth.admin.deleteUser(userId);
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Utilisateur supprimé",
-        description: "L'utilisateur a été supprimé avec succès",
-      });
-      
-      await refreshUsers();
-    } catch (error: any) {
-      console.error("Erreur lors de la suppression de l'utilisateur:", error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: error.message || "Impossible de supprimer l'utilisateur",
-      });
+      await onDeleteUser(userToDelete.id);
+      setUserToDelete(null);
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const handleToggleAdmin = async (userId: string, isAdmin: boolean) => {
+    setIsLoading(true);
+    try {
+      await onToggleAdmin(userId, isAdmin);
+    } catch (error) {
+      console.error("Erreur lors du changement de statut:", error);
+    } finally {
+      setIsLoading(false);
+      setSelectedUser(null);
+    }
+  };
+
+  const userName = (user: UserData) => {
+    return user.profile?.full_name || user.user_metadata?.full_name || 'Utilisateur';
   };
 
   return (
     <>
       <Table>
-        <TableCaption>Liste des utilisateurs inscrits ({users.length})</TableCaption>
+        <TableCaption>{users.length} utilisateurs enregistrés</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>Utilisateur</TableHead>
             <TableHead>Email</TableHead>
-            <TableHead>Inscrit le</TableHead>
-            <TableHead>Dernière connexion</TableHead>
+            <TableHead className="hidden md:table-cell">Inscrit le</TableHead>
+            <TableHead className="hidden md:table-cell">Dernière connexion</TableHead>
             <TableHead>Rôle</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -109,43 +123,60 @@ const UserTable = ({ users, onToggleAdmin, refreshUsers }: UserTableProps) => {
                   <Avatar className="h-8 w-8 bg-primary/10">
                     <AvatarFallback className="text-xs">{getInitials(user)}</AvatarFallback>
                   </Avatar>
-                  <span>{user.profile?.full_name || user.user_metadata?.full_name || 'Utilisateur'}</span>
+                  <span className="hidden md:inline">{userName(user)}</span>
                 </div>
               </TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>{formatDate(user.created_at)}</TableCell>
-              <TableCell>{formatDate(user.last_sign_in_at)}</TableCell>
+              <TableCell className="max-w-[160px] truncate" title={user.email}>
+                {user.email}
+              </TableCell>
+              <TableCell className="hidden md:table-cell">
+                {formatDate(user.created_at)}
+              </TableCell>
+              <TableCell className="hidden md:table-cell">
+                {formatDate(user.last_sign_in_at)}
+              </TableCell>
               <TableCell>
                 {user.is_admin ? (
-                  <Badge variant="default" className="bg-amber-500 hover:bg-amber-600">
-                    <Crown className="mr-1 h-3 w-3" /> Admin
+                  <Badge className="bg-amber-500 hover:bg-amber-600">
+                    <Shield className="h-3 w-3 mr-1" />
+                    Admin
                   </Badge>
                 ) : (
                   <Badge variant="outline">
-                    <Shield className="mr-1 h-3 w-3" /> Utilisateur
+                    <User className="h-3 w-3 mr-1" />
+                    Utilisateur
                   </Badge>
                 )}
               </TableCell>
               <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
+                <div className="flex items-center justify-end gap-2">
                   <Button 
-                    variant="outline" 
-                    size="sm"
+                    variant="ghost" 
+                    size="icon"
                     onClick={() => setSelectedUser(user)}
+                    title="Détails"
                   >
-                    Détails
+                    <UserCog className="h-4 w-4" />
                   </Button>
                   <Button 
-                    variant="destructive" 
-                    size="sm"
-                    onClick={() => handleDeleteUser(user.id)}
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => setUserToDelete(user)}
+                    title="Supprimer"
                   >
-                    Supprimer
+                    <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 </div>
               </TableCell>
             </TableRow>
           ))}
+          {users.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={6} className="h-24 text-center">
+                Aucun utilisateur trouvé
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
 
@@ -160,19 +191,19 @@ const UserTable = ({ users, onToggleAdmin, refreshUsers }: UserTableProps) => {
             </DialogHeader>
             
             <div className="space-y-4 py-4">
-              <div className="flex flex-col items-center gap-4 mb-6">
+              <div className="flex flex-col items-center gap-4">
                 <Avatar className="h-20 w-20 bg-primary/10">
                   <AvatarFallback className="text-2xl">{getInitials(selectedUser)}</AvatarFallback>
                 </Avatar>
                 <h3 className="text-xl font-medium">
-                  {selectedUser.profile?.full_name || selectedUser.user_metadata?.full_name || 'Utilisateur'}
+                  {userName(selectedUser)}
                 </h3>
               </div>
               
-              <div className="grid gap-3">
+              <div className="grid gap-3 mt-4">
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span>{selectedUser.email}</span>
+                  <span className="break-all">{selectedUser.email}</span>
                 </div>
                 
                 {selectedUser.profile?.phone && (
@@ -205,22 +236,59 @@ const UserTable = ({ users, onToggleAdmin, refreshUsers }: UserTableProps) => {
                   <div>
                     <h4 className="font-semibold">Droits d'administration</h4>
                     <p className="text-sm text-muted-foreground">
-                      Activer/désactiver les droits d'administration pour cet utilisateur
+                      {selectedUser.is_admin 
+                        ? "Retirer les droits d'administration"
+                        : "Donner les droits d'administration"}
                     </p>
                   </div>
                   <Switch 
                     checked={selectedUser.is_admin}
-                    onCheckedChange={async (checked) => {
-                      await onToggleAdmin(selectedUser.id, selectedUser.is_admin);
-                      setSelectedUser(null);
+                    disabled={isLoading}
+                    onCheckedChange={(checked) => {
+                      handleToggleAdmin(selectedUser.id, selectedUser.is_admin);
                     }}
                   />
                 </div>
               </div>
             </div>
+            
+            <DialogFooter className="sm:justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setSelectedUser(null)}
+              >
+                Fermer
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       )}
+
+      <AlertDialog open={!!userToDelete} onOpenChange={(open) => !open && setUserToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer cet utilisateur ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action est irréversible. Cela supprimera définitivement le compte
+              {userToDelete && <strong className="mx-1">{userToDelete.email}</strong>}
+              et toutes ses données associées.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isLoading}>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleDeleteUser();
+              }}
+              disabled={isLoading}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {isLoading ? "Suppression..." : "Supprimer"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

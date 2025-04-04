@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import UserTable from './UserTable';
 import UserHeader from './UserHeader';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export interface UserData {
   id: string;
@@ -25,11 +26,13 @@ export interface UserData {
 const UserManager = () => {
   const [users, setUsers] = useState<UserData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
+      setError(null);
       
       // Récupérer les utilisateurs depuis auth.users
       const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
@@ -73,7 +76,7 @@ const UserManager = () => {
         id: user.id,
         email: user.email,
         created_at: user.created_at,
-        last_sign_in_at: user.last_sign_in_at,
+        last_sign_in_at: user.last_sign_at || user.last_sign_in_at,
         user_metadata: user.user_metadata,
         is_admin: adminSet.has(user.id),
         profile: profileMap.get(user.id)
@@ -82,6 +85,7 @@ const UserManager = () => {
       setUsers(formattedUsers);
     } catch (error: any) {
       console.error("Erreur lors de la récupération des utilisateurs:", error);
+      setError(error.message || "Impossible de charger les utilisateurs");
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -92,9 +96,29 @@ const UserManager = () => {
     }
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const deleteUser = async (userId: string) => {
+    try {
+      // Supprimer l'utilisateur via l'API Supabase Admin
+      const { error } = await supabase.auth.admin.deleteUser(userId);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Utilisateur supprimé",
+        description: "L'utilisateur a été supprimé avec succès",
+      });
+      
+      // Rafraîchir la liste après suppression
+      await fetchUsers();
+    } catch (error: any) {
+      console.error("Erreur lors de la suppression de l'utilisateur:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: error.message || "Impossible de supprimer l'utilisateur",
+      });
+    }
+  };
 
   const toggleAdminStatus = async (userId: string, isCurrentlyAdmin: boolean) => {
     try {
@@ -137,21 +161,63 @@ const UserManager = () => {
     }
   };
 
+  useEffect(() => {
+    fetchUsers();
+    
+    // Setup pour les évènements en temps réel afin de mettre à jour la liste quand les profils changent
+    const channel = supabase
+      .channel('table-db-changes')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'profiles',
+      }, () => {
+        fetchUsers();
+      })
+      .on('postgres_changes', {
+        event: '*', 
+        schema: 'public',
+        table: 'admin_users',
+      }, () => {
+        fetchUsers();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   return (
     <div className="space-y-6">
       <UserHeader refreshUsers={fetchUsers} />
       
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Erreur</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
       {isLoading ? (
-        <div className="flex justify-center items-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-accent" />
-          <span className="ml-2 text-accent">Chargement des utilisateurs...</span>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 text-primary animate-spin" />
+          <span className="ml-3 text-lg font-medium">Chargement des utilisateurs...</span>
         </div>
       ) : (
         <UserTable 
           users={users} 
           onToggleAdmin={toggleAdminStatus}
+          onDeleteUser={deleteUser}
           refreshUsers={fetchUsers}
         />
+      )}
+
+      {!isLoading && users.length === 0 && !error && (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Aucun utilisateur trouvé</p>
+        </div>
       )}
     </div>
   );
