@@ -25,14 +25,17 @@ import {
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tables } from '@/integrations/supabase/types';
 
-interface Backup {
-  id: string;
-  created_at: string;
-  name: string;
-  description?: string;
-  data: any;
-  size?: number;
+// Updated Backup interface to match Supabase table structure
+interface Backup extends Tables<'backups'>['Row'] {
+  data: {
+    products?: any[];
+    slides?: any[];
+    settings?: any[];
+    timestamp?: string;
+    version?: string;
+  };
 }
 
 const BackupManager = () => {
@@ -59,7 +62,9 @@ const BackupManager = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setBackups(data || []);
+      
+      // Type assertion to ensure data matches Backup interface
+      setBackups(data as Backup[]);
     } catch (error: any) {
       console.error('Erreur lors de la récupération des sauvegardes:', error);
       toast({

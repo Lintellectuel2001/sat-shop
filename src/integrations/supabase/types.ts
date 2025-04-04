@@ -24,6 +24,36 @@ export type Database = {
         }
         Relationships: []
       }
+      backups: {
+        Row: {
+          created_at: string
+          data: Json
+          description: string | null
+          id: string
+          name: string
+          size: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          description?: string | null
+          id?: string
+          name: string
+          size?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          description?: string | null
+          id?: string
+          name?: string
+          size?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cart_history: {
         Row: {
           action_type: string
