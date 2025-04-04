@@ -50,7 +50,7 @@ const PeriodFilter = ({
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="end">
-            <CalendarComponent initialFocus mode="range" defaultMonth={dateRange?.from} selected={dateRange} onSelect={setDateRange} numberOfMonths={2} locale={fr} className="bg-gray-50" />
+            <CalendarComponent initialFocus mode="range" defaultMonth={dateRange?.from} selected={dateRange} onSelect={setDateRange} numberOfMonths={2} locale={fr} className="bg-gray-50 rounded-full" />
           </PopoverContent>
         </Popover>}
     </div>;
