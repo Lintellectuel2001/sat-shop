@@ -13,9 +13,6 @@ export interface UserData {
   created_at: string;
   last_sign_in_at: string | null;
   is_admin: boolean;
-  user_metadata?: {
-    full_name?: string;
-  };
   profile?: {
     full_name: string | null;
     phone: string | null;
@@ -34,20 +31,13 @@ const UserManager = () => {
       setIsLoading(true);
       setError(null);
       
-      // Récupérer les utilisateurs depuis auth.users
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-      
-      if (authError) {
-        throw authError;
-      }
-
       // Récupérer les profils depuis la table publique
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('*');
+        .select('id, email, full_name, phone, address, created_at, updated_at');
       
       if (profilesError) {
-        console.error("Erreur lors de la récupération des profils:", profilesError);
+        throw profilesError;
       }
 
       // Récupérer la liste des administrateurs
@@ -59,27 +49,24 @@ const UserManager = () => {
         console.error("Erreur lors de la récupération des administrateurs:", adminError);
       }
 
-      // Créer un map pour les profils pour faciliter l'accès
-      const profileMap = new Map();
-      profiles?.forEach(profile => {
-        profileMap.set(profile.id, profile);
-      });
-
       // Créer un set pour les administrateurs
       const adminSet = new Set();
       adminUsers?.forEach(admin => {
         adminSet.add(admin.id);
       });
 
-      // Combiner les données
-      const formattedUsers = authUsers?.users.map(user => ({
-        id: user.id,
-        email: user.email,
-        created_at: user.created_at,
-        last_sign_in_at: user.last_sign_at || user.last_sign_in_at,
-        user_metadata: user.user_metadata,
-        is_admin: adminSet.has(user.id),
-        profile: profileMap.get(user.id)
+      // Formater les données des utilisateurs
+      const formattedUsers = profiles?.map(profile => ({
+        id: profile.id,
+        email: profile.email || 'Email non disponible',
+        created_at: profile.created_at,
+        last_sign_in_at: null, // Cette information n'est pas disponible dans les profils
+        is_admin: adminSet.has(profile.id),
+        profile: {
+          full_name: profile.full_name,
+          phone: profile.phone,
+          address: profile.address
+        }
       })) || [];
 
       setUsers(formattedUsers);
@@ -98,24 +85,28 @@ const UserManager = () => {
 
   const deleteUser = async (userId: string) => {
     try {
-      // Supprimer l'utilisateur via l'API Supabase Admin
-      const { error } = await supabase.auth.admin.deleteUser(userId);
+      // Nous ne pouvons pas supprimer l'utilisateur directement, nous supprimons seulement son profil
+      // Note: Dans la pratique, vous auriez besoin d'une fonction edge ou d'une fonction cloud pour supprimer l'utilisateur
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
       
       if (error) throw error;
       
       toast({
-        title: "Utilisateur supprimé",
-        description: "L'utilisateur a été supprimé avec succès",
+        title: "Profil supprimé",
+        description: "Le profil de l'utilisateur a été supprimé avec succès",
       });
       
       // Rafraîchir la liste après suppression
       await fetchUsers();
     } catch (error: any) {
-      console.error("Erreur lors de la suppression de l'utilisateur:", error);
+      console.error("Erreur lors de la suppression du profil:", error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: error.message || "Impossible de supprimer l'utilisateur",
+        description: error.message || "Impossible de supprimer le profil",
       });
     }
   };
