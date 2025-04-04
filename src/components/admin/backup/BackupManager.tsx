@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -28,7 +27,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tables } from '@/integrations/supabase/types';
 
 // Updated Backup interface to match Supabase table structure
-interface Backup extends Tables<'backups'>['Row'] {
+interface Backup extends Tables<'backups'> {
   data: {
     products?: any[];
     slides?: any[];
@@ -64,7 +63,7 @@ const BackupManager = () => {
       if (error) throw error;
       
       // Type assertion to ensure data matches Backup interface
-      setBackups(data as Backup[]);
+      setBackups(data as unknown as Backup[]);
     } catch (error: any) {
       console.error('Erreur lors de la récupération des sauvegardes:', error);
       toast({
