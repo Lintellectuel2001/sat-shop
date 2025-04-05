@@ -502,33 +502,39 @@ export type Database = {
       }
       slides: {
         Row: {
-          color: string
+          blur_image: boolean | null
+          color: string | null
           created_at: string
           description: string | null
           id: string
           image: string
+          is_4k_wallpaper: boolean | null
           order: number
           text_color: string | null
           title: string
           updated_at: string
         }
         Insert: {
-          color: string
+          blur_image?: boolean | null
+          color?: string | null
           created_at?: string
           description?: string | null
           id?: string
           image: string
+          is_4k_wallpaper?: boolean | null
           order?: number
           text_color?: string | null
           title: string
           updated_at?: string
         }
         Update: {
-          color?: string
+          blur_image?: boolean | null
+          color?: string | null
           created_at?: string
           description?: string | null
           id?: string
           image?: string
+          is_4k_wallpaper?: boolean | null
           order?: number
           text_color?: string | null
           title?: string
