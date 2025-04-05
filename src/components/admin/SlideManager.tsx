@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -19,9 +20,11 @@ interface Slide {
   title: string;
   description?: string;
   image: string;
-  color: string;
+  color?: string;
   text_color?: string;
   order: number;
+  blur_image?: boolean;
+  is_4k_wallpaper?: boolean;
 }
 
 interface SlideManagerProps {
@@ -34,17 +37,18 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
     id: '',
     title: '',
     description: '',
-    color: '',
     image: '',
     text_color: 'text-white',
     order: 0,
+    blur_image: false,
+    is_4k_wallpaper: false,
   });
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const handleSlideCreate = async () => {
-    if (!newSlide.title || !newSlide.color || !newSlide.image) {
+    if (!newSlide.title || !newSlide.image) {
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -60,10 +64,11 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
         .insert([{
           title: newSlide.title,
           description: newSlide.description,
-          color: newSlide.color,
           image: newSlide.image,
           text_color: newSlide.text_color,
-          order: newSlide.order
+          order: newSlide.order,
+          blur_image: newSlide.blur_image,
+          is_4k_wallpaper: newSlide.is_4k_wallpaper
         }]);
 
       if (error) throw error;
@@ -78,10 +83,11 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
         id: '',
         title: '',
         description: '',
-        color: '',
         image: '',
         text_color: 'text-white',
         order: 0,
+        blur_image: false,
+        is_4k_wallpaper: false,
       });
       setIsCreateDialogOpen(false);
     } catch (error: any) {
@@ -97,7 +103,7 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
   };
 
   const handleSlideUpdate = async (updatedSlide: Slide) => {
-    if (!updatedSlide.title || !updatedSlide.color || !updatedSlide.image) {
+    if (!updatedSlide.title || !updatedSlide.image) {
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -113,10 +119,11 @@ const SlideManager = ({ slides, onSlidesChange }: SlideManagerProps) => {
         .update({
           title: updatedSlide.title,
           description: updatedSlide.description,
-          color: updatedSlide.color,
           image: updatedSlide.image,
           text_color: updatedSlide.text_color,
-          order: updatedSlide.order
+          order: updatedSlide.order,
+          blur_image: updatedSlide.blur_image,
+          is_4k_wallpaper: updatedSlide.is_4k_wallpaper
         })
         .eq('id', updatedSlide.id);
 

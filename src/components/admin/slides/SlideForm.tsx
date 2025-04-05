@@ -5,19 +5,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { handleImageUpload } from "@/utils/fileUpload";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
+import { Loader2, Image, ImageOff, Wallpaper } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 
 interface SlideFormProps {
   slide: {
     title: string;
     description?: string;
     image: string;
-    color: string;
     text_color?: string;
     order: number;
+    blur_image?: boolean;
+    is_4k_wallpaper?: boolean;
   };
-  onSlideChange: (field: string, value: string | number) => void;
+  onSlideChange: (field: string, value: string | number | boolean) => void;
   onSubmit: () => void;
   submitLabel: string;
   isLoading: boolean;
@@ -29,16 +31,6 @@ const textColorOptions = [
   { value: 'text-primary', label: 'Principal' },
   { value: 'text-accent', label: 'Accent' },
   { value: 'text-muted-foreground', label: 'Gris' },
-];
-
-const colorOptions = [
-  { value: 'from-purple-500', label: 'Violet' },
-  { value: 'from-blue-500', label: 'Bleu' },
-  { value: 'from-green-500', label: 'Vert' },
-  { value: 'from-red-500', label: 'Rouge' },
-  { value: 'from-yellow-500', label: 'Jaune' },
-  { value: 'from-pink-500', label: 'Rose' },
-  { value: 'from-accent', label: 'Accent' },
 ];
 
 const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: SlideFormProps) => {
@@ -109,24 +101,39 @@ const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: S
       </div>
 
       <div className="space-y-2">
-        <Label>Couleur du fond *</Label>
-        <RadioGroup
-          value={slide.color}
-          onValueChange={(value) => onSlideChange('color', value)}
-          className="flex flex-wrap gap-4"
-        >
-          {colorOptions.map((option) => (
-            <div key={option.value} className="flex items-center space-x-2">
-              <RadioGroupItem value={option.value} id={option.value} />
-              <Label 
-                htmlFor={option.value} 
-                className={`px-2 py-1 rounded ${option.value} to-transparent bg-gradient-to-r text-white`}
-              >
-                {option.label}
-              </Label>
-            </div>
-          ))}
-        </RadioGroup>
+        <Label>Type d'image</Label>
+        <div className="flex items-center space-x-2 py-2">
+          <Switch
+            checked={slide.blur_image}
+            onCheckedChange={(checked) => onSlideChange('blur_image', checked)}
+            id="blur-image"
+          />
+          <Label htmlFor="blur-image" className="cursor-pointer flex items-center">
+            {slide.blur_image ? (
+              <><ImageOff className="h-4 w-4 mr-2" /> Image floutée</>
+            ) : (
+              <><Image className="h-4 w-4 mr-2" /> Image normale</>
+            )}
+          </Label>
+        </div>
+      </div>
+      
+      <div className="space-y-2">
+        <Label>Fond d'écran 4K</Label>
+        <div className="flex items-center space-x-2 py-2">
+          <Switch
+            checked={slide.is_4k_wallpaper}
+            onCheckedChange={(checked) => onSlideChange('is_4k_wallpaper', checked)}
+            id="is-4k"
+          />
+          <Label htmlFor="is-4k" className="cursor-pointer flex items-center">
+            <Wallpaper className="h-4 w-4 mr-2" />
+            {slide.is_4k_wallpaper ? 'Fond d\'écran 4K' : 'Image standard'}
+          </Label>
+        </div>
+        {slide.is_4k_wallpaper && (
+          <p className="text-sm text-gray-500">Chargez une image haute résolution (3840×2160 ou supérieure)</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -155,16 +162,17 @@ const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: S
       </div>
 
       {imagePreview && (
-        <div className="mt-4 relative">
-          <div className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent opacity-60 rounded-lg`} />
-          <div className={`relative z-10 p-4 ${slide.text_color || 'text-white'}`}>
-            <h3 className="text-xl font-semibold">{slide.title}</h3>
-            {slide.description && <p className="mt-2">{slide.description}</p>}
+        <div className="mt-4 relative rounded-lg overflow-hidden">
+          <div className="relative z-10 p-4 text-center bg-black/30 backdrop-blur-sm">
+            <h3 className={`text-xl font-semibold ${slide.text_color || 'text-white'}`}>{slide.title}</h3>
+            {slide.description && (
+              <p className={`mt-2 ${slide.text_color || 'text-white'}`}>{slide.description}</p>
+            )}
           </div>
           <img 
             src={imagePreview} 
             alt="Aperçu" 
-            className="w-full h-48 object-cover rounded-lg -z-10"
+            className={`w-full h-48 object-cover ${slide.blur_image ? 'blur-sm' : ''}`}
           />
         </div>
       )}

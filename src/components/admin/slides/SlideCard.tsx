@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Image, ImageOff, Wallpaper } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +20,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import SlideForm from './SlideForm';
 
 interface Slide {
@@ -27,9 +28,11 @@ interface Slide {
   title: string;
   description?: string;
   image: string;
-  color: string;
+  color?: string;
   text_color?: string;
   order: number;
+  blur_image?: boolean;
+  is_4k_wallpaper?: boolean;
 }
 
 interface SlideCardProps {
@@ -54,12 +57,29 @@ const SlideCard = ({ slide, onEdit, onDelete, isLoading }: SlideCardProps) => {
         <div className="absolute top-2 right-2 z-10 bg-black/50 px-2 py-1 rounded text-white text-xs sm:text-sm">
           Ordre: {slide.order}
         </div>
+        
+        <div className="absolute top-2 left-2 z-10 flex gap-1">
+          {slide.blur_image && (
+            <Badge variant="secondary" className="flex items-center gap-1 bg-black/50 text-white">
+              <ImageOff className="h-3 w-3" />
+              <span className="text-xs">Floutée</span>
+            </Badge>
+          )}
+          
+          {slide.is_4k_wallpaper && (
+            <Badge variant="secondary" className="flex items-center gap-1 bg-black/50 text-white">
+              <Wallpaper className="h-3 w-3" />
+              <span className="text-xs">4K</span>
+            </Badge>
+          )}
+        </div>
+        
         <img 
           src={slide.image} 
           alt={slide.title} 
-          className="w-full h-full object-cover"
+          className={`w-full h-full object-cover ${slide.blur_image ? 'blur-sm' : ''}`}
         />
-        <div className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent opacity-60`} />
+        <div className="absolute inset-0 bg-black/30 backdrop-blur-sm opacity-60"></div>
         <div className={`absolute inset-0 p-2 sm:p-4 flex flex-col justify-end ${slide.text_color || 'text-white'}`}>
           <h3 className="font-semibold text-base sm:text-lg line-clamp-2">{slide.title}</h3>
           {slide.description && (
