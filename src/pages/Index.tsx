@@ -4,7 +4,7 @@ import Footer from "../components/Footer";
 import HeroSection from "../components/home/HeroSection";
 import NewsletterSection from "../components/home/NewsletterSection";
 import ProductsSection from "../components/home/ProductsSection";
-import { UserCog } from "lucide-react";
+import { UserCog, MessageCircleQuestion } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -27,7 +27,6 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import { WhatsApp } from "lucide-react";
 
 const Index = () => {
   const [accessCode, setAccessCode] = React.useState("");
@@ -81,7 +80,7 @@ const Index = () => {
   };
 
   const openWhatsAppChat = () => {
-    const phoneNumber = "213669254864"; // Numéro international avec le préfixe +213
+    const phoneNumber = "213669254864";
     const message = "Bonjour, j'ai une question concernant vos services Sat-shop.";
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
@@ -210,7 +209,7 @@ const Index = () => {
         className="fixed bottom-24 right-4 bg-[#25D366] text-white p-3 rounded-full shadow-lg hover:bg-[#1FAA59] transition-colors duration-300 z-50"
         aria-label="Contacter sur WhatsApp"
       >
-        <WhatsApp className="h-6 w-6" />
+        <MessageCircleQuestion className="h-6 w-6" />
       </button>
     </div>
   );
