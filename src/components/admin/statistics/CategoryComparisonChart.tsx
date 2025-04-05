@@ -22,6 +22,15 @@ interface CategoryComparisonChartProps {
 const COLORS = ['#8B5CF6', '#7C3AED', '#6D28D9', '#5B21B6', '#4C1D95', '#6366F1', '#4F46E5', '#4338CA'];
 
 const CategoryComparisonChart = ({ categoriesData }: CategoryComparisonChartProps) => {
+  // Add a check for empty data
+  if (!categoriesData || categoriesData.length === 0) {
+    return (
+      <div className="w-full h-[300px] flex items-center justify-center bg-gray-50 rounded-lg">
+        <p className="text-gray-500">Aucune donnée de catégorie disponible</p>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-[300px]">
       <ChartContainer 

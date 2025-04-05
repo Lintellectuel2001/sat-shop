@@ -61,11 +61,17 @@ export const useAdminCheck = () => {
           return;
         }
 
+        // Add console.log to debug user session info
+        console.log('User session:', session.user);
+
         const { data: adminData, error: adminError } = await supabase
           .from('admin_users')
           .select('id')
           .eq('id', session.user.id)
           .maybeSingle();
+        
+        // Add console.log to debug admin check
+        console.log('Admin check result:', { adminData, adminError });
 
         if (mounted) {
           if (adminError) {
