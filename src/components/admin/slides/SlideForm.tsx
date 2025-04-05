@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -158,7 +157,7 @@ const SlideForm = ({ slide, onSlideChange, onSubmit, submitLabel, isLoading }: S
             }
           }}
         />
-        <p className="text-sm text-gray-500">Format accepté: JPG, PNG, GIF (max 5MB)</p>
+        <p className="text-sm text-gray-500">Format accepté: JPG, PNG, GIF (max 8MB)</p>
       </div>
 
       {imagePreview && (

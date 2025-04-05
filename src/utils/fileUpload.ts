@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 export const handleImageUpload = async (file: File): Promise<string> => {
@@ -23,8 +24,9 @@ export const handleImageUpload = async (file: File): Promise<string> => {
     }
 
     console.log('Validating file');
-    if (file.size > 5 * 1024 * 1024) {
-      throw new Error("L'image ne doit pas dépasser 5MB");
+    // Updated to 8MB (8 * 1024 * 1024 bytes)
+    if (file.size > 8 * 1024 * 1024) {
+      throw new Error("L'image ne doit pas dépasser 8MB");
     }
 
     if (!file.type.startsWith('image/')) {
