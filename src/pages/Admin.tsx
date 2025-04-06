@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Home, LayoutDashboard, Users, Database } from 'lucide-react';
+import { Home, LayoutDashboard, Users, Database, Package, Activity } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import ProductManager from '@/components/admin/ProductManager';
 import SlideManager from '@/components/admin/SlideManager';
@@ -14,6 +14,7 @@ import PromoCodeManager from '@/components/admin/promo/PromoCodeManager';
 import MarketingNotificationManager from '@/components/admin/marketing/MarketingNotificationManager';
 import UserManager from '@/components/admin/users/UserManager';
 import BackupManager from '@/components/admin/backup/BackupManager';
+import OrderManager from '@/components/admin/orders/OrderManager';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
 
 interface Product {
@@ -143,12 +144,19 @@ const Admin = () => {
         <div className="bg-white rounded-xl shadow-elegant p-6 mb-8">
           <Tabs defaultValue="statistics" className="w-full">
             <TabsList className="mb-6 w-full justify-start overflow-x-auto flex-nowrap whitespace-nowrap bg-secondary/50 p-1 rounded-lg">
-              <TabsTrigger value="statistics" className="data-[state=active]:bg-white data-[state=active]:text-accent">Statistiques</TabsTrigger>
+              <TabsTrigger value="statistics" className="data-[state=active]:bg-white data-[state=active]:text-accent">
+                <Activity className="h-4 w-4 mr-1" />
+                Statistiques
+              </TabsTrigger>
               <TabsTrigger value="users" className="data-[state=active]:bg-white data-[state=active]:text-accent">
                 <Users className="h-4 w-4 mr-1" />
                 Utilisateurs
               </TabsTrigger>
               <TabsTrigger value="products" className="data-[state=active]:bg-white data-[state=active]:text-accent">Produits</TabsTrigger>
+              <TabsTrigger value="orders" className="data-[state=active]:bg-white data-[state=active]:text-accent">
+                <Package className="h-4 w-4 mr-1" />
+                Commandes
+              </TabsTrigger>
               <TabsTrigger value="slides" className="data-[state=active]:bg-white data-[state=active]:text-accent">Diaporama</TabsTrigger>
               <TabsTrigger value="promo" className="data-[state=active]:bg-white data-[state=active]:text-accent">Codes Promo</TabsTrigger>
               <TabsTrigger value="notifications" className="data-[state=active]:bg-white data-[state=active]:text-accent">Notifications</TabsTrigger>
@@ -170,6 +178,10 @@ const Admin = () => {
 
               <TabsContent value="products">
                 <ProductManager products={products} onProductsChange={fetchProducts} />
+              </TabsContent>
+
+              <TabsContent value="orders">
+                <OrderManager />
               </TabsContent>
 
               <TabsContent value="slides">
