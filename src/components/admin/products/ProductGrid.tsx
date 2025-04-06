@@ -1,15 +1,16 @@
 
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Pencil, Trash2, Check, X, Package, AlertTriangle } from "lucide-react";
+import { Pencil, Trash2, Check, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
-  DialogFooter,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -21,11 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import ProductForm from './ProductForm';
-import { Card } from "@/components/ui/card";
-import ProductCard from './ProductCard';
 
 interface Product {
   id: string;
@@ -37,10 +34,6 @@ interface Product {
   features?: string[];
   payment_link: string;
   is_available?: boolean;
-  is_physical?: boolean;
-  stock_quantity?: number;
-  stock_alert_threshold?: number;
-  purchase_price?: number;
 }
 
 interface ProductGridProps {
@@ -77,28 +70,6 @@ const ProductGrid = ({ products, onEdit, onDelete, onToggleAvailability }: Produ
     onToggleAvailability(id, !currentStatus);
   };
 
-  const handleProductChange = (field: string, value: string | boolean | number) => {
-    if (editingProduct) {
-      setEditingProduct({ 
-        ...editingProduct, 
-        [field]: value 
-      });
-    }
-  };
-
-  const getStockBadge = (product) => {
-    if (!product.is_physical) return null;
-    
-    if (!product.stock_quantity || product.stock_quantity === 0) {
-      return <Badge variant="destructive">Épuisé</Badge>;
-    } else if (product.stock_quantity && product.stock_alert_threshold && 
-               product.stock_quantity <= product.stock_alert_threshold) {
-      return <Badge variant="outline" className="bg-amber-500 text-white">Stock bas</Badge>;
-    } else {
-      return <Badge variant="outline" className="bg-green-500 text-white">En stock</Badge>;
-    }
-  };
-
   return (
     <div className="rounded-md border">
       <Table>
@@ -129,21 +100,10 @@ const ProductGrid = ({ products, onEdit, onDelete, onToggleAvailability }: Produ
                   >
                     {product.is_available ? 'Disponible' : 'Non Disponible'}
                   </Badge>
-                  
-                  {product.is_physical && (
-                    <div className="absolute -top-2 -right-2">
-                      {getStockBadge(product)}
-                    </div>
-                  )}
                 </div>
               </TableCell>
               <TableCell className="font-medium max-w-[200px] truncate">
-                <div className="flex items-center">
-                  {product.name}
-                  {product.is_physical && (
-                    <Package className="ml-2 h-4 w-4 text-muted-foreground" />
-                  )}
-                </div>
+                {product.name}
               </TableCell>
               <TableCell>{product.price}</TableCell>
               <TableCell>{product.category}</TableCell>
@@ -193,7 +153,9 @@ const ProductGrid = ({ products, onEdit, onDelete, onToggleAvailability }: Produ
                     {editingProduct && (
                       <ProductForm
                         product={editingProduct}
-                        onProductChange={handleProductChange}
+                        onProductChange={(field, value) => 
+                          setEditingProduct({ ...editingProduct, [field]: value })
+                        }
                         onSubmit={() => {
                           if (editingProduct) {
                             onEdit(editingProduct);
