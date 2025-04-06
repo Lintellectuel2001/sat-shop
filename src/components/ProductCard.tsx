@@ -1,5 +1,5 @@
 
-import { Star, Share2 } from "lucide-react";
+import { Star, Share2, Package, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import WishlistButton from "./wishlist/WishlistButton";
 import { useState } from "react";
@@ -15,6 +15,8 @@ interface ProductCardProps {
   reviews: number;
   paymentLink?: string;
   isAvailable?: boolean;
+  isPhysical?: boolean;
+  stockQuantity?: number;
 }
 
 const ProductCard = ({ 
@@ -25,7 +27,9 @@ const ProductCard = ({
   rating, 
   reviews, 
   paymentLink,
-  isAvailable = true
+  isAvailable = true,
+  isPhysical = false,
+  stockQuantity
 }: ProductCardProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -71,6 +75,28 @@ const ProductCard = ({
     }
   };
 
+  const getStockBadge = () => {
+    if (!isPhysical) return null;
+    
+    if (stockQuantity === 0) {
+      return (
+        <Badge variant="destructive" className="absolute top-2 left-2 flex items-center">
+          <AlertTriangle className="h-3 w-3 mr-1" />
+          Épuisé
+        </Badge>
+      );
+    } else if (stockQuantity && stockQuantity <= 5) {
+      return (
+        <Badge className="absolute top-2 left-2 bg-amber-500">
+          <Package className="h-3 w-3 mr-1" />
+          Stock limité
+        </Badge>
+      );
+    }
+    
+    return null;
+  };
+
   return (
     <div 
       className="group bg-white rounded-2xl overflow-hidden shadow-elegant hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
@@ -98,7 +124,7 @@ const ProductCard = ({
         </div>
         {/* Availability badge */}
         <Badge 
-          className={`absolute top-2 left-2 ${
+          className={`absolute bottom-2 right-2 ${
             isAvailable 
               ? 'bg-green-500 hover:bg-green-600' 
               : 'bg-red-500 hover:bg-red-600'
@@ -106,6 +132,9 @@ const ProductCard = ({
         >
           {isAvailable ? 'Disponible' : 'Non Disponible'}
         </Badge>
+        
+        {/* Stock badge */}
+        {getStockBadge()}
       </div>
       <div className="p-6">
         <h3 className="text-lg font-semibold text-primary">{name}</h3>

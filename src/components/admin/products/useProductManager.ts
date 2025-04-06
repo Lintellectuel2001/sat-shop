@@ -14,6 +14,10 @@ interface Product {
   features?: string[];
   payment_link: string;
   is_available?: boolean;
+  is_physical?: boolean;
+  stock_quantity?: number;
+  stock_alert_threshold?: number;
+  purchase_price?: number;
 }
 
 export const useProductManager = (onProductsChange: () => void) => {
@@ -25,6 +29,10 @@ export const useProductManager = (onProductsChange: () => void) => {
     image: '',
     payment_link: '',
     is_available: true,
+    is_physical: false,
+    stock_quantity: 0,
+    stock_alert_threshold: 5,
+    purchase_price: 0,
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -83,6 +91,10 @@ export const useProductManager = (onProductsChange: () => void) => {
           description: newProduct.description,
           features: newProduct.features,
           is_available: newProduct.is_available !== undefined ? newProduct.is_available : true,
+          is_physical: newProduct.is_physical || false,
+          stock_quantity: newProduct.is_physical ? newProduct.stock_quantity || 0 : null,
+          stock_alert_threshold: newProduct.is_physical ? newProduct.stock_alert_threshold || 5 : null,
+          purchase_price: newProduct.is_physical ? newProduct.purchase_price || 0 : null,
         }])
         .select();
 
@@ -110,6 +122,10 @@ export const useProductManager = (onProductsChange: () => void) => {
         image: '',
         payment_link: '',
         is_available: true,
+        is_physical: false,
+        stock_quantity: 0,
+        stock_alert_threshold: 5,
+        purchase_price: 0,
       });
       
       // Appeler onProductsChange après une création réussie
@@ -144,9 +160,17 @@ export const useProductManager = (onProductsChange: () => void) => {
         return;
       }
 
+      // If the product is not physical, set stock-related fields to null
+      const productToUpdate = {
+        ...updatedProduct,
+        stock_quantity: updatedProduct.is_physical ? updatedProduct.stock_quantity : null,
+        stock_alert_threshold: updatedProduct.is_physical ? updatedProduct.stock_alert_threshold : null,
+        purchase_price: updatedProduct.is_physical ? updatedProduct.purchase_price : null,
+      };
+
       const { error } = await supabase
         .from('products')
-        .update(updatedProduct)
+        .update(productToUpdate)
         .eq('id', updatedProduct.id);
 
       if (error) {

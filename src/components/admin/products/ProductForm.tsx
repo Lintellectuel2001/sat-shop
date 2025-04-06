@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,6 +7,8 @@ import { handleImageUpload } from "@/utils/fileUpload";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { Switch } from "@/components/ui/switch";
+import { Package, DollarSign } from "lucide-react";
 
 interface ProductFormProps {
   product: {
@@ -15,8 +18,12 @@ interface ProductFormProps {
     description?: string;
     image: string;
     payment_link: string;
+    is_physical?: boolean;
+    stock_quantity?: number;
+    stock_alert_threshold?: number;
+    purchase_price?: number;
   };
-  onProductChange: (field: string, value: string) => void;
+  onProductChange: (field: string, value: string | boolean | number) => void;
   onSubmit: () => void;
   submitLabel: string;
 }
@@ -114,7 +121,7 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="price">Prix *</Label>
+        <Label htmlFor="price">Prix de vente *</Label>
         <Input
           id="price"
           placeholder="Prix"
@@ -145,6 +152,74 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
           required
         />
       </div>
+
+      <div className="space-y-2">
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="is_physical"
+            checked={product.is_physical}
+            onCheckedChange={(checked) => onProductChange('is_physical', checked)}
+          />
+          <Label htmlFor="is_physical" className="cursor-pointer">Produit physique</Label>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Activez cette option si ce produit nécessite une gestion de stock
+        </p>
+      </div>
+
+      {product.is_physical && (
+        <div className="space-y-4 rounded-md border p-4">
+          <h3 className="font-medium flex items-center">
+            <Package className="mr-2 h-4 w-4" />
+            Gestion de stock
+          </h3>
+          
+          <div className="space-y-2">
+            <Label htmlFor="stock_quantity">Quantité en stock</Label>
+            <Input
+              id="stock_quantity"
+              type="number"
+              min="0"
+              value={product.stock_quantity || 0}
+              onChange={(e) => onProductChange('stock_quantity', parseInt(e.target.value) || 0)}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="stock_alert_threshold">Seuil d'alerte</Label>
+            <Input
+              id="stock_alert_threshold"
+              type="number"
+              min="0"
+              value={product.stock_alert_threshold || 5}
+              onChange={(e) => onProductChange('stock_alert_threshold', parseInt(e.target.value) || 0)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Vous recevrez une alerte lorsque le stock sera inférieur ou égal à cette valeur
+            </p>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="purchase_price">Prix d'achat</Label>
+            <div className="relative">
+              <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="purchase_price"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                value={product.purchase_price || 0}
+                onChange={(e) => onProductChange('purchase_price', parseFloat(e.target.value) || 0)}
+                className="pl-10"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Utile pour calculer la marge bénéficiaire
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="description">Description</Label>

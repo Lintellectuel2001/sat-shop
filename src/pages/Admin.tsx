@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Home, LayoutDashboard, Users, Database } from 'lucide-react';
+import { Home, LayoutDashboard, Users, Database, Package } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import ProductManager from '@/components/admin/ProductManager';
 import SlideManager from '@/components/admin/SlideManager';
@@ -14,6 +14,7 @@ import PromoCodeManager from '@/components/admin/promo/PromoCodeManager';
 import MarketingNotificationManager from '@/components/admin/marketing/MarketingNotificationManager';
 import UserManager from '@/components/admin/users/UserManager';
 import BackupManager from '@/components/admin/backup/BackupManager';
+import StockManager from '@/components/admin/stock/StockManager';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
 
 interface Product {
@@ -149,6 +150,10 @@ const Admin = () => {
                 Utilisateurs
               </TabsTrigger>
               <TabsTrigger value="products" className="data-[state=active]:bg-white data-[state=active]:text-accent">Produits</TabsTrigger>
+              <TabsTrigger value="stock" className="data-[state=active]:bg-white data-[state=active]:text-accent">
+                <Package className="h-4 w-4 mr-1" />
+                Stocks
+              </TabsTrigger>
               <TabsTrigger value="slides" className="data-[state=active]:bg-white data-[state=active]:text-accent">Diaporama</TabsTrigger>
               <TabsTrigger value="promo" className="data-[state=active]:bg-white data-[state=active]:text-accent">Codes Promo</TabsTrigger>
               <TabsTrigger value="notifications" className="data-[state=active]:bg-white data-[state=active]:text-accent">Notifications</TabsTrigger>
@@ -170,6 +175,10 @@ const Admin = () => {
 
               <TabsContent value="products">
                 <ProductManager products={products} onProductsChange={fetchProducts} />
+              </TabsContent>
+
+              <TabsContent value="stock">
+                <StockManager />
               </TabsContent>
 
               <TabsContent value="slides">
