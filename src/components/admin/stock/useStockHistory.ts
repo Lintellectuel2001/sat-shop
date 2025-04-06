@@ -64,10 +64,8 @@ export const useStockHistory = () => {
     try {
       setIsLoading(true);
       
-      let query = supabase
-        .from('stock_history')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Use RPC function to get stock history
+      let query = supabase.rpc('get_stock_history');
       
       if (selectedProduct) {
         query = query.eq('product_id', selectedProduct);
@@ -92,28 +90,18 @@ export const useStockHistory = () => {
         return;
       }
 
-      const enhancedHistory: StockHistoryEntry[] = [];
-      
-      for (const entry of historyData || []) {
-        try {
-          const { data: productData, error: productError } = await supabase
-            .from('products')
-            .select('name')
-            .eq('id', entry.product_id)
-            .single();
-          
-          enhancedHistory.push({
-            ...entry,
-            product_name: productError ? 'Produit inconnu' : productData.name
-          } as StockHistoryEntry);
-        } catch (e) {
-          console.error('Error fetching product details:', e);
-          enhancedHistory.push({
-            ...entry,
-            product_name: 'Produit inconnu'
-          } as StockHistoryEntry);
-        }
-      }
+      // Map the data to StockHistoryEntry type
+      const enhancedHistory: StockHistoryEntry[] = (historyData || []).map(entry => ({
+        id: entry.id,
+        product_id: entry.product_id,
+        product_name: entry.product_name || 'Produit inconnu',
+        previous_quantity: entry.previous_quantity,
+        new_quantity: entry.new_quantity,
+        change_type: entry.change_type,
+        notes: entry.notes || '',
+        created_at: entry.created_at,
+        created_by: entry.created_by || ''
+      }));
       
       setHistory(enhancedHistory);
     } catch (error) {

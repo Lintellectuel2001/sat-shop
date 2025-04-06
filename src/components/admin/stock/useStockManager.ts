@@ -64,9 +64,9 @@ export const useStockManager = () => {
           name: product.name,
           price: product.price,
           is_physical: product.is_physical,
-          stock_quantity: product.stock_quantity || 0,
-          stock_alert_threshold: product.stock_alert_threshold || 5,
-          purchase_price: product.purchase_price || 0
+          stock_quantity: product.stock_quantity ?? 0,
+          stock_alert_threshold: product.stock_alert_threshold ?? 5,
+          purchase_price: product.purchase_price ?? 0
         }));
       
       setProducts(physicalProducts);
@@ -88,7 +88,7 @@ export const useStockManager = () => {
       // Get current quantity first
       const { data: currentProduct, error: fetchError } = await supabase
         .from('products')
-        .select('stock_quantity')
+        .select('*')
         .eq('id', productId)
         .single();
       
@@ -96,32 +96,33 @@ export const useStockManager = () => {
         throw fetchError;
       }
 
-      const previousQuantity = currentProduct.stock_quantity || 0;
+      const previousQuantity = currentProduct.stock_quantity ?? 0;
       
       // Update product stock
       const { error: updateError } = await supabase
         .from('products')
-        .update({ stock_quantity: newQuantity })
+        .update({ 
+          stock_quantity: newQuantity 
+        })
         .eq('id', productId);
       
       if (updateError) {
         throw updateError;
       }
 
-      // Record in stock history
-      const { error: historyError } = await supabase
-        .from('stock_history')
-        .insert({
-          product_id: productId,
-          previous_quantity: previousQuantity,
-          new_quantity: newQuantity,
-          change_type: newQuantity > previousQuantity ? 'increase' : 'decrease',
-          notes: notes || `Stock modifié de ${previousQuantity} à ${newQuantity}`,
-          created_by: (await supabase.auth.getSession()).data.session?.user.id
-        });
+      // Record in stock history - use custom RPC function instead of direct insert
+      const { error: historyError } = await supabase.rpc('add_stock_history', {
+        p_product_id: productId,
+        p_previous_quantity: previousQuantity,
+        p_new_quantity: newQuantity,
+        p_change_type: newQuantity > previousQuantity ? 'increase' : 'decrease',
+        p_notes: notes || `Stock modifié de ${previousQuantity} à ${newQuantity}`,
+        p_created_by: (await supabase.auth.getSession()).data.session?.user.id
+      });
       
       if (historyError) {
-        throw historyError;
+        console.error('Error recording stock history:', historyError);
+        // Continue anyway as the stock was updated successfully
       }
 
       toast({
@@ -143,7 +144,9 @@ export const useStockManager = () => {
     try {
       const { error } = await supabase
         .from('products')
-        .update({ stock_alert_threshold: threshold })
+        .update({ 
+          stock_alert_threshold: threshold 
+        })
         .eq('id', productId);
       
       if (error) {
@@ -169,7 +172,9 @@ export const useStockManager = () => {
     try {
       const { error } = await supabase
         .from('products')
-        .update({ purchase_price: purchasePrice })
+        .update({ 
+          purchase_price: purchasePrice 
+        })
         .eq('id', productId);
       
       if (error) {
