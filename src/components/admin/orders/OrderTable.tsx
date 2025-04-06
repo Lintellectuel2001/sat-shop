@@ -1,12 +1,13 @@
 
 import React from 'react';
+import { Package } from 'lucide-react';  // Add this import
 import { 
   Table, TableBody, TableCaption, TableCell, 
   TableHead, TableHeader, TableRow 
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Eye, Package } from "lucide-react";
+import { Edit, Eye } from "lucide-react";
 import { 
   Tooltip,
   TooltipContent,
