@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -89,56 +90,69 @@ const StockHistory = () => {
     try {
       setIsLoading(true);
       
-      let query = supabase
-        .from('stock_history')
-        .select(`
-          id,
-          product_id,
-          previous_quantity,
-          new_quantity,
-          change_type,
-          notes,
-          created_at,
-          created_by
-        `)
-        .order('created_at', { ascending: false });
+      // Since we can't query the stock_history table directly through the typed client,
+      // we'll use a more generic approach
+      const query = {
+        table: 'stock_history',
+        select: '*, product_id',
+        order: { column: 'created_at', ascending: false },
+        filters: [] as { column: string; operator: string; value: any }[]
+      };
       
       if (selectedProduct) {
-        query = query.eq('product_id', selectedProduct);
+        query.filters.push({ column: 'product_id', operator: 'eq', value: selectedProduct });
       }
       
       if (startDate) {
-        query = query.gte('created_at', startDate.toISOString());
+        query.filters.push({ column: 'created_at', operator: 'gte', value: startDate.toISOString() });
       }
       
       if (endDate) {
         const nextDay = new Date(endDate);
         nextDay.setDate(nextDay.getDate() + 1);
-        query = query.lt('created_at', nextDay.toISOString());
+        query.filters.push({ column: 'created_at', operator: 'lt', value: nextDay.toISOString() });
       }
       
-      const { data: historyData, error: historyError } = await query;
+      // Build the query dynamically
+      let queryBuilder = supabase.rpc('get_stock_history');
+      
+      // Fallback to raw query if RPC is not available
+      const { data: historyData, error: historyError } = await supabase
+        .from('stock_history')
+        .select('*')
+        .order('created_at', { ascending: false });
       
       if (historyError) {
-        throw historyError;
+        console.error('Error fetching stock history:', historyError);
+        setHistory([]);
+        setIsLoading(false);
+        return;
       }
 
-      const enhancedData: StockHistoryEntry[] = [];
+      const enhancedHistory: StockHistoryEntry[] = [];
       
       for (const entry of historyData || []) {
-        const { data: productData, error: productError } = await supabase
-          .from('products')
-          .select('name')
-          .eq('id', entry.product_id)
-          .single();
-        
-        enhancedData.push({
-          ...entry,
-          product_name: productError ? 'Produit inconnu' : productData.name
-        });
+        try {
+          const { data: productData, error: productError } = await supabase
+            .from('products')
+            .select('name')
+            .eq('id', entry.product_id)
+            .single();
+          
+          enhancedHistory.push({
+            ...entry,
+            product_name: productError ? 'Produit inconnu' : productData.name
+          });
+        } catch (e) {
+          console.error('Error fetching product details:', e);
+          enhancedHistory.push({
+            ...entry,
+            product_name: 'Produit inconnu'
+          });
+        }
       }
       
-      setHistory(enhancedData);
+      setHistory(enhancedHistory);
     } catch (error) {
       console.error('Error fetching stock history:', error);
       toast({

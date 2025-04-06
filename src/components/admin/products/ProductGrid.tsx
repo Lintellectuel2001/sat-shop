@@ -1,27 +1,19 @@
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Pencil, Trash2, Check, X, Package, AlertTriangle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import ProductForm from './ProductForm';
+import { Card } from "@/components/ui/card";
+import ProductCard from './ProductCard';
 
 interface Product {
   id: string;
@@ -82,10 +74,10 @@ const ProductGrid = ({ products, onEdit, onDelete, onToggleAvailability }: Produ
     }
   };
 
-  const getStockStatus = (product: Product) => {
+  const getStockBadge = (product) => {
     if (!product.is_physical) return null;
     
-    if (product.stock_quantity === 0) {
+    if (!product.stock_quantity || product.stock_quantity === 0) {
       return <Badge variant="destructive">Épuisé</Badge>;
     } else if (product.stock_quantity && product.stock_alert_threshold && 
                product.stock_quantity <= product.stock_alert_threshold) {
@@ -128,7 +120,7 @@ const ProductGrid = ({ products, onEdit, onDelete, onToggleAvailability }: Produ
                   
                   {product.is_physical && (
                     <div className="absolute -top-2 -right-2">
-                      {getStockStatus(product)}
+                      {getStockBadge(product)}
                     </div>
                   )}
                 </div>
