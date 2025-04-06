@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Pencil, Trash2, Check, X, Package, AlertTriangle } from "lucide-react";
@@ -90,9 +89,9 @@ const ProductGrid = ({ products, onEdit, onDelete, onToggleAvailability }: Produ
       return <Badge variant="destructive">Épuisé</Badge>;
     } else if (product.stock_quantity && product.stock_alert_threshold && 
                product.stock_quantity <= product.stock_alert_threshold) {
-      return <Badge variant="warning" className="bg-amber-500">Stock bas</Badge>;
+      return <Badge variant="outline" className="bg-amber-500 text-white">Stock bas</Badge>;
     } else {
-      return <Badge variant="success" className="bg-green-500">En stock</Badge>;
+      return <Badge variant="outline" className="bg-green-500 text-white">En stock</Badge>;
     }
   };
 

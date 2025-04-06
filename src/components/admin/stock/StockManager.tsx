@@ -58,8 +58,19 @@ const StockManager = () => {
         throw error;
       }
       
-      // Filter to only include physical products
-      const physicalProducts = data.filter(product => product.is_physical);
+      // Filter to only include physical products and ensure all required fields
+      const physicalProducts = data
+        .filter(product => product.is_physical)
+        .map(product => ({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          is_physical: product.is_physical,
+          stock_quantity: product.stock_quantity || 0,
+          stock_alert_threshold: product.stock_alert_threshold || 5,
+          purchase_price: product.purchase_price || 0
+        }));
+      
       setProducts(physicalProducts);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -86,7 +97,7 @@ const StockManager = () => {
         throw fetchError;
       }
 
-      const previousQuantity = currentProduct.stock_quantity;
+      const previousQuantity = currentProduct.stock_quantity || 0;
       
       // Update product stock
       const { error: updateError } = await supabase

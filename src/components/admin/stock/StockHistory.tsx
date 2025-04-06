@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -40,10 +39,15 @@ interface StockHistoryEntry {
   created_by: string;
 }
 
+interface ProductData {
+  id: string;
+  name: string;
+}
+
 const StockHistory = () => {
   const [history, setHistory] = useState<StockHistoryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [products, setProducts] = useState<{id: string, name: string}[]>([]);
+  const [products, setProducts] = useState<ProductData[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
@@ -95,8 +99,7 @@ const StockHistory = () => {
           change_type,
           notes,
           created_at,
-          created_by,
-          products(name)
+          created_by
         `)
         .order('created_at', { ascending: false });
       
@@ -109,25 +112,33 @@ const StockHistory = () => {
       }
       
       if (endDate) {
-        // Add one day to end date to include entries from that day
         const nextDay = new Date(endDate);
         nextDay.setDate(nextDay.getDate() + 1);
         query = query.lt('created_at', nextDay.toISOString());
       }
       
-      const { data, error } = await query;
+      const { data: historyData, error: historyError } = await query;
       
-      if (error) {
-        throw error;
+      if (historyError) {
+        throw historyError;
       }
 
-      // Transform the data to include product name
-      const formattedData = data.map(item => ({
-        ...item,
-        product_name: item.products?.name || 'Produit inconnu'
-      }));
+      const enhancedData: StockHistoryEntry[] = [];
       
-      setHistory(formattedData);
+      for (const entry of historyData || []) {
+        const { data: productData, error: productError } = await supabase
+          .from('products')
+          .select('name')
+          .eq('id', entry.product_id)
+          .single();
+        
+        enhancedData.push({
+          ...entry,
+          product_name: productError ? 'Produit inconnu' : productData.name
+        });
+      }
+      
+      setHistory(enhancedData);
     } catch (error) {
       console.error('Error fetching stock history:', error);
       toast({
