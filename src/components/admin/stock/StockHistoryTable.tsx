@@ -11,18 +11,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
-
-interface StockHistoryEntry {
-  id: string;
-  product_id: string;
-  product_name: string;
-  previous_quantity: number;
-  new_quantity: number;
-  change_type: string;
-  notes: string;
-  created_at: string;
-  created_by: string;
-}
+import { StockHistoryEntry } from './useStockHistory';
 
 interface StockHistoryTableProps {
   history: StockHistoryEntry[];

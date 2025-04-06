@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-interface StockHistoryEntry {
+export interface StockHistoryEntry {
   id: string;
   product_id: string;
   product_name: string;
@@ -105,13 +105,13 @@ export const useStockHistory = () => {
           enhancedHistory.push({
             ...entry,
             product_name: productError ? 'Produit inconnu' : productData.name
-          });
+          } as StockHistoryEntry);
         } catch (e) {
           console.error('Error fetching product details:', e);
           enhancedHistory.push({
             ...entry,
             product_name: 'Produit inconnu'
-          });
+          } as StockHistoryEntry);
         }
       }
       

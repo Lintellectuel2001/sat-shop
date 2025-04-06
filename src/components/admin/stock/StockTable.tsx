@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Table, 
@@ -24,21 +23,12 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-
-interface Product {
-  id: string;
-  name: string;
-  stock_quantity: number;
-  stock_alert_threshold: number;
-  price: string;
-  purchase_price: number;
-}
+import { Product } from './useStockManager';
 
 interface StockTableProps {
   products: Product[];
@@ -48,7 +38,7 @@ interface StockTableProps {
   onUpdatePurchasePrice: (productId: string, purchasePrice: number) => Promise<void>;
 }
 
-const StockTable = ({ products, isLoading, onUpdateStock, onUpdateStockAlert, onUpdatePurchasePrice }: StockTableProps) => {
+const StockTable: React.FC<StockTableProps> = ({ products, isLoading, onUpdateStock, onUpdateStockAlert, onUpdatePurchasePrice }) => {
   const [sortField, setSortField] = useState<keyof Product>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -73,7 +63,6 @@ const StockTable = ({ products, isLoading, onUpdateStock, onUpdateStockAlert, on
     let valueA = a[sortField];
     let valueB = b[sortField];
     
-    // Handle numeric or string comparison
     if (typeof valueA === 'number' && typeof valueB === 'number') {
       return sortDirection === 'asc' ? valueA - valueB : valueB - valueA;
     } else {

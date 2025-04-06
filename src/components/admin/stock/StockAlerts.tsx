@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -16,27 +15,19 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-
-interface Product {
-  id: string;
-  name: string;
-  stock_quantity: number;
-  stock_alert_threshold: number;
-  price: string;
-}
+import { Product } from './useStockManager';
 
 interface StockAlertsProps {
   products: Product[];
   onUpdateStock: (productId: string, newQuantity: number, notes?: string) => Promise<void>;
 }
 
-const StockAlerts = ({ products, onUpdateStock }: StockAlertsProps) => {
+const StockAlerts: React.FC<StockAlertsProps> = ({ products, onUpdateStock }) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [addQuantity, setAddQuantity] = useState<number>(1);
   const [restockNotes, setRestockNotes] = useState<string>('');

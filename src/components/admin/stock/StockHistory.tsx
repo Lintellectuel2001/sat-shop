@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { useToast } from "@/hooks/use-toast";
 import StockHistoryFilters from './StockHistoryFilters';
 import StockHistoryTable from './StockHistoryTable';
 import { useStockHistory } from './useStockHistory';
