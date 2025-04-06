@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Eye } from "lucide-react";
+import { Edit, Eye, Package } from "lucide-react";
 import { 
   Tooltip,
   TooltipContent,
