@@ -65,23 +65,7 @@ export const useStockHistory = () => {
       setIsLoading(true);
       
       // Use RPC function to get stock history
-      let query = supabase.rpc('get_stock_history');
-      
-      if (selectedProduct) {
-        query = query.eq('product_id', selectedProduct);
-      }
-      
-      if (startDate) {
-        query = query.gte('created_at', startDate.toISOString());
-      }
-      
-      if (endDate) {
-        const nextDay = new Date(endDate);
-        nextDay.setDate(nextDay.getDate() + 1);
-        query = query.lt('created_at', nextDay.toISOString());
-      }
-      
-      const { data: historyData, error: historyError } = await query;
+      let { data: historyData, error: historyError } = await supabase.rpc('get_stock_history');
       
       if (historyError) {
         console.error('Error fetching stock history:', historyError);
@@ -89,21 +73,29 @@ export const useStockHistory = () => {
         setIsLoading(false);
         return;
       }
-
-      // Map the data to StockHistoryEntry type
-      const enhancedHistory: StockHistoryEntry[] = (historyData || []).map(entry => ({
-        id: entry.id,
-        product_id: entry.product_id,
-        product_name: entry.product_name || 'Produit inconnu',
-        previous_quantity: entry.previous_quantity,
-        new_quantity: entry.new_quantity,
-        change_type: entry.change_type,
-        notes: entry.notes || '',
-        created_at: entry.created_at,
-        created_by: entry.created_by || ''
-      }));
       
-      setHistory(enhancedHistory);
+      // Apply filters on the data we received
+      let filteredHistory = historyData || [];
+      
+      if (selectedProduct) {
+        filteredHistory = filteredHistory.filter(entry => entry.product_id === selectedProduct);
+      }
+      
+      if (startDate) {
+        filteredHistory = filteredHistory.filter(entry => 
+          new Date(entry.created_at) >= startDate
+        );
+      }
+      
+      if (endDate) {
+        const nextDay = new Date(endDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        filteredHistory = filteredHistory.filter(entry => 
+          new Date(entry.created_at) < nextDay
+        );
+      }
+      
+      setHistory(filteredHistory as StockHistoryEntry[]);
     } catch (error) {
       console.error('Error fetching stock history:', error);
       toast({

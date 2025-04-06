@@ -110,7 +110,7 @@ export const useStockManager = () => {
         throw updateError;
       }
 
-      // Record in stock history - use custom RPC function instead of direct insert
+      // Record in stock history using RPC function
       const { error: historyError } = await supabase.rpc('add_stock_history', {
         p_product_id: productId,
         p_previous_quantity: previousQuantity,
