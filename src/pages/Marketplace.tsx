@@ -33,9 +33,9 @@ const Marketplace = () => {
           .from('products')
           .select('*');
 
-        // Apply category filter
+        // Apply category filter - IMPORTANT: use lowercase for consistency
         if (category !== "all") {
-          query = query.eq('category', category);
+          query = query.eq('category', category.toLowerCase());
         }
 
         // Apply sorting
@@ -116,19 +116,7 @@ const Marketplace = () => {
           sortOrder={sortOrder}
           setSortOrder={setSortOrder}
         />
-        {loading ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500">Chargement des produits...</p>
-          </div>
-        ) : (
-          products.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500">Aucun produit trouvé pour cette catégorie</p>
-            </div>
-          ) : (
-            <ProductGrid products={products} />
-          )
-        )}
+        <ProductGrid products={products} isLoading={loading} />
       </main>
     </div>
   );

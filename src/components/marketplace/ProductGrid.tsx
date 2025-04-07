@@ -18,20 +18,29 @@ interface Product {
 
 interface ProductGridProps {
   products: Product[];
+  isLoading: boolean;
 }
 
-const ProductGrid = ({ products }: ProductGridProps) => {
+const ProductGrid = ({ products, isLoading }: ProductGridProps) => {
   const navigate = useNavigate();
 
   const handleProductClick = (product: Product) => {
     navigate(`/product/${product.id}`);
   };
 
+  if (isLoading) {
+    return (
+      <div className="col-span-full text-center py-8 text-gray-500">
+        Chargement des produits...
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {products.length === 0 ? (
         <div className="col-span-full text-center py-8 text-gray-500">
-          Aucun produit trouvé
+          Aucun produit trouvé pour cette catégorie
         </div>
       ) : (
         products.map((product) => (
