@@ -312,8 +312,11 @@ export type Database = {
           name: string
           payment_link: string | null
           price: string
+          purchase_price: number | null
           rating: number | null
           reviews: number | null
+          stock_alert_threshold: number | null
+          stock_quantity: number | null
           updated_at: string
         }
         Insert: {
@@ -330,8 +333,11 @@ export type Database = {
           name: string
           payment_link?: string | null
           price: string
+          purchase_price?: number | null
           rating?: number | null
           reviews?: number | null
+          stock_alert_threshold?: number | null
+          stock_quantity?: number | null
           updated_at?: string
         }
         Update: {
@@ -348,8 +354,11 @@ export type Database = {
           name?: string
           payment_link?: string | null
           price?: string
+          purchase_price?: number | null
           rating?: number | null
           reviews?: number | null
+          stock_alert_threshold?: number | null
+          stock_quantity?: number | null
           updated_at?: string
         }
         Relationships: []
@@ -541,6 +550,47 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      stock_history: {
+        Row: {
+          change_type: string
+          created_at: string
+          created_by: string | null
+          id: string
+          new_quantity: number
+          notes: string | null
+          previous_quantity: number
+          product_id: string | null
+        }
+        Insert: {
+          change_type: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          new_quantity: number
+          notes?: string | null
+          previous_quantity: number
+          product_id?: string | null
+        }
+        Update: {
+          change_type?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          new_quantity?: number
+          notes?: string | null
+          previous_quantity?: number
+          product_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_history_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_notifications: {
         Row: {

@@ -15,6 +15,7 @@ const Marketplace = () => {
   const [category, setCategory] = useState("all");
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [loading, setLoading] = useState(false);
 
   // Initialize category from URL parameter if available
   useEffect(() => {
@@ -27,6 +28,7 @@ const Marketplace = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        setLoading(true);
         let query = supabase
           .from('products')
           .select('*');
@@ -72,6 +74,8 @@ const Marketplace = () => {
           title: "Erreur",
           description: "Impossible de charger les produits",
         });
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -112,7 +116,19 @@ const Marketplace = () => {
           sortOrder={sortOrder}
           setSortOrder={setSortOrder}
         />
-        <ProductGrid products={products} />
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">Chargement des produits...</p>
+          </div>
+        ) : (
+          products.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500">Aucun produit trouvé pour cette catégorie</p>
+            </div>
+          ) : (
+            <ProductGrid products={products} />
+          )
+        )}
       </main>
     </div>
   );

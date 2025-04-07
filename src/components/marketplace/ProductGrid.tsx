@@ -66,6 +66,15 @@ const ProductGrid = ({ products }: ProductGridProps) => {
                   </span>
                 )}
               </Badge>
+              
+              {/* Category badge */}
+              {product.category && (
+                <Badge 
+                  className="absolute bottom-2 left-2 bg-primary hover:bg-primary/90"
+                >
+                  {product.category}
+                </Badge>
+              )}
             </div>
             <div className="p-4">
               <h3 className="font-semibold text-lg mb-2">{product.name}</h3>

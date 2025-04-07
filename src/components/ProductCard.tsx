@@ -15,6 +15,7 @@ interface ProductCardProps {
   reviews: number;
   paymentLink?: string;
   isAvailable?: boolean;
+  category?: string;
 }
 
 const ProductCard = ({ 
@@ -25,7 +26,8 @@ const ProductCard = ({
   rating, 
   reviews, 
   paymentLink,
-  isAvailable = true
+  isAvailable = true,
+  category
 }: ProductCardProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -106,6 +108,15 @@ const ProductCard = ({
         >
           {isAvailable ? 'Disponible' : 'Non Disponible'}
         </Badge>
+        
+        {/* Category badge */}
+        {category && (
+          <Badge 
+            className="absolute bottom-2 left-2 bg-primary hover:bg-primary/90"
+          >
+            {category}
+          </Badge>
+        )}
       </div>
       <div className="p-6">
         <h3 className="text-lg font-semibold text-primary">{name}</h3>
