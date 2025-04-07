@@ -70,6 +70,23 @@ const ProductGrid = ({ products, onEdit, onDelete, onToggleAvailability }: Produ
     onToggleAvailability(id, !currentStatus);
   };
 
+  // Fonction pour obtenir la couleur de badge en fonction de la catégorie
+  const getCategoryBadgeClass = (category: string) => {
+    const lowerCategory = category.toLowerCase();
+    switch (lowerCategory) {
+      case 'iptv':
+        return 'bg-blue-500 hover:bg-blue-600';
+      case 'sharing':
+        return 'bg-purple-500 hover:bg-purple-600';
+      case 'vod':
+        return 'bg-green-500 hover:bg-green-600';
+      case 'code digital':
+        return 'bg-amber-500 hover:bg-amber-600';
+      default:
+        return 'bg-gray-500 hover:bg-gray-600';
+    }
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -106,7 +123,11 @@ const ProductGrid = ({ products, onEdit, onDelete, onToggleAvailability }: Produ
                 {product.name}
               </TableCell>
               <TableCell>{product.price}</TableCell>
-              <TableCell>{product.category}</TableCell>
+              <TableCell>
+                <Badge className={getCategoryBadgeClass(product.category)}>
+                  {product.category.toUpperCase()}
+                </Badge>
+              </TableCell>
               <TableCell className="max-w-[200px] truncate">
                 {product.description || '-'}
               </TableCell>

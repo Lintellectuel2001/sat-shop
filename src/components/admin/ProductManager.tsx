@@ -38,6 +38,13 @@ const ProductManager = ({ products, onProductsChange }: ProductManagerProps) => 
     onProductsChange(); // Appeler explicitement onProductsChange après la création
   };
 
+  // S'assurer que la catégorie par défaut est toujours définie
+  React.useEffect(() => {
+    if (!newProduct.category) {
+      setNewProduct(prev => ({ ...prev, category: "iptv" }));
+    }
+  }, [newProduct.category, setNewProduct]);
+
   return (
     <div className="space-y-6">
       <ProductHeader

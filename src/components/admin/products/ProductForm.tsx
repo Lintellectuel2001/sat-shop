@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,6 +7,7 @@ import { handleImageUpload } from "@/utils/fileUpload";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ProductFormProps {
   product: {
@@ -20,6 +22,9 @@ interface ProductFormProps {
   onSubmit: () => void;
   submitLabel: string;
 }
+
+// Liste des catégories prédéfinies
+const CATEGORIES = ["iptv", "sharing", "vod", "code digital"];
 
 const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: ProductFormProps) => {
   const { toast } = useToast();
@@ -126,13 +131,21 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
 
       <div className="space-y-2">
         <Label htmlFor="category">Catégorie *</Label>
-        <Input
-          id="category"
-          placeholder="Catégorie"
+        <Select
           value={product.category}
-          onChange={(e) => onProductChange('category', e.target.value)}
-          required
-        />
+          onValueChange={(value) => onProductChange('category', value)}
+        >
+          <SelectTrigger id="category" className="w-full">
+            <SelectValue placeholder="Sélectionner une catégorie" />
+          </SelectTrigger>
+          <SelectContent>
+            {CATEGORIES.map((category) => (
+              <SelectItem key={category} value={category}>
+                {category.toUpperCase()}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">
