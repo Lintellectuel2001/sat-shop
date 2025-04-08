@@ -34,7 +34,20 @@ const ProductInfo = ({
 
   const handleOrder = async () => {
     try {
-      // Record the purchase attempt
+      // Enregistrer la commande
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert([{
+          product_name: name,
+          amount: price,
+          status: 'pending'
+        }])
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Enregistrer la tentative d'achat dans l'historique du panier
       const { error: cartError } = await supabase
         .from('cart_history')
         .insert([{
@@ -44,36 +57,37 @@ const ProductInfo = ({
 
       if (cartError) throw cartError;
 
-      // Create payment using the Edge Function
+      // Créer paiement en utilisant l'Edge Function
       const { data: payment, error } = await supabase.functions.invoke('create-chargily-payment', {
         body: {
-          amount: price.replace(/[^0-9]/g, ''), // Remove any non-numeric characters
-          name: "Customer", // This should be replaced with actual customer name
+          amount: price.replace(/[^0-9]/g, ''), // Supprimer les caractères non numériques
+          name: "Customer", // À remplacer par le nom réel du client
           productName: name
         }
       });
 
       if (error) throw error;
 
-      // If payment creation is successful, proceed with the order
+      // Si la création du paiement est réussie, procéder à la commande
       if (payment && payment.checkout_url) {
+        // Envoyer une notification par e-mail en arrière-plan
+        supabase.functions.invoke('send-order-notification', {
+          body: {
+            productName: name,
+            productPrice: price,
+            orderId: order.id
+          },
+        }).catch((error) => {
+          console.error('Erreur lors de l\'envoi de la notification:', error);
+        });
+
+        // Rediriger vers la page de paiement
         window.location.href = payment.checkout_url;
       } else {
-        throw new Error('Payment URL not received');
+        throw new Error('URL de paiement non reçue');
       }
-
-      // Send notification email in the background
-      supabase.functions.invoke('send-order-notification', {
-        body: {
-          productName: name,
-          productPrice: price,
-        },
-      }).catch((error) => {
-        console.error('Error sending notification:', error);
-      });
-
     } catch (error) {
-      console.error('Error processing order:', error);
+      console.error('Erreur lors du traitement de la commande:', error);
       toast({
         variant: "destructive",
         title: "Erreur",

@@ -10,3 +10,15 @@ export interface Product {
   payment_link: string;
   is_available?: boolean;
 }
+
+export interface Order {
+  id: string;
+  product_id?: string;
+  product_name: string;
+  amount: string;
+  customer_name?: string;
+  customer_email?: string;
+  status: 'pending' | 'validated' | 'cancelled';
+  payment_id?: string;
+  created_at: string;
+}
