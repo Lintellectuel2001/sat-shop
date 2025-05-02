@@ -46,7 +46,7 @@ const OrderManager = () => {
       const { data, error } = await supabase
         .from('orders')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }) as { data: Order[] | null, error: Error | null };
       
       if (error) throw error;
       
@@ -68,7 +68,7 @@ const OrderManager = () => {
       const { error } = await supabase
         .from('orders')
         .update({ status: newStatus })
-        .eq('id', orderId);
+        .eq('id', orderId) as { error: Error | null };
       
       if (error) throw error;
       
