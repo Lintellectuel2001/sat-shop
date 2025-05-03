@@ -1,6 +1,5 @@
 
-import React from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -24,8 +23,10 @@ type Slide = {
 
 const HeroCarousel = () => {
   const { toast } = useToast();
+  const [slides, setSlides] = useState<Slide[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
-  const plugin = React.useMemo(
+  const plugin = useMemo(
     () =>
       Autoplay({
         delay: 8000,
@@ -34,27 +35,39 @@ const HeroCarousel = () => {
     []
   );
 
-  const { data: slides = [] } = useQuery({
-    queryKey: ['slides'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('slides')
-        .select('*')
-        .order('order', { ascending: true });
-      
-      if (error) {
+  useEffect(() => {
+    const fetchSlides = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('slides')
+          .select('*')
+          .order('order', { ascending: true });
+        
+        if (error) {
+          throw error;
+        }
+        
+        setSlides(data || []);
+      } catch (error) {
         console.error('Error fetching slides:', error);
         toast({
           variant: "destructive",
           title: "Erreur",
           description: "Impossible de charger les slides",
         });
-        return [];
+      } finally {
+        setIsLoading(false);
       }
-      
-      return data || [];
-    },
-  });
+    };
+
+    fetchSlides();
+  }, [toast]);
+
+  if (isLoading) {
+    return <div className="w-full bg-white pt-16 h-[85vh] max-h-[800px] flex items-center justify-center">
+      <p>Chargement...</p>
+    </div>;
+  }
 
   return (
     <section className="w-full bg-white pt-16">

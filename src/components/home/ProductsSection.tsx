@@ -3,13 +3,23 @@ import { useEffect, useState } from "react";
 import ProductCard from "../ProductCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useSearchParams } from "react-router-dom";
+
+// Removed useSearchParams import as it will be handled differently
 
 const ProductsSection = () => {
   const [products, setProducts] = useState([]);
   const { toast } = useToast();
-  const [searchParams] = useSearchParams();
-  const searchQuery = searchParams.get('search');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Function to extract search query from URL when in a router context
+  useEffect(() => {
+    // Use window.location to get search parameters without react-router
+    const urlParams = new URLSearchParams(window.location.search);
+    const search = urlParams.get('search');
+    if (search) {
+      setSearchQuery(search);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {

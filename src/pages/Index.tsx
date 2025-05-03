@@ -9,6 +9,9 @@ import HeroCarousel from "../components/home/HeroCarousel";
 import AdminAccessButton from "../components/home/AdminAccessButton";
 import WhatsAppContactButton from "../components/home/WhatsAppContactButton";
 
+// NOTE: This page already uses components that require React Router and React Query
+// These will be properly provided by our updated App.tsx and main.tsx setup
+
 const Index = () => {
   return (
     <div className="min-h-screen">

@@ -1,22 +1,38 @@
 
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
 export const useAuthState = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-  const navigate = useNavigate();
+  
+  // Get navigate function safely - will be undefined when not in Router context
+  let navigate: ((path: string) => void) | undefined;
+  
+  try {
+    // Only import and use useNavigate if we're in a Router context
+    const { useNavigate } = require('react-router-dom');
+    navigate = useNavigate();
+  } catch (error) {
+    console.log('Not in Router context, navigation disabled');
+  }
 
-  const handleSignOut = async () => {
+  const handleSignOut = useCallback(async () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
       setIsLoggedIn(false);
       setUserId(null);
-      navigate('/');
+      
+      if (navigate) {
+        navigate('/');
+      } else {
+        // Fallback for when not in Router context
+        window.location.href = '/';
+      }
+      
       toast({
         title: "Déconnexion réussie",
         description: "À bientôt !",
@@ -29,7 +45,7 @@ export const useAuthState = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
     let mounted = true;
@@ -81,7 +97,12 @@ export const useAuthState = () => {
         case 'SIGNED_OUT':
           setIsLoggedIn(false);
           setUserId(null);
-          navigate('/');
+          if (navigate) {
+            navigate('/');
+          } else {
+            // Fallback when not in Router context
+            window.location.href = '/';
+          }
           break;
         case 'TOKEN_REFRESHED':
         case 'USER_UPDATED':
@@ -104,7 +125,7 @@ export const useAuthState = () => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [handleSignOut]);
 
   return { isLoggedIn, userId, handleSignOut };
 };
