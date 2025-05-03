@@ -6,6 +6,7 @@ const categories = [
   { name: "IPTV", icon: "📺", value: "iptv" },
   { name: "Sharing", icon: "🔗", value: "sharing" },
   { name: "VOD", icon: "🎬", value: "vod" },
+  { name: "Divers", icon: "📦", value: "divers" },
   { name: "Tous", icon: "🛒", value: "all" },
 ];
 
@@ -20,7 +21,7 @@ const CategoryNav = ({ initialCategory = "all", onCategoryChange }: CategoryNavP
   };
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 px-4">
       {categories.map((category) => (
         <button
           key={category.name}

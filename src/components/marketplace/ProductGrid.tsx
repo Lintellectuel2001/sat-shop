@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card } from "@/components/ui/card";
-import { Star, Check, X } from "lucide-react";
+import { Star, Check, X, Package } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { Badge } from "@/components/ui/badge";
 
@@ -14,6 +14,7 @@ interface Product {
   image: string;
   category: string;
   is_available?: boolean;
+  is_physical?: boolean;
 }
 
 interface ProductGridProps {
@@ -81,7 +82,19 @@ const ProductGrid = ({ products, isLoading }: ProductGridProps) => {
                 <Badge 
                   className="absolute bottom-2 left-2 bg-primary hover:bg-primary/90"
                 >
-                  {product.category}
+                  {product.category.toUpperCase()}
+                </Badge>
+              )}
+
+              {/* Physical product / COD badge */}
+              {product.is_physical && (
+                <Badge 
+                  className="absolute top-2 right-2 bg-amber-500 hover:bg-amber-600"
+                >
+                  <span className="flex items-center gap-1">
+                    <Package className="h-3 w-3" />
+                    Paiement à la livraison
+                  </span>
                 </Badge>
               )}
             </div>

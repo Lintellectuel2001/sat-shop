@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ProductFormProps {
   product: {
@@ -17,14 +18,15 @@ interface ProductFormProps {
     description?: string;
     image: string;
     payment_link: string;
+    is_physical?: boolean;
   };
-  onProductChange: (field: string, value: string) => void;
+  onProductChange: (field: string, value: any) => void;
   onSubmit: () => void;
   submitLabel: string;
 }
 
 // Liste des catégories prédéfinies
-const CATEGORIES = ["iptv", "sharing", "vod", "code digital"];
+const CATEGORIES = ["iptv", "sharing", "vod", "code digital", "divers"];
 
 const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: ProductFormProps) => {
   const { toast } = useToast();
@@ -43,7 +45,7 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
       return;
     }
 
-    if (!product.name || !product.price || !product.category || !product.payment_link) {
+    if (!product.name || !product.price || !product.category) {
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -57,6 +59,16 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
         variant: "destructive",
         title: "Erreur",
         description: "Veuillez ajouter une image",
+      });
+      return;
+    }
+
+    // Vérifier si un lien de paiement est requis (sauf pour les produits physiques)
+    if (!product.is_physical && !product.payment_link) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Veuillez ajouter un lien de paiement pour les produits numériques",
       });
       return;
     }
@@ -105,6 +117,14 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
     return null;
   }
 
+  // Déterminer si le produit est dans la catégorie "divers"
+  const isDiversCategory = product.category === 'divers';
+  
+  // Si c'est un produit de la catégorie "divers", définir is_physical à true
+  if (isDiversCategory && !product.is_physical) {
+    onProductChange('is_physical', true);
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
@@ -133,7 +153,13 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
         <Label htmlFor="category">Catégorie *</Label>
         <Select
           value={product.category}
-          onValueChange={(value) => onProductChange('category', value)}
+          onValueChange={(value) => {
+            onProductChange('category', value);
+            // Si la catégorie est "divers", définir automatiquement is_physical à true
+            if (value === 'divers') {
+              onProductChange('is_physical', true);
+            }
+          }}
         >
           <SelectTrigger id="category" className="w-full">
             <SelectValue placeholder="Sélectionner une catégorie" />
@@ -148,16 +174,30 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
         </Select>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="payment_link">Lien de paiement *</Label>
-        <Input
-          id="payment_link"
-          placeholder="Lien de paiement"
-          value={product.payment_link}
-          onChange={(e) => onProductChange('payment_link', e.target.value)}
-          required
+      <div className="flex items-center space-x-2 mt-4">
+        <Checkbox 
+          id="is_physical" 
+          checked={!!product.is_physical}
+          onCheckedChange={(checked) => onProductChange('is_physical', checked)}
+          disabled={product.category === 'divers'} // Désactiver si catégorie "divers"
         />
+        <Label htmlFor="is_physical" className={product.category === 'divers' ? "text-gray-500" : ""}>
+          Produit physique (paiement à la livraison)
+        </Label>
       </div>
+
+      {!product.is_physical && (
+        <div className="space-y-2">
+          <Label htmlFor="payment_link">Lien de paiement *</Label>
+          <Input
+            id="payment_link"
+            placeholder="Lien de paiement"
+            value={product.payment_link || ''}
+            onChange={(e) => onProductChange('payment_link', e.target.value)}
+            required={!product.is_physical}
+          />
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="description">Description</Label>

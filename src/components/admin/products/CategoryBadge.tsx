@@ -19,6 +19,8 @@ const CategoryBadge = ({ category }: CategoryBadgeProps) => {
         return 'bg-green-500 hover:bg-green-600';
       case 'code digital':
         return 'bg-amber-500 hover:bg-amber-600';
+      case 'divers':
+        return 'bg-red-500 hover:bg-red-600';
       default:
         return 'bg-gray-500 hover:bg-gray-600';
     }

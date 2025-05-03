@@ -99,6 +99,8 @@ const ProductsSection = () => {
               reviews={product.reviews || 0}
               paymentLink={product.payment_link}
               isAvailable={product.is_available !== false}
+              category={product.category?.toUpperCase()}
+              isPhysical={product.is_physical}
             />
           ))}
         </div>

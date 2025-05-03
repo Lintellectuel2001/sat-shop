@@ -9,6 +9,7 @@ export interface Product {
   features?: string[];
   payment_link: string;
   is_available?: boolean;
+  is_physical?: boolean;
 }
 
 export interface Order {

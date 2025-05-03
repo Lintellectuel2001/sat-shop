@@ -1,5 +1,5 @@
 
-import { Star, Share2 } from "lucide-react";
+import { Star, Share2, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import WishlistButton from "./wishlist/WishlistButton";
 import { useState } from "react";
@@ -16,6 +16,7 @@ interface ProductCardProps {
   paymentLink?: string;
   isAvailable?: boolean;
   category?: string;
+  isPhysical?: boolean;
 }
 
 const ProductCard = ({ 
@@ -27,7 +28,8 @@ const ProductCard = ({
   reviews, 
   paymentLink,
   isAvailable = true,
-  category
+  category,
+  isPhysical = false
 }: ProductCardProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -115,6 +117,18 @@ const ProductCard = ({
             className="absolute bottom-2 left-2 bg-primary hover:bg-primary/90"
           >
             {category}
+          </Badge>
+        )}
+
+        {/* Physical product badge */}
+        {isPhysical && (
+          <Badge 
+            className="absolute bottom-2 right-2 bg-amber-500 hover:bg-amber-600"
+          >
+            <span className="flex items-center gap-1">
+              <Package size={14} />
+              Paiement à la livraison
+            </span>
           </Badge>
         )}
       </div>

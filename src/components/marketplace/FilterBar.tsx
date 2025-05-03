@@ -25,6 +25,7 @@ const FilterBar = ({ productsCount, category, setCategory, sortOrder, setSortOrd
             <SelectItem value="iptv">IPTV</SelectItem>
             <SelectItem value="sharing">Sharing</SelectItem>
             <SelectItem value="vod">VOD</SelectItem>
+            <SelectItem value="divers">Divers</SelectItem>
           </SelectContent>
         </Select>
       </div>
