@@ -18,7 +18,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
 interface OrderTableProps {
@@ -30,6 +29,7 @@ interface OrderTableProps {
 
 const OrderTable: React.FC<OrderTableProps> = ({ orders, isLoading, onStatusChange, onDeleteOrder }) => {
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
+  const [showDialog, setShowDialog] = useState<boolean>(false);
 
   if (isLoading) {
     return (
@@ -90,6 +90,24 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, isLoading, onStatusChan
         );
     }
   }
+  
+  const handleDeleteClick = (id: string) => {
+    setOrderToDelete(id);
+    setShowDialog(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (orderToDelete) {
+      onDeleteOrder(orderToDelete);
+      setShowDialog(false);
+      setOrderToDelete(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDialog(false);
+    setOrderToDelete(null);
+  };
 
   return (
     <div className="rounded-md border">
@@ -134,49 +152,44 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, isLoading, onStatusChan
                       </Button>
                     </>
                   )}
+                  
                   {order.status !== 'pending' && (
                     <span className="text-muted-foreground text-sm mr-2">
                       Traitement terminé
                     </span>
                   )}
                   
-                  <AlertDialog open={orderToDelete === order.id} onOpenChange={(open) => !open && setOrderToDelete(null)}>
-                    <AlertDialogTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="text-gray-600 border-gray-200 hover:bg-gray-50 hover:text-gray-700"
-                        onClick={() => setOrderToDelete(order.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Êtes-vous sûr de vouloir supprimer cette commande ? Cette action est irréversible.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Annuler</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => {
-                          if (orderToDelete) {
-                            onDeleteOrder(orderToDelete);
-                            setOrderToDelete(null);
-                          }
-                        }} className="bg-red-600 hover:bg-red-700">
-                          Supprimer
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="text-gray-600 border-gray-200 hover:bg-gray-50 hover:text-gray-700"
+                    onClick={() => handleDeleteClick(order.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      
+      <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer cette commande ? Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelDelete}>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-red-600 hover:bg-red-700">
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

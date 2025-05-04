@@ -90,13 +90,18 @@ const OrderManager = () => {
   }
 
   async function handleDeleteOrder(orderId: string) {
+    console.log('Tentative de suppression de la commande:', orderId); // Log pour débogage
+    
     try {
       const { error } = await supabase
         .from('orders')
         .delete()
-        .eq('id', orderId) as { error: Error | null };
+        .eq('id', orderId);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Erreur détaillée:', error);
+        throw error;
+      }
       
       toast({
         title: "Succès",
