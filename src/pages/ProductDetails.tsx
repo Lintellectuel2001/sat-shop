@@ -64,6 +64,20 @@ const ProductDetails = () => {
     setOrderLoading(true);
     
     try {
+      // Create a new order in the orders table
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders')
+        .insert([{
+          product_id: product.id,
+          product_name: product.name,
+          amount: product.price,
+          status: 'pending'
+        }])
+        .select()
+        .single();
+      
+      if (orderError) throw orderError;
+
       // Record the purchase action in cart_history
       await supabase.from('cart_history').insert({
         product_id: product.id,
