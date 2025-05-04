@@ -89,13 +89,40 @@ const OrderManager = () => {
     }
   }
 
+  async function handleDeleteOrder(orderId: string) {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', orderId) as { error: Error | null };
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Succès",
+        description: "Commande supprimée avec succès",
+      });
+      
+      // Mettre à jour la liste des commandes
+      fetchOrders();
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la commande:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de supprimer la commande",
+      });
+    }
+  }
+
   return (
     <div className="space-y-6">
       <OrderHeader stats={stats} isLoading={isLoading} />
       <OrderTable 
         orders={orders} 
         isLoading={isLoading} 
-        onStatusChange={handleStatusChange} 
+        onStatusChange={handleStatusChange}
+        onDeleteOrder={handleDeleteOrder}
       />
     </div>
   );

@@ -1,22 +1,36 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Table, TableBody, TableCell, TableHead, 
   TableHeader, TableRow 
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, Trash2 } from 'lucide-react';
 import { Order } from '../products/hooks/useProductTypes';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface OrderTableProps {
   orders: Order[];
   isLoading: boolean;
   onStatusChange: (orderId: string, status: 'validated' | 'cancelled') => void;
+  onDeleteOrder: (orderId: string) => void;
 }
 
-const OrderTable: React.FC<OrderTableProps> = ({ orders, isLoading, onStatusChange }) => {
+const OrderTable: React.FC<OrderTableProps> = ({ orders, isLoading, onStatusChange, onDeleteOrder }) => {
+  const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
+
   if (isLoading) {
     return (
       <div className="rounded-md border p-4">
@@ -99,31 +113,65 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, isLoading, onStatusChan
               <TableCell>{formatDate(order.created_at)}</TableCell>
               <TableCell>{getStatusBadge(order.status)}</TableCell>
               <TableCell>
-                {order.status === 'pending' && (
-                  <div className="flex space-x-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700"
-                      onClick={() => onStatusChange(order.id, 'validated')}
-                    >
-                      Valider
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
-                      onClick={() => onStatusChange(order.id, 'cancelled')}
-                    >
-                      Annuler
-                    </Button>
-                  </div>
-                )}
-                {order.status !== 'pending' && (
-                  <span className="text-muted-foreground text-sm">
-                    Traitement terminé
-                  </span>
-                )}
+                <div className="flex space-x-2">
+                  {order.status === 'pending' && (
+                    <>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700"
+                        onClick={() => onStatusChange(order.id, 'validated')}
+                      >
+                        Valider
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                        onClick={() => onStatusChange(order.id, 'cancelled')}
+                      >
+                        Annuler
+                      </Button>
+                    </>
+                  )}
+                  {order.status !== 'pending' && (
+                    <span className="text-muted-foreground text-sm mr-2">
+                      Traitement terminé
+                    </span>
+                  )}
+                  
+                  <AlertDialog open={orderToDelete === order.id} onOpenChange={(open) => !open && setOrderToDelete(null)}>
+                    <AlertDialogTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="text-gray-600 border-gray-200 hover:bg-gray-50 hover:text-gray-700"
+                        onClick={() => setOrderToDelete(order.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Êtes-vous sûr de vouloir supprimer cette commande ? Cette action est irréversible.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => {
+                          if (orderToDelete) {
+                            onDeleteOrder(orderToDelete);
+                            setOrderToDelete(null);
+                          }
+                        }} className="bg-red-600 hover:bg-red-700">
+                          Supprimer
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               </TableCell>
             </TableRow>
           ))}
