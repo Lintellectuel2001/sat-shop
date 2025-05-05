@@ -92,11 +92,13 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, isLoading, onStatusChan
   }
   
   const handleDeleteClick = (id: string) => {
+    console.log("Bouton de suppression cliqué pour la commande ID:", id);
     setOrderToDelete(id);
     setShowDialog(true);
   };
 
   const handleConfirmDelete = () => {
+    console.log("Confirmation de suppression pour la commande ID:", orderToDelete);
     if (orderToDelete) {
       onDeleteOrder(orderToDelete);
       setShowDialog(false);
@@ -105,6 +107,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, isLoading, onStatusChan
   };
 
   const handleCancelDelete = () => {
+    console.log("Suppression annulée");
     setShowDialog(false);
     setOrderToDelete(null);
   };

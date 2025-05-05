@@ -97,18 +97,32 @@ const OrderManager = () => {
 
   async function handleDeleteOrder(orderId: string) {
     try {
-      // Log pour débogage
+      // Afficher un log pour débogage
       console.log('Tentative de suppression de la commande avec ID:', orderId);
       
-      const { error } = await supabase
+      // Vérifier que l'ID n'est pas undefined
+      if (!orderId) {
+        console.error('ID de commande invalide:', orderId);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "ID de commande invalide",
+        });
+        return;
+      }
+      
+      const { error, data } = await supabase
         .from('orders')
         .delete()
-        .eq('id', orderId);
+        .eq('id', orderId)
+        .select();
       
       if (error) {
         console.error('Erreur de suppression détaillée:', error);
         throw error;
       }
+      
+      console.log('Réponse de suppression:', data);
       
       toast({
         title: "Succès",
