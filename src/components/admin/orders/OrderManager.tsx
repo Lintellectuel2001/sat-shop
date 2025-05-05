@@ -111,18 +111,39 @@ const OrderManager = () => {
         return;
       }
       
-      const { error, data } = await supabase
+      // Remplacer la méthode de suppression avec une version plus détaillée
+      const { error } = await supabase
         .from('orders')
         .delete()
-        .eq('id', orderId)
-        .select();
+        .match({ id: orderId });
       
       if (error) {
         console.error('Erreur de suppression détaillée:', error);
-        throw error;
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: `Erreur lors de la suppression: ${error.message}`,
+        });
+        return;
       }
       
-      console.log('Réponse de suppression:', data);
+      // Vérifier si la commande existe encore après suppression
+      const { data: checkData } = await supabase
+        .from('orders')
+        .select('id')
+        .eq('id', orderId);
+        
+      if (checkData && checkData.length > 0) {
+        console.error('La commande existe toujours après suppression:', orderId);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "La suppression a échoué, la commande existe toujours",
+        });
+        return;
+      }
+      
+      console.log('Suppression réussie, commande ID:', orderId);
       
       toast({
         title: "Succès",
