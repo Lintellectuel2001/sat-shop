@@ -50,7 +50,13 @@ const OrderManager = () => {
       
       if (error) throw error;
       
-      setOrders(data || []);
+      // Cast the status to the expected type in the Order interface
+      const typedData = data?.map(order => ({
+        ...order,
+        status: order.status as 'pending' | 'validated' | 'cancelled'
+      })) || [];
+      
+      setOrders(typedData);
     } catch (error) {
       console.error('Erreur lors du chargement des commandes:', error);
       toast({
