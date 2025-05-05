@@ -1,14 +1,7 @@
-
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { PackageCheck, Clock, PackageX, Package } from 'lucide-react';
-
-interface OrderStats {
-  total: number;
-  validated: number;
-  pending: number;
-  cancelled: number;
-}
+import { OrderStats } from './hooks/useOrderManagement';
 
 interface OrderHeaderProps {
   stats: OrderStats;
