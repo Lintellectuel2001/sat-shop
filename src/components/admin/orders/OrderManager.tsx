@@ -46,7 +46,7 @@ const OrderManager = () => {
       const { data, error } = await supabase
         .from('orders')
         .select('*')
-        .order('created_at', { ascending: false }) as { data: Order[] | null, error: Error | null };
+        .order('created_at', { ascending: false });
       
       if (error) throw error;
       
@@ -68,7 +68,7 @@ const OrderManager = () => {
       const { error } = await supabase
         .from('orders')
         .update({ status: newStatus })
-        .eq('id', orderId) as { error: Error | null };
+        .eq('id', orderId);
       
       if (error) throw error;
       
@@ -90,16 +90,17 @@ const OrderManager = () => {
   }
 
   async function handleDeleteOrder(orderId: string) {
-    console.log('Tentative de suppression de la commande:', orderId); // Log pour débogage
-    
     try {
+      // Log pour débogage
+      console.log('Tentative de suppression de la commande avec ID:', orderId);
+      
       const { error } = await supabase
         .from('orders')
         .delete()
         .eq('id', orderId);
       
       if (error) {
-        console.error('Erreur détaillée:', error);
+        console.error('Erreur de suppression détaillée:', error);
         throw error;
       }
       
@@ -108,7 +109,7 @@ const OrderManager = () => {
         description: "Commande supprimée avec succès",
       });
       
-      // Mettre à jour la liste des commandes
+      // Mettre à jour la liste des commandes après suppression
       fetchOrders();
     } catch (error) {
       console.error('Erreur lors de la suppression de la commande:', error);
