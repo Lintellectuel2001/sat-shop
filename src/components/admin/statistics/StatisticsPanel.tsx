@@ -5,6 +5,7 @@ import SalesChart from './SalesChart';
 import UserStatistics from './UserStatistics';
 import PeriodFilter from './PeriodFilter';
 import { DateRange } from 'react-day-picker';
+import { Activity } from 'lucide-react';
 
 interface SalesData {
   name: string;
