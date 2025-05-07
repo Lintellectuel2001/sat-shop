@@ -1,11 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import StatsCards from './StatsCards';
 import SalesChart from './SalesChart';
-import { Button } from "@/components/ui/button";
-import { Activity, BarChart } from 'lucide-react';
-import CategoryComparisonChart from './CategoryComparisonChart';
 import UserStatistics from './UserStatistics';
 import PeriodFilter from './PeriodFilter';
 import { DateRange } from 'react-day-picker';
@@ -170,7 +166,7 @@ const StatisticsPanel = () => {
           setSalesData(chartData);
         }
 
-        // Generate category statistics
+        // Generate category statistics for internal use but we won't display them
         const { data: products } = await supabase
           .from('products')
           .select('category');
@@ -379,57 +375,6 @@ const StatisticsPanel = () => {
           registrationRate={registrationRate}
           isLoading={isLoading}
         />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-elegant">
-          <div className="mb-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-primary">Distribution par Catégorie</h3>
-              <BarChart className="h-5 w-5 text-accent" />
-            </div>
-            <p className="text-sm text-muted-foreground">Répartition des produits par catégorie</p>
-          </div>
-          <CategoryComparisonChart categoriesData={categoriesData} />
-        </div>
-        
-        <div className="bg-white p-6 rounded-xl shadow-elegant">
-          <div className="mb-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-primary">Statistiques Globales</h3>
-              <Activity className="h-5 w-5 text-accent" />
-            </div>
-            <p className="text-sm text-muted-foreground">Vue d'ensemble des performances</p>
-          </div>
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-soft p-4 rounded-lg">
-                <p className="text-sm text-muted-foreground mb-1">Taux de conversion</p>
-                <p className="text-2xl font-bold text-primary">
-                  {totalProducts > 0 ? ((totalOrders / totalProducts) * 100).toFixed(1) : 0}%
-                </p>
-              </div>
-              <div className="bg-soft p-4 rounded-lg">
-                <p className="text-sm text-muted-foreground mb-1">Valeur moyenne</p>
-                <p className="text-2xl font-bold text-primary">
-                  {totalOrders > 0 ? '42.50 DA' : '0 DA'}
-                </p>
-              </div>
-            </div>
-            <div>
-              <h4 className="text-sm font-medium mb-2">Performance mensuelle</h4>
-              <div className="flex items-center">
-                <div className="flex-1 bg-secondary/50 h-4 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-accent/70 to-accent"
-                    style={{ width: `${Math.min(100, (totalOrders / (totalProducts || 1)) * 100)}%` }}
-                  ></div>
-                </div>
-                <span className="ml-2 text-sm text-muted-foreground">{Math.min(100, (totalOrders / (totalProducts || 1)) * 100).toFixed(0)}%</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
