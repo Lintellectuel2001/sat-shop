@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Home, LayoutDashboard, Users, Database, ShoppingCart } from 'lucide-react';
+import { Home, LayoutDashboard, Users, Database, ShoppingCart, Shield } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import ProductManager from '@/components/admin/ProductManager';
 import SlideManager from '@/components/admin/SlideManager';
@@ -15,6 +14,7 @@ import MarketingNotificationManager from '@/components/admin/marketing/Marketing
 import UserManager from '@/components/admin/users/UserManager';
 import BackupManager from '@/components/admin/backup/BackupManager';
 import OrderManager from '@/components/admin/orders/OrderManager';
+import RLSChecker from '@/components/admin/security/RLSChecker';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
 
 interface Product {
@@ -162,6 +162,10 @@ const Admin = () => {
                 <Database className="h-4 w-4 mr-1" />
                 Sauvegardes
               </TabsTrigger>
+              <TabsTrigger value="security" className="data-[state=active]:bg-white data-[state=active]:text-accent">
+                <Shield className="h-4 w-4 mr-1" />
+                Sécurité
+              </TabsTrigger>
             </TabsList>
 
             <div className="mt-4">
@@ -199,6 +203,10 @@ const Admin = () => {
               
               <TabsContent value="backup">
                 <BackupManager />
+              </TabsContent>
+              
+              <TabsContent value="security">
+                <RLSChecker />
               </TabsContent>
             </div>
           </Tabs>

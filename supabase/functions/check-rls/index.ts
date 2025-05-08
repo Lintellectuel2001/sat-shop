@@ -33,18 +33,30 @@ serve(async (req) => {
     );
 
     // Query to get all tables without RLS enabled from schemas exposed to PostgREST
-    const { data, error } = await supabaseClient.rpc('get_tables_without_rls');
+    const { data: tablesWithoutRLS, error: tablesError } = await supabaseClient.rpc('get_tables_without_rls');
     
-    if (error) {
-      console.error('Error fetching tables without RLS:', error);
-      return new Response(JSON.stringify({ error: error.message }), {
+    if (tablesError) {
+      console.error('Error fetching tables without RLS:', tablesError);
+      return new Response(JSON.stringify({ error: tablesError.message }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Query to get all functions without search_path set
+    const { data: functionsWithoutSearchPath, error: functionsError } = await supabaseClient.rpc('get_functions_without_search_path');
+    
+    if (functionsError) {
+      console.error('Error fetching functions without search_path:', functionsError);
+      return new Response(JSON.stringify({ error: functionsError.message }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
     
     return new Response(JSON.stringify({
-      tables_without_rls: data
+      tables_without_rls: tablesWithoutRLS,
+      functions_without_search_path: functionsWithoutSearchPath
     }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
