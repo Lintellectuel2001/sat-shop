@@ -1,1 +1,5 @@
+
 project_id = "kyjuwizqndxvbuswmkiw"
+
+[functions.check-rls]
+verify_jwt = true
