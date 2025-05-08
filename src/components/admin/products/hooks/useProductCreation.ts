@@ -14,6 +14,8 @@ interface Product {
   features?: string[];
   payment_link: string;
   is_available?: boolean;
+  is_physical?: boolean;
+  purchase_price?: number;
 }
 
 export const useProductCreation = (onProductsChange: () => void) => {
@@ -61,6 +63,8 @@ export const useProductCreation = (onProductsChange: () => void) => {
           description: newProduct.description,
           features: newProduct.features,
           is_available: newProduct.is_available !== undefined ? newProduct.is_available : true,
+          is_physical: newProduct.is_physical,
+          purchase_price: newProduct.purchase_price,
         }])
         .select();
 

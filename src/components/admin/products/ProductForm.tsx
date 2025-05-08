@@ -19,6 +19,7 @@ interface ProductFormProps {
     image: string;
     payment_link: string;
     is_physical?: boolean;
+    purchase_price?: number; // Ajout du prix d'achat
   };
   onProductChange: (field: string, value: any) => void;
   onSubmit: () => void;
@@ -138,15 +139,28 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="price">Prix *</Label>
-        <Input
-          id="price"
-          placeholder="Prix"
-          value={product.price}
-          onChange={(e) => onProductChange('price', e.target.value)}
-          required
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="price">Prix de vente *</Label>
+          <Input
+            id="price"
+            placeholder="Prix de vente"
+            value={product.price}
+            onChange={(e) => onProductChange('price', e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="purchase_price">Prix d'achat</Label>
+          <Input
+            id="purchase_price"
+            type="number"
+            placeholder="Prix d'achat"
+            value={product.purchase_price || ''}
+            onChange={(e) => onProductChange('purchase_price', e.target.value ? Number(e.target.value) : null)}
+          />
+        </div>
       </div>
 
       <div className="space-y-2">

@@ -10,6 +10,7 @@ export interface Product {
   payment_link: string;
   is_available?: boolean;
   is_physical?: boolean;
+  purchase_price?: number;
 }
 
 export interface Order {

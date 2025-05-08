@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import StatsCards from './StatsCards';
@@ -5,7 +6,7 @@ import SalesChart from './SalesChart';
 import UserStatistics from './UserStatistics';
 import PeriodFilter from './PeriodFilter';
 import { DateRange } from 'react-day-picker';
-import { Activity } from 'lucide-react';
+import { Activity, TrendingUp } from 'lucide-react';
 
 interface SalesData {
   name: string;
@@ -28,6 +29,8 @@ const StatisticsPanel = () => {
   const [recentSalesGrowth, setRecentSalesGrowth] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [totalProfit, setTotalProfit] = useState<number>(0);
+  const [profitMargin, setProfitMargin] = useState<number>(0);
   
   // Stats utilisateurs simulées (à remplacer par de vraies données)
   const [totalUsers, setTotalUsers] = useState<number>(0);
@@ -37,13 +40,31 @@ const StatisticsPanel = () => {
 
   const updateSalesData = async () => {
     try {
+      // Récupération des ventes et calculs de bénéfices
       const { data: recentSales } = await supabase
         .from('cart_history')
         .select('created_at, product_id')
         .eq('action_type', 'purchase')
         .order('created_at', { ascending: false });
 
-      if (recentSales) {
+      // Récupérer tous les produits pour avoir les prix d'achat
+      const { data: products } = await supabase
+        .from('products')
+        .select('id, price, purchase_price');
+
+      let totalRevenue = 0;
+      let totalCost = 0;
+      
+      if (recentSales && products) {
+        // Créer un mapping des produits pour accès rapide
+        const productMap = new Map();
+        products.forEach(product => {
+          productMap.set(product.id, {
+            price: parseFloat(product.price.replace(/[^\d]/g, '')), 
+            purchasePrice: product.purchase_price || 0
+          });
+        });
+
         // Appliquer le filtre de date si spécifié
         let filteredSales = recentSales;
         if (dateRange?.from) {
@@ -59,6 +80,23 @@ const StatisticsPanel = () => {
             }
             return saleDate >= fromDate;
           });
+        }
+
+        // Calculer les revenus et coûts totaux
+        filteredSales.forEach(sale => {
+          if (sale.product_id && productMap.has(sale.product_id)) {
+            const productData = productMap.get(sale.product_id);
+            totalRevenue += productData.price;
+            totalCost += productData.purchasePrice;
+          }
+        });
+
+        // Calculer le bénéfice total et la marge
+        const calculatedTotalProfit = totalRevenue - totalCost;
+        setTotalProfit(calculatedTotalProfit);
+        
+        if (totalRevenue > 0) {
+          setProfitMargin((calculatedTotalProfit / totalRevenue) * 100);
         }
 
         if (viewMode === 'monthly') {
@@ -168,14 +206,14 @@ const StatisticsPanel = () => {
         }
 
         // Generate category statistics for internal use but we won't display them
-        const { data: products } = await supabase
+        const { data: productsByCategory } = await supabase
           .from('products')
           .select('category');
 
-        if (products && products.length > 0) {
+        if (productsByCategory && productsByCategory.length > 0) {
           const categoryCounts: {[key: string]: number} = {};
           
-          products.forEach(product => {
+          productsByCategory.forEach(product => {
             if (product.category) {
               categoryCounts[product.category] = (categoryCounts[product.category] || 0) + 1;
             }
@@ -367,6 +405,38 @@ const StatisticsPanel = () => {
             </div>
           </div>
           <SalesChart salesData={salesData} />
+        </div>
+        
+        <div className="bg-white p-6 rounded-xl shadow-elegant">
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold text-primary">Rentabilité</h3>
+            <p className="text-sm text-muted-foreground">Aperçu des bénéfices</p>
+          </div>
+          
+          <div className="space-y-6">
+            <div className="flex items-center justify-between border-b pb-2">
+              <div>
+                <p className="text-sm text-muted-foreground">Bénéfice Total</p>
+                <p className="text-lg font-semibold">{totalProfit.toLocaleString()} DA</p>
+              </div>
+              <div className="bg-green-50 p-2 rounded-full">
+                <TrendingUp className="h-5 w-5 text-green-500" />
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between border-b pb-2">
+              <div>
+                <p className="text-sm text-muted-foreground">Marge Bénéficiaire</p>
+                <p className="text-lg font-semibold">{profitMargin.toFixed(2)}%</p>
+              </div>
+              <div className="relative h-2 w-full max-w-[100px] rounded-full bg-gray-100 overflow-hidden">
+                <div 
+                  className="absolute left-0 top-0 h-full bg-primary" 
+                  style={{ width: `${Math.min(profitMargin, 100)}%` }}
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
         <UserStatistics
