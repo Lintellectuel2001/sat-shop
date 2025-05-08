@@ -2,20 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
-
-interface Product {
-  id: string;
-  name: string;
-  price: string;
-  description?: string;
-  image: string;
-  category: string;
-  features?: string[];
-  payment_link: string;
-  is_available?: boolean;
-  is_physical?: boolean;
-  purchase_price?: number;
-}
+import { Product } from '../types/product.types';
 
 export const useProductUpdate = () => {
   const { toast } = useToast();

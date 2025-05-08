@@ -1,362 +1,34 @@
 
-import React, { useEffect, useState } from 'react';
-import { supabase } from "@/integrations/supabase/client";
+import React, { useState } from 'react';
+import { Activity } from 'lucide-react';
+import { DateRange } from 'react-day-picker';
+
 import StatsCards from './StatsCards';
 import SalesChart from './SalesChart';
 import UserStatistics from './UserStatistics';
 import PeriodFilter from './PeriodFilter';
-import { DateRange } from 'react-day-picker';
-import { Activity, TrendingUp } from 'lucide-react';
-
-interface SalesData {
-  name: string;
-  sales: number;
-}
-
-interface CategoryData {
-  name: string;
-  value: number;
-}
+import ProfitabilityCard from './ProfitabilityCard';
+import { useStatisticsData } from './hooks/useStatisticsData';
 
 const StatisticsPanel = () => {
-  const [totalProducts, setTotalProducts] = useState<number>(0);
-  const [totalOrders, setTotalOrders] = useState<number>(0);
-  const [popularCategory, setPopularCategory] = useState<string>('');
-  const [categoryPercentage, setCategoryPercentage] = useState<number>(0);
-  const [salesData, setSalesData] = useState<SalesData[]>([]);
-  const [categoriesData, setCategoriesData] = useState<CategoryData[]>([]);
   const [viewMode, setViewMode] = useState<'daily' | 'weekly' | 'monthly'>('monthly');
-  const [recentSalesGrowth, setRecentSalesGrowth] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
-  const [totalProfit, setTotalProfit] = useState<number>(0);
-  const [profitMargin, setProfitMargin] = useState<number>(0);
   
-  // Stats utilisateurs simulées (à remplacer par de vraies données)
-  const [totalUsers, setTotalUsers] = useState<number>(0);
-  const [newUsers, setNewUsers] = useState<number>(0);
-  const [averageSessionTime, setAverageSessionTime] = useState<string>('0min');
-  const [registrationRate, setRegistrationRate] = useState<number>(0);
-
-  const updateSalesData = async () => {
-    try {
-      // Récupération des ventes et calculs de bénéfices
-      const { data: recentSales } = await supabase
-        .from('cart_history')
-        .select('created_at, product_id')
-        .eq('action_type', 'purchase')
-        .order('created_at', { ascending: false });
-
-      // Récupérer tous les produits pour avoir les prix d'achat
-      const { data: products } = await supabase
-        .from('products')
-        .select('id, price, purchase_price');
-
-      let totalRevenue = 0;
-      let totalCost = 0;
-      
-      if (recentSales && products) {
-        // Créer un mapping des produits pour accès rapide
-        const productMap = new Map();
-        products.forEach(product => {
-          productMap.set(product.id, {
-            price: parseFloat(product.price.replace(/[^\d]/g, '')), 
-            purchasePrice: product.purchase_price || 0
-          });
-        });
-
-        // Appliquer le filtre de date si spécifié
-        let filteredSales = recentSales;
-        if (dateRange?.from) {
-          const fromDate = new Date(dateRange.from);
-          fromDate.setHours(0, 0, 0, 0);
-          
-          filteredSales = recentSales.filter(sale => {
-            const saleDate = new Date(sale.created_at);
-            if (dateRange.to) {
-              const toDate = new Date(dateRange.to);
-              toDate.setHours(23, 59, 59, 999);
-              return saleDate >= fromDate && saleDate <= toDate;
-            }
-            return saleDate >= fromDate;
-          });
-        }
-
-        // Calculer les revenus et coûts totaux
-        filteredSales.forEach(sale => {
-          if (sale.product_id && productMap.has(sale.product_id)) {
-            const productData = productMap.get(sale.product_id);
-            totalRevenue += productData.price;
-            totalCost += productData.purchasePrice;
-          }
-        });
-
-        // Calculer le bénéfice total et la marge
-        const calculatedTotalProfit = totalRevenue - totalCost;
-        setTotalProfit(calculatedTotalProfit);
-        
-        if (totalRevenue > 0) {
-          setProfitMargin((calculatedTotalProfit / totalRevenue) * 100);
-        }
-
-        if (viewMode === 'monthly') {
-          // Monthly view
-          const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'];
-          const salesByMonth = filteredSales.reduce((acc: {[key: string]: number}, sale) => {
-            const month = new Date(sale.created_at).getMonth();
-            if (month < monthNames.length) {
-              acc[monthNames[month]] = (acc[monthNames[month]] || 0) + 1;
-            }
-            return acc;
-          }, {});
-
-          const chartData = monthNames.map(month => ({
-            name: month,
-            sales: salesByMonth[month] || 0
-          }));
-
-          // Calculate growth rate (compare last two months)
-          const lastMonthSales = chartData[chartData.length - 1].sales;
-          const previousMonthSales = chartData[chartData.length - 2].sales;
-          
-          if (previousMonthSales > 0) {
-            const growth = ((lastMonthSales - previousMonthSales) / previousMonthSales) * 100;
-            setRecentSalesGrowth(growth);
-          } else {
-            setRecentSalesGrowth(lastMonthSales > 0 ? 100 : 0);
-          }
-
-          setSalesData(chartData);
-        } 
-        else if (viewMode === 'weekly') {
-          // Weekly view
-          const today = new Date();
-          const dayNames = Array.from({ length: 7 }, (_, i) => {
-            const date = new Date(today);
-            date.setDate(today.getDate() - i);
-            return date.toLocaleDateString('fr-FR', { weekday: 'short' });
-          }).reverse();
-
-          const salesByDay = filteredSales.reduce((acc: {[key: string]: number}, sale) => {
-            const saleDate = new Date(sale.created_at);
-            // Check if the sale date is within the last 7 days
-            const dayDiff = Math.floor((today.getTime() - saleDate.getTime()) / (1000 * 60 * 60 * 24));
-            if (dayDiff < 7) {
-              const dayLabel = saleDate.toLocaleDateString('fr-FR', { weekday: 'short' });
-              acc[dayLabel] = (acc[dayLabel] || 0) + 1;
-            }
-            return acc;
-          }, {});
-
-          const chartData = dayNames.map(day => ({
-            name: day,
-            sales: salesByDay[day] || 0
-          }));
-
-          // Calculate growth rate (compare to previous week)
-          const thisWeekSales = chartData.reduce((sum, item) => sum + item.sales, 0);
-          const previousWeekSales = thisWeekSales * 0.8; // Simplified - ideally fetch previous week data
-
-          if (previousWeekSales > 0) {
-            const growth = ((thisWeekSales - previousWeekSales) / previousWeekSales) * 100;
-            setRecentSalesGrowth(growth);
-          } else {
-            setRecentSalesGrowth(thisWeekSales > 0 ? 100 : 0);
-          }
-
-          setSalesData(chartData);
-        }
-        else {
-          // Daily view (last 7 days)
-          const today = new Date();
-          const dayNames = Array.from({ length: 7 }, (_, i) => {
-            const date = new Date(today);
-            date.setDate(today.getDate() - i);
-            return date.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' });
-          }).reverse();
-
-          const salesByDay = filteredSales.reduce((acc: {[key: string]: number}, sale) => {
-            const saleDate = new Date(sale.created_at);
-            // Check if the sale date is within the last 7 days
-            const dayDiff = Math.floor((today.getTime() - saleDate.getTime()) / (1000 * 60 * 60 * 24));
-            if (dayDiff < 7) {
-              const dayLabel = saleDate.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' });
-              acc[dayLabel] = (acc[dayLabel] || 0) + 1;
-            }
-            return acc;
-          }, {});
-
-          const chartData = dayNames.map(day => ({
-            name: day,
-            sales: salesByDay[day] || 0
-          }));
-
-          // Calculate growth rate (compare last two days)
-          const lastDaySales = chartData[chartData.length - 1].sales;
-          const previousDaySales = chartData[chartData.length - 2].sales;
-          
-          if (previousDaySales > 0) {
-            const growth = ((lastDaySales - previousDaySales) / previousDaySales) * 100;
-            setRecentSalesGrowth(growth);
-          } else {
-            setRecentSalesGrowth(lastDaySales > 0 ? 100 : 0);
-          }
-
-          setSalesData(chartData);
-        }
-
-        // Generate category statistics for internal use but we won't display them
-        const { data: productsByCategory } = await supabase
-          .from('products')
-          .select('category');
-
-        if (productsByCategory && productsByCategory.length > 0) {
-          const categoryCounts: {[key: string]: number} = {};
-          
-          productsByCategory.forEach(product => {
-            if (product.category) {
-              categoryCounts[product.category] = (categoryCounts[product.category] || 0) + 1;
-            }
-          });
-
-          const categoryData = Object.entries(categoryCounts).map(([name, value]) => ({
-            name: name.toUpperCase(),
-            value
-          })).sort((a, b) => b.value - a.value);
-          
-          setCategoriesData(categoryData);
-        }
-      }
-      
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour des données de vente:', error);
-      setIsLoading(false);
-    }
-  };
-
-  const fetchUserStatistics = async () => {
-    try {
-      // Récupérer le nombre total d'utilisateurs depuis Supabase
-      const { count } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
-      
-      setTotalUsers(count || 0);
-      
-      // Récupérer les nouveaux utilisateurs (inscrits au cours des 30 derniers jours)
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      
-      const { count: newUsersCount } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', thirtyDaysAgo.toISOString());
-      
-      setNewUsers(newUsersCount || 0);
-      
-      // Taux d'inscription calculé (simplification : nouveaux utilisateurs / utilisateurs totaux)
-      if (count && count > 0) {
-        setRegistrationRate(Math.round((newUsersCount || 0) / count * 100));
-      }
-      
-      // Temps moyen de session simulé
-      setAverageSessionTime('12min');
-      
-    } catch (error) {
-      console.error('Erreur lors de la récupération des statistiques utilisateurs:', error);
-    }
-  };
-
-  const fetchStatistics = async () => {
-    try {
-      setIsLoading(true);
-      console.log('Récupération des statistiques...');
-      
-      const { count: productsCount } = await supabase
-        .from('products')
-        .select('*', { count: 'exact', head: true });
-      
-      console.log('Nombre total de produits:', productsCount);
-      setTotalProducts(productsCount || 0);
-
-      const { data: ordersData, error: ordersError } = await supabase
-        .from('cart_history')
-        .select('*')
-        .eq('action_type', 'purchase');
-
-      if (ordersError) {
-        console.error('Erreur lors de la récupération des commandes:', ordersError);
-      } else {
-        const totalOrderCount = ordersData?.length || 0;
-        console.log('Nombre total de commandes trouvées:', totalOrderCount);
-        setTotalOrders(totalOrderCount);
-      }
-
-      const { data: products, error: productsError } = await supabase
-        .from('products')
-        .select('category');
-
-      if (productsError) {
-        console.error('Erreur lors de la récupération des catégories:', productsError);
-        return;
-      }
-
-      if (products && products.length > 0) {
-        const categoryCounts = products.reduce((acc: {[key: string]: number}, product) => {
-          if (product.category) {
-            acc[product.category] = (acc[product.category] || 0) + 1;
-          }
-          return acc;
-        }, {});
-
-        const mostPopular = Object.entries(categoryCounts).reduce((a, b) => 
-          categoryCounts[a[0]] > categoryCounts[b[0]] ? a : b
-        );
-
-        setPopularCategory(mostPopular[0].toUpperCase());
-        const percentage = (Number(mostPopular[1]) / products.length) * 100;
-        setCategoryPercentage(Math.round(percentage));
-      }
-
-      await updateSalesData();
-      await fetchUserStatistics();
-    } catch (error) {
-      console.error('Erreur lors de la récupération des statistiques:', error);
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    updateSalesData();
-  }, [viewMode, dateRange]);
-
-  useEffect(() => {
-    console.log('Initialisation du panneau de statistiques...');
-    fetchStatistics();
-    
-    const channel = supabase
-      .channel('cart-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'cart_history',
-          filter: 'action_type=eq.purchase'
-        },
-        async (payload) => {
-          console.log('Nouvelle commande détectée:', payload);
-          setTotalOrders(prev => prev + 1);
-          await updateSalesData();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
+  const { 
+    totalProducts,
+    totalOrders,
+    popularCategory,
+    categoryPercentage,
+    salesData,
+    recentSalesGrowth,
+    isLoading,
+    totalUsers,
+    newUsers,
+    averageSessionTime,
+    registrationRate,
+    totalProfit,
+    profitMargin
+  } = useStatisticsData(viewMode, dateRange);
 
   return (
     <div className="space-y-8">
@@ -407,37 +79,10 @@ const StatisticsPanel = () => {
           <SalesChart salesData={salesData} />
         </div>
         
-        <div className="bg-white p-6 rounded-xl shadow-elegant">
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-primary">Rentabilité</h3>
-            <p className="text-sm text-muted-foreground">Aperçu des bénéfices</p>
-          </div>
-          
-          <div className="space-y-6">
-            <div className="flex items-center justify-between border-b pb-2">
-              <div>
-                <p className="text-sm text-muted-foreground">Bénéfice Total</p>
-                <p className="text-lg font-semibold">{totalProfit.toLocaleString()} DA</p>
-              </div>
-              <div className="bg-green-50 p-2 rounded-full">
-                <TrendingUp className="h-5 w-5 text-green-500" />
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-between border-b pb-2">
-              <div>
-                <p className="text-sm text-muted-foreground">Marge Bénéficiaire</p>
-                <p className="text-lg font-semibold">{profitMargin.toFixed(2)}%</p>
-              </div>
-              <div className="relative h-2 w-full max-w-[100px] rounded-full bg-gray-100 overflow-hidden">
-                <div 
-                  className="absolute left-0 top-0 h-full bg-primary" 
-                  style={{ width: `${Math.min(profitMargin, 100)}%` }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        <ProfitabilityCard 
+          totalProfit={totalProfit}
+          profitMargin={profitMargin}
+        />
 
         <UserStatistics
           totalUsers={totalUsers}
