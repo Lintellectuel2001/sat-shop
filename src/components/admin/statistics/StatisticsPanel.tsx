@@ -27,7 +27,8 @@ const StatisticsPanel = () => {
     averageSessionTime,
     registrationRate,
     totalProfit,
-    profitMargin
+    profitMargin,
+    recentSales
   } = useStatisticsData(viewMode, dateRange);
 
   return (
@@ -103,6 +104,64 @@ const StatisticsPanel = () => {
           registrationRate={registrationRate}
           isLoading={isLoading}
         />
+
+        {/* Affichage des ventes récentes avec les bénéfices calculés */}
+        {recentSales && recentSales.length > 0 && (
+          <div className="md:col-span-3 bg-white p-6 rounded-xl shadow-elegant">
+            <h3 className="text-lg font-semibold text-primary mb-4">Bénéfices par article (ventes récentes)</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[500px]">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-sm font-medium text-left py-2">Produit</th>
+                    <th className="text-sm font-medium text-right py-2">Prix d'achat</th>
+                    <th className="text-sm font-medium text-right py-2">Prix de vente</th>
+                    <th className="text-sm font-medium text-right py-2">Bénéfice</th>
+                    <th className="text-sm font-medium text-right py-2">Marge</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentSales.map((sale, index) => {
+                    // Calculer la marge en pourcentage
+                    const margin = sale.purchase_price > 0 
+                      ? ((sale.selling_price - sale.purchase_price) / sale.purchase_price * 100).toFixed(1) 
+                      : '∞';
+                    
+                    return (
+                      <tr key={index} className="border-b">
+                        <td className="py-2.5">{sale.product_name}</td>
+                        <td className="text-right py-2.5">
+                          {new Intl.NumberFormat('fr-DZ', {
+                            style: 'currency',
+                            currency: 'DZD',
+                            maximumFractionDigits: 0
+                          }).format(sale.purchase_price)}
+                        </td>
+                        <td className="text-right py-2.5">
+                          {new Intl.NumberFormat('fr-DZ', {
+                            style: 'currency',
+                            currency: 'DZD',
+                            maximumFractionDigits: 0
+                          }).format(sale.selling_price)}
+                        </td>
+                        <td className={`text-right py-2.5 font-medium ${sale.profit > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                          {new Intl.NumberFormat('fr-DZ', {
+                            style: 'currency',
+                            currency: 'DZD',
+                            maximumFractionDigits: 0
+                          }).format(sale.profit)}
+                        </td>
+                        <td className={`text-right py-2.5 ${Number(margin) > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                          {margin}%
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

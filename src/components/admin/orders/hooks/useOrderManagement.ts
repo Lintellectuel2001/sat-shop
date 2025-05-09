@@ -91,7 +91,7 @@ export const useOrderManagement = () => {
         if (orderData && orderData.product_id) {
           const { data: productData, error: productError } = await supabase
             .from('products')
-            .select('price, purchase_price')
+            .select('price, purchase_price, name')
             .eq('id', orderData.product_id)
             .single();
           
@@ -109,17 +109,34 @@ export const useOrderManagement = () => {
             const profit = sellingPrice - purchasePrice;
             
             console.log(`Calcul du bénéfice pour la commande ${orderId}:`);
+            console.log(`- Produit: ${productData.name}`);
             console.log(`- Prix de vente: ${sellingPrice} DA`);
             console.log(`- Prix d'achat: ${purchasePrice} DA`);
             console.log(`- Bénéfice: ${profit} DA`);
             
+            // Formater le bénéfice pour l'affichage
+            const formattedProfit = new Intl.NumberFormat('fr-DZ', {
+              style: 'currency',
+              currency: 'DZD',
+              maximumFractionDigits: 0
+            }).format(profit);
+            
+            // Afficher le bénéfice dans un toast
+            toast({
+              title: "Bénéfice calculé",
+              description: `Produit: ${productData.name}\nBénéfice: ${formattedProfit}`,
+              duration: 5000
+            });
+            
             // Enregistrer l'achat dans l'historique des commandes avec statut "completed"
+            // et ajouter le bénéfice calculé
             await supabase
               .from('cart_history')
               .insert({
                 product_id: orderData.product_id,
                 action_type: 'purchase',
-                payment_status: 'completed'
+                payment_status: 'completed',
+                profit: profit
               });
             
             console.log(`Commande validée: ID=${orderId}, Bénéfice calculé=${profit}`);

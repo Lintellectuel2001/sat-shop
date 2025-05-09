@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Trash2 } from 'lucide-react';
+import { Trash2, DollarSign, AlertCircle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface OrderActionsProps {
   orderId: string;
@@ -16,18 +17,50 @@ const OrderActions: React.FC<OrderActionsProps> = ({
   onStatusChange, 
   onDeleteClick 
 }) => {
+  const [isValidating, setIsValidating] = useState(false);
+
+  const handleValidate = async () => {
+    setIsValidating(true);
+    try {
+      await onStatusChange(orderId, 'validated');
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
   return (
     <div className="flex space-x-2">
       {status === 'pending' && (
         <>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700"
-            onClick={() => onStatusChange(orderId, 'validated')}
-          >
-            Valider
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700"
+                  onClick={handleValidate}
+                  disabled={isValidating}
+                >
+                  {isValidating ? (
+                    <span className="flex items-center">
+                      <span className="h-3 w-3 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+                      Calcul...
+                    </span>
+                  ) : (
+                    <span className="flex items-center">
+                      <DollarSign className="h-3 w-3 mr-1" />
+                      Valider
+                    </span>
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Valider la commande et calculer le bénéfice</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
           <Button 
             variant="outline" 
             size="sm" 
@@ -40,8 +73,18 @@ const OrderActions: React.FC<OrderActionsProps> = ({
       )}
       
       {status !== 'pending' && (
-        <span className="text-muted-foreground text-sm mr-2">
-          Traitement terminé
+        <span className="text-muted-foreground text-sm mr-2 flex items-center">
+          {status === 'validated' ? (
+            <>
+              <DollarSign className="h-3 w-3 mr-1 text-green-500" />
+              Bénéfice calculé
+            </>
+          ) : (
+            <>
+              <AlertCircle className="h-3 w-3 mr-1 text-red-500" />
+              Annulée
+            </>
+          )}
         </span>
       )}
       

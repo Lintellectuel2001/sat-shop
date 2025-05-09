@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { DateRange } from 'react-day-picker';
@@ -11,6 +12,16 @@ export interface SalesData {
 export interface CategoryData {
   name: string;
   value: number;
+}
+
+export interface RecentSale {
+  id: string;
+  product_name: string;
+  product_id: string;
+  created_at: string;
+  purchase_price: number;
+  selling_price: number;
+  profit: number;
 }
 
 interface StatisticsData {
@@ -28,6 +39,7 @@ interface StatisticsData {
   registrationRate: number;
   totalProfit: number;
   profitMargin: number;
+  recentSales: RecentSale[];
 }
 
 export const useStatisticsData = (
@@ -48,15 +60,87 @@ export const useStatisticsData = (
     averageSessionTime: '0min',
     registrationRate: 0,
     totalProfit: 0,
-    profitMargin: 0
+    profitMargin: 0,
+    recentSales: []
   });
+
+  const fetchRecentSales = async () => {
+    try {
+      // Récupération des dernières ventes avec les bénéfices
+      const { data: cartHistoryData, error } = await supabase
+        .from('cart_history')
+        .select('id, product_id, created_at, profit')
+        .eq('action_type', 'purchase')
+        .order('created_at', { ascending: false })
+        .limit(10);
+      
+      if (error) {
+        console.error("Erreur lors de la récupération des ventes récentes:", error);
+        return [];
+      }
+
+      // Récupérer les détails des produits pour ces ventes
+      const recentSalesWithDetails = await Promise.all(
+        (cartHistoryData || []).map(async (sale) => {
+          if (!sale.product_id) {
+            return {
+              id: sale.id,
+              product_name: 'Produit inconnu',
+              product_id: '',
+              created_at: sale.created_at,
+              purchase_price: 0,
+              selling_price: 0,
+              profit: sale.profit || 0
+            };
+          }
+
+          // Récupérer les détails du produit
+          const { data: productData } = await supabase
+            .from('products')
+            .select('name, price, purchase_price')
+            .eq('id', sale.product_id)
+            .single();
+
+          if (productData) {
+            const sellingPrice = parseFloat(productData.price.replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+            const purchasePrice = productData.purchase_price || 0;
+
+            return {
+              id: sale.id,
+              product_name: productData.name,
+              product_id: sale.product_id,
+              created_at: sale.created_at,
+              purchase_price: purchasePrice,
+              selling_price: sellingPrice,
+              profit: sale.profit !== undefined ? sale.profit : (sellingPrice - purchasePrice)
+            };
+          }
+
+          return {
+            id: sale.id,
+            product_name: 'Produit non trouvé',
+            product_id: sale.product_id,
+            created_at: sale.created_at,
+            purchase_price: 0,
+            selling_price: 0,
+            profit: sale.profit || 0
+          };
+        })
+      );
+
+      return recentSalesWithDetails;
+    } catch (error) {
+      console.error("Erreur lors de la récupération des ventes récentes:", error);
+      return [];
+    }
+  };
 
   const updateSalesData = async () => {
     try {
       // Récupération des ventes et calculs de bénéfices
       const { data: recentSales } = await supabase
         .from('cart_history')
-        .select('created_at, product_id')
+        .select('created_at, product_id, profit')
         .eq('action_type', 'purchase')
         .order('created_at', { ascending: false });
 
@@ -101,6 +185,12 @@ export const useStatisticsData = (
             const productData = productMap.get(sale.product_id);
             totalRevenue += productData.price;
             totalCost += productData.purchasePrice;
+            
+            // Si le bénéfice est directement stocké, l'utiliser
+            if (sale.profit !== undefined && sale.profit !== null) {
+              // Pas besoin de calculer le bénéfice ici car il est déjà stocké
+              console.log(`Bénéfice trouvé pour la vente: ${sale.profit} DA`);
+            }
           }
         });
 
@@ -111,6 +201,9 @@ export const useStatisticsData = (
         if (totalRevenue > 0) {
           profitMarginCalc = (calculatedTotalProfit / totalRevenue) * 100;
         }
+
+        // Récupérer les ventes récentes avec détails
+        const recentSalesData = await fetchRecentSales();
 
         let salesDataResult: SalesData[] = [];
 
@@ -222,6 +315,7 @@ export const useStatisticsData = (
           recentSalesGrowth: prev.recentSalesGrowth,
           totalProfit: calculatedTotalProfit,
           profitMargin: profitMarginCalc,
+          recentSales: recentSalesData,
           isLoading: false
         }));
       }
@@ -337,6 +431,47 @@ export const useStatisticsData = (
     } catch (error) {
       console.error('Erreur lors de la récupération des statistiques:', error);
       setStatistics(prev => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  const fetchUserStatistics = async () => {
+    try {
+      // Récupérer le nombre total d'utilisateurs depuis Supabase
+      const { count } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+      
+      const totalUsersCount = count || 0;
+      
+      // Récupérer les nouveaux utilisateurs (inscrits au cours des 30 derniers jours)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const { count: newUsersCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', thirtyDaysAgo.toISOString());
+      
+      const newUsersValue = newUsersCount || 0;
+      
+      // Taux d'inscription calculé
+      let registrationRateValue = 0;
+      if (totalUsersCount > 0) {
+        registrationRateValue = Math.round((newUsersValue / totalUsersCount) * 100);
+      }
+      
+      // Temps moyen de session simulé
+      const averageSessionTimeValue = '12min';
+
+      setStatistics(prev => ({
+        ...prev,
+        totalUsers: totalUsersCount,
+        newUsers: newUsersValue,
+        registrationRate: registrationRateValue,
+        averageSessionTime: averageSessionTimeValue
+      }));
+    } catch (error) {
+      console.error('Erreur lors de la récupération des statistiques utilisateurs:', error);
     }
   };
 
