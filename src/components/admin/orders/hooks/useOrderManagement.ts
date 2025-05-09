@@ -78,48 +78,61 @@ export const useOrderManagement = () => {
     try {
       // Si la commande est validée, nous devons calculer et enregistrer le bénéfice
       if (newStatus === 'validated') {
-        // Récupérer les informations de la commande
+        // Récupérer les informations détaillées de la commande
         const { data: orderData, error: orderError } = await supabase
           .from('orders')
-          .select('*, products:product_id(price, purchase_price)')
+          .select('*, product_id')
           .eq('id', orderId)
           .single();
         
         if (orderError) throw orderError;
         
-        // Calculer le bénéfice si les données de produit sont disponibles
-        if (orderData && orderData.products) {
-          const purchasePrice = orderData.products.purchase_price || 0;
-          const sellingPrice = parseFloat(orderData.products.price.replace(/[^\d]/g, '')) || 0;
-          const profit = sellingPrice - purchasePrice;
+        // Récupérer les détails du produit pour le calcul du bénéfice
+        if (orderData && orderData.product_id) {
+          const { data: productData, error: productError } = await supabase
+            .from('products')
+            .select('price, purchase_price')
+            .eq('id', orderData.product_id)
+            .single();
           
-          // Enregistrer le bénéfice dans l'historique des commandes
-          await supabase
-            .from('cart_history')
-            .insert({
-              product_id: orderData.product_id,
-              action_type: 'purchase',
-              payment_status: 'completed'
-            });
+          if (productError) {
+            console.error('Erreur lors de la récupération des données du produit:', productError);
+            throw productError;
+          }
           
-          console.log(`Commande validée: ID=${orderId}, Bénéfice calculé=${profit}`);
-          
-          // Mise à jour du statut de la commande
-          const { error } = await supabase
-            .from('orders')
-            .update({ status: newStatus })
-            .eq('id', orderId);
-          
-          if (error) throw error;
-        } else {
-          // Si le produit n'est pas trouvé, mettre simplement à jour le statut
-          const { error } = await supabase
-            .from('orders')
-            .update({ status: newStatus })
-            .eq('id', orderId);
-          
-          if (error) throw error;
+          if (productData) {
+            // Extraire le prix de vente (en supprimant tout caractère non-numérique)
+            const sellingPrice = parseFloat(productData.price.replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+            // S'assurer que purchase_price est un nombre
+            const purchasePrice = productData.purchase_price || 0;
+            // Calculer le bénéfice
+            const profit = sellingPrice - purchasePrice;
+            
+            console.log(`Calcul du bénéfice pour la commande ${orderId}:`);
+            console.log(`- Prix de vente: ${sellingPrice} DA`);
+            console.log(`- Prix d'achat: ${purchasePrice} DA`);
+            console.log(`- Bénéfice: ${profit} DA`);
+            
+            // Enregistrer l'achat dans l'historique des commandes avec statut "completed"
+            await supabase
+              .from('cart_history')
+              .insert({
+                product_id: orderData.product_id,
+                action_type: 'purchase',
+                payment_status: 'completed'
+              });
+            
+            console.log(`Commande validée: ID=${orderId}, Bénéfice calculé=${profit}`);
+          }
         }
+        
+        // Mise à jour du statut de la commande
+        const { error } = await supabase
+          .from('orders')
+          .update({ status: newStatus })
+          .eq('id', orderId);
+        
+        if (error) throw error;
       } else {
         // Pour les annulations, simplement mettre à jour le statut
         const { error } = await supabase

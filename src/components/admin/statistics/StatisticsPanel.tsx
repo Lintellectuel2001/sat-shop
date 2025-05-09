@@ -41,12 +41,24 @@ const StatisticsPanel = () => {
             Vue d'ensemble des performances et tendances de la boutique
           </p>
         </div>
-        <PeriodFilter 
-          viewMode={viewMode} 
-          setViewMode={setViewMode} 
-          dateRange={dateRange}
-          setDateRange={setDateRange}
-        />
+        <div className="flex items-center gap-2">
+          <div className="bg-white shadow-sm border px-3 py-2 rounded-lg">
+            <p className="text-sm font-medium">Bénéfice total:</p>
+            <p className={`text-lg font-bold ${totalProfit > 0 ? 'text-green-600' : 'text-red-500'}`}>
+              {new Intl.NumberFormat('fr-DZ', {
+                style: 'currency',
+                currency: 'DZD',
+                maximumFractionDigits: 0
+              }).format(totalProfit)}
+            </p>
+          </div>
+          <PeriodFilter 
+            viewMode={viewMode} 
+            setViewMode={setViewMode} 
+            dateRange={dateRange}
+            setDateRange={setDateRange}
+          />
+        </div>
       </div>
       
       <StatsCards
