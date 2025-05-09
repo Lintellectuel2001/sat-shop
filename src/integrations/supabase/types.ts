@@ -62,6 +62,7 @@ export type Database = {
           payment_id: string | null
           payment_status: string | null
           product_id: string | null
+          profit: number | null
           user_id: string | null
         }
         Insert: {
@@ -71,6 +72,7 @@ export type Database = {
           payment_id?: string | null
           payment_status?: string | null
           product_id?: string | null
+          profit?: number | null
           user_id?: string | null
         }
         Update: {
@@ -80,6 +82,7 @@ export type Database = {
           payment_id?: string | null
           payment_status?: string | null
           product_id?: string | null
+          profit?: number | null
           user_id?: string | null
         }
         Relationships: []

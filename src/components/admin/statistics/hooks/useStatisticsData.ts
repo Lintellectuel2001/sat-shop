@@ -79,18 +79,24 @@ export const useStatisticsData = (
         return [];
       }
 
+      // Ensure cartHistoryData is an array before proceeding
+      if (!cartHistoryData || !Array.isArray(cartHistoryData)) {
+        console.error("Données d'historique de vente invalides:", cartHistoryData);
+        return [];
+      }
+
       // Récupérer les détails des produits pour ces ventes
       const recentSalesWithDetails = await Promise.all(
-        (cartHistoryData || []).map(async (sale) => {
-          if (!sale.product_id) {
+        cartHistoryData.map(async (sale) => {
+          if (!sale?.product_id) {
             return {
-              id: sale.id,
+              id: sale?.id || 'unknown-id',
               product_name: 'Produit inconnu',
               product_id: '',
-              created_at: sale.created_at,
+              created_at: sale?.created_at || new Date().toISOString(),
               purchase_price: 0,
               selling_price: 0,
-              profit: sale.profit || 0
+              profit: sale?.profit || 0
             };
           }
 
@@ -112,12 +118,12 @@ export const useStatisticsData = (
               created_at: sale.created_at,
               purchase_price: purchasePrice,
               selling_price: sellingPrice,
-              profit: sale.profit !== undefined ? sale.profit : (sellingPrice - purchasePrice)
+              profit: typeof sale.profit !== 'undefined' ? sale.profit : (sellingPrice - purchasePrice)
             };
           }
 
           return {
-            id: sale.id,
+            id: sale.id || 'not-found-id',
             product_name: 'Produit non trouvé',
             product_id: sale.product_id,
             created_at: sale.created_at,
@@ -138,16 +144,26 @@ export const useStatisticsData = (
   const updateSalesData = async () => {
     try {
       // Récupération des ventes et calculs de bénéfices
-      const { data: recentSales } = await supabase
+      const { data: recentSales, error: recentSalesError } = await supabase
         .from('cart_history')
         .select('created_at, product_id, profit')
         .eq('action_type', 'purchase')
         .order('created_at', { ascending: false });
 
+      if (recentSalesError) {
+        console.error("Erreur lors de la récupération des ventes récentes:", recentSalesError);
+        return;
+      }
+
       // Récupérer tous les produits pour avoir les prix d'achat
-      const { data: products } = await supabase
+      const { data: products, error: productsError } = await supabase
         .from('products')
         .select('id, price, purchase_price');
+
+      if (productsError) {
+        console.error("Erreur lors de la récupération des produits:", productsError);
+        return;
+      }
 
       let totalRevenue = 0;
       let totalCost = 0;
@@ -169,6 +185,7 @@ export const useStatisticsData = (
           fromDate.setHours(0, 0, 0, 0);
           
           filteredSales = recentSales.filter(sale => {
+            if (!sale?.created_at) return false;
             const saleDate = new Date(sale.created_at);
             if (dateRange.to) {
               const toDate = new Date(dateRange.to);
@@ -181,7 +198,7 @@ export const useStatisticsData = (
 
         // Calculer les revenus et coûts totaux
         filteredSales.forEach(sale => {
-          if (sale.product_id && productMap.has(sale.product_id)) {
+          if (sale?.product_id && productMap.has(sale.product_id)) {
             const productData = productMap.get(sale.product_id);
             totalRevenue += productData.price;
             totalCost += productData.purchasePrice;
@@ -211,6 +228,7 @@ export const useStatisticsData = (
           // Monthly view
           const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'];
           const salesByMonth = filteredSales.reduce((acc: {[key: string]: number}, sale) => {
+            if (!sale?.created_at) return acc;
             const month = new Date(sale.created_at).getMonth();
             if (month < monthNames.length) {
               acc[monthNames[month]] = (acc[monthNames[month]] || 0) + 1;
@@ -233,6 +251,7 @@ export const useStatisticsData = (
           }).reverse();
 
           const salesByDay = filteredSales.reduce((acc: {[key: string]: number}, sale) => {
+            if (!sale?.created_at) return acc;
             const saleDate = new Date(sale.created_at);
             // Check if the sale date is within the last 7 days
             const dayDiff = Math.floor((today.getTime() - saleDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -258,6 +277,7 @@ export const useStatisticsData = (
           }).reverse();
 
           const salesByDay = filteredSales.reduce((acc: {[key: string]: number}, sale) => {
+            if (!sale?.created_at) return acc;
             const saleDate = new Date(sale.created_at);
             // Check if the sale date is within the last 7 days
             const dayDiff = Math.floor((today.getTime() - saleDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -431,47 +451,6 @@ export const useStatisticsData = (
     } catch (error) {
       console.error('Erreur lors de la récupération des statistiques:', error);
       setStatistics(prev => ({ ...prev, isLoading: false }));
-    }
-  };
-
-  const fetchUserStatistics = async () => {
-    try {
-      // Récupérer le nombre total d'utilisateurs depuis Supabase
-      const { count } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
-      
-      const totalUsersCount = count || 0;
-      
-      // Récupérer les nouveaux utilisateurs (inscrits au cours des 30 derniers jours)
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      
-      const { count: newUsersCount } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', thirtyDaysAgo.toISOString());
-      
-      const newUsersValue = newUsersCount || 0;
-      
-      // Taux d'inscription calculé
-      let registrationRateValue = 0;
-      if (totalUsersCount > 0) {
-        registrationRateValue = Math.round((newUsersValue / totalUsersCount) * 100);
-      }
-      
-      // Temps moyen de session simulé
-      const averageSessionTimeValue = '12min';
-
-      setStatistics(prev => ({
-        ...prev,
-        totalUsers: totalUsersCount,
-        newUsers: newUsersValue,
-        registrationRate: registrationRateValue,
-        averageSessionTime: averageSessionTimeValue
-      }));
-    } catch (error) {
-      console.error('Erreur lors de la récupération des statistiques utilisateurs:', error);
     }
   };
 
