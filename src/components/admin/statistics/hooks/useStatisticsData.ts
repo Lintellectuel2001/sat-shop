@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { DateRange } from 'react-day-picker';
@@ -220,7 +219,7 @@ export const useStatisticsData = (
           ...prev,
           salesData: salesDataResult,
           categoriesData: categoriesDataResult,
-          recentSalesGrowth: recentSalesGrowthRate,
+          recentSalesGrowth: prev.recentSalesGrowth,
           totalProfit: calculatedTotalProfit,
           profitMargin: profitMarginCalc,
           isLoading: false
@@ -345,8 +344,8 @@ export const useStatisticsData = (
   useEffect(() => {
     fetchStatistics();
     
-    // Set up realtime subscription
-    const channel = supabase
+    // Set up realtime subscription for cart_history changes (purchases)
+    const cartChannel = supabase
       .channel('cart-changes')
       .on(
         'postgres_changes',
@@ -357,15 +356,33 @@ export const useStatisticsData = (
           filter: 'action_type=eq.purchase'
         },
         async (payload) => {
-          console.log('Nouvelle commande détectée:', payload);
-          setStatistics(prev => ({ ...prev, totalOrders: prev.totalOrders + 1 }));
+          console.log('Nouvelle commande détectée pour les statistiques:', payload);
+          await updateSalesData();
+        }
+      )
+      .subscribe();
+      
+    // Set up realtime subscription for order status changes
+    const orderChannel = supabase
+      .channel('order-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'orders',
+          filter: 'status=eq.validated'
+        },
+        async (payload) => {
+          console.log('Commande validée détectée pour les statistiques:', payload);
           await updateSalesData();
         }
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(cartChannel);
+      supabase.removeChannel(orderChannel);
     };
   }, []);
 

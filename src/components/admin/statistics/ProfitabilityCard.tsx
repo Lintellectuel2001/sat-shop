@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { TrendingUp, DollarSign, ChartPie, ArrowUp, ArrowDown } from 'lucide-react';
+import { TrendingUp, DollarSign, ChartPie, ArrowUp, ArrowDown, BarChart3, Clock, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 interface ProfitabilityCardProps {
   totalProfit: number;
@@ -14,7 +15,18 @@ const ProfitabilityCard = ({ totalProfit, profitMargin }: ProfitabilityCardProps
   const profitStatus = isProfitable ? 'Profitable' : 'Unprofitable';
   const profitClass = isProfitable ? 'text-green-600' : 'text-red-500';
   const ArrowIcon = isProfitable ? ArrowUp : ArrowDown;
-
+  
+  // Calculer le niveau de marge
+  const getProfitMarginLevel = () => {
+    if (profitMargin >= 30) return 'Excellente';
+    if (profitMargin >= 20) return 'Bonne';
+    if (profitMargin >= 10) return 'Correcte';
+    if (profitMargin > 0) return 'Faible';
+    return 'Négative';
+  };
+  
+  const profitMarginLevel = getProfitMarginLevel();
+  
   // Format profit as money with DA currency
   const formattedProfit = new Intl.NumberFormat('fr-DZ', {
     style: 'currency',
@@ -22,6 +34,30 @@ const ProfitabilityCard = ({ totalProfit, profitMargin }: ProfitabilityCardProps
     maximumFractionDigits: 0,
     minimumFractionDigits: 0
   }).format(totalProfit);
+  
+  // Get progress bar color based on profit margin
+  const getProgressBarColor = () => {
+    if (profitMargin >= 30) return 'bg-green-500';
+    if (profitMargin >= 20) return 'bg-green-400';
+    if (profitMargin >= 10) return 'bg-green-300';
+    if (profitMargin > 0) return 'bg-yellow-400';
+    return 'bg-red-500';
+  };
+  
+  // Get recommendation based on profit margin
+  const getRecommendation = () => {
+    if (profitMargin < 0) {
+      return "Les coûts dépassent les revenus. Réévaluez immédiatement votre politique de prix et vos coûts d'achat.";
+    } else if (profitMargin < 10) {
+      return "Marge très serrée. Optimisez vos coûts d'achat et envisagez de revoir vos prix à la hausse.";
+    } else if (profitMargin < 20) {
+      return "Marge correcte. Continuez à surveiller vos coûts et envisagez d'optimiser votre chaîne d'approvisionnement.";
+    } else if (profitMargin < 30) {
+      return "Bonne marge. Votre stratégie actuelle est efficace, mais restez vigilant sur l'évolution des coûts.";
+    } else {
+      return "Excellente marge! Votre modèle commercial est très rentable. Envisagez d'investir dans l'expansion.";
+    }
+  };
 
   return (
     <Card className="shadow-elegant">
@@ -53,35 +89,74 @@ const ProfitabilityCard = ({ totalProfit, profitMargin }: ProfitabilityCardProps
                 {profitStatus}
               </span>
             </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Niveau: <span className={profitClass}>{profitMarginLevel}</span>
+            </p>
           </div>
-          <div className="relative h-2 w-full max-w-[120px] rounded-full bg-gray-100 overflow-hidden">
-            <div 
-              className={`absolute left-0 top-0 h-full ${isProfitable ? 'bg-green-500' : 'bg-red-500'}`}
-              style={{ width: `${Math.min(Math.abs(profitMargin), 100)}%` }}
-            />
+          <div className="w-full max-w-[120px]">
+            <div className="h-2 w-full rounded-full bg-gray-100 overflow-hidden">
+              <div 
+                className={`h-full ${getProgressBarColor()}`}
+                style={{ width: `${Math.min(Math.abs(profitMargin), 100)}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
+              <span>0%</span>
+              <span>50%</span>
+              <span>100%</span>
+            </div>
           </div>
         </div>
         
-        <div className="space-y-2">
+        <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-muted-foreground">État de Rentabilité</p>
-            <div className={`flex items-center gap-1 ${profitClass}`}>
-              <ArrowIcon className="h-4 w-4" />
-              <span className="text-sm font-medium">{profitStatus}</span>
+            <div className="flex flex-col">
+              <p className="text-sm font-medium">État de Rentabilité</p>
+              <div className={`flex items-center gap-1 ${profitClass}`}>
+                <ArrowIcon className="h-4 w-4" />
+                <span className="text-sm font-medium">{profitStatus}</span>
+              </div>
+            </div>
+            
+            <div className={`p-2 rounded-full ${isProfitable ? 'bg-green-50' : 'bg-red-50'}`}>
+              <BarChart3 className={`h-4 w-4 ${isProfitable ? 'text-green-500' : 'text-red-500'}`} />
             </div>
           </div>
+
+          <Separator />
           
           <div className="bg-secondary/20 p-3 rounded-md">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">Recommandation</span>
+              <div className="bg-white p-1.5 rounded-full">
+                <TrendingUp className="h-4 w-4 text-primary" />
+              </div>
+              <span className="text-sm font-medium">Analyse & Recommandation</span>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {profitMargin < 15 ? 
-                "Envisagez d'optimiser vos coûts d'achat pour améliorer la marge bénéficiaire." : 
-                "Votre marge bénéficiaire est saine. Continuez votre stratégie actuelle."
-              }
+            <p className="text-sm text-muted-foreground">
+              {getRecommendation()}
             </p>
+          </div>
+          
+          {profitMargin < 10 && (
+            <div className="bg-yellow-50 p-3 rounded-md flex items-start gap-2">
+              <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-yellow-700">Alerte de rentabilité</p>
+                <p className="text-xs text-yellow-600 mt-1">
+                  Votre marge actuelle est inférieure à 10%. Envisagez de revoir votre stratégie de prix ou vos coûts d'approvisionnement.
+                </p>
+              </div>
+            </div>
+          )}
+          
+          <div className="bg-primary/5 p-3 rounded-md flex items-start gap-2">
+            <Clock className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-primary">Suivi en temps réel</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Ces statistiques sont mises à jour automatiquement à chaque validation de commande.
+              </p>
+            </div>
           </div>
         </div>
       </CardContent>

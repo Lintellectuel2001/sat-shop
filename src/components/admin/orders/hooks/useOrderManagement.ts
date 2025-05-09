@@ -76,12 +76,59 @@ export const useOrderManagement = () => {
 
   async function handleStatusChange(orderId: string, newStatus: 'validated' | 'cancelled') {
     try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ status: newStatus })
-        .eq('id', orderId);
-      
-      if (error) throw error;
+      // Si la commande est validée, nous devons calculer et enregistrer le bénéfice
+      if (newStatus === 'validated') {
+        // Récupérer les informations de la commande
+        const { data: orderData, error: orderError } = await supabase
+          .from('orders')
+          .select('*, products:product_id(price, purchase_price)')
+          .eq('id', orderId)
+          .single();
+        
+        if (orderError) throw orderError;
+        
+        // Calculer le bénéfice si les données de produit sont disponibles
+        if (orderData && orderData.products) {
+          const purchasePrice = orderData.products.purchase_price || 0;
+          const sellingPrice = parseFloat(orderData.products.price.replace(/[^\d]/g, '')) || 0;
+          const profit = sellingPrice - purchasePrice;
+          
+          // Enregistrer le bénéfice dans l'historique des commandes
+          await supabase
+            .from('cart_history')
+            .insert({
+              product_id: orderData.product_id,
+              action_type: 'purchase',
+              payment_status: 'completed'
+            });
+          
+          console.log(`Commande validée: ID=${orderId}, Bénéfice calculé=${profit}`);
+          
+          // Mise à jour du statut de la commande
+          const { error } = await supabase
+            .from('orders')
+            .update({ status: newStatus })
+            .eq('id', orderId);
+          
+          if (error) throw error;
+        } else {
+          // Si le produit n'est pas trouvé, mettre simplement à jour le statut
+          const { error } = await supabase
+            .from('orders')
+            .update({ status: newStatus })
+            .eq('id', orderId);
+          
+          if (error) throw error;
+        }
+      } else {
+        // Pour les annulations, simplement mettre à jour le statut
+        const { error } = await supabase
+          .from('orders')
+          .update({ status: newStatus })
+          .eq('id', orderId);
+        
+        if (error) throw error;
+      }
       
       toast({
         title: "Succès",
