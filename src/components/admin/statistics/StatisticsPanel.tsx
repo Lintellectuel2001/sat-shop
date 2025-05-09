@@ -31,6 +31,9 @@ const StatisticsPanel = () => {
     recentSales
   } = useStatisticsData(viewMode, dateRange);
 
+  // Calculer la somme des bénéfices des ventes récentes
+  const recentSalesTotal = recentSales ? recentSales.reduce((sum, sale) => sum + sale.profit, 0) : 0;
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -108,7 +111,19 @@ const StatisticsPanel = () => {
         {/* Affichage des ventes récentes avec les bénéfices calculés */}
         {recentSales && recentSales.length > 0 && (
           <div className="md:col-span-3 bg-white p-6 rounded-xl shadow-elegant">
-            <h3 className="text-lg font-semibold text-primary mb-4">Bénéfices par article (ventes récentes)</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-primary">Bénéfices par article (ventes récentes)</h3>
+              <div className="bg-green-50 px-4 py-2 rounded-lg">
+                <p className="text-sm font-medium">Bénéfice total:</p>
+                <p className={`text-lg font-bold ${recentSalesTotal > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                  {new Intl.NumberFormat('fr-DZ', {
+                    style: 'currency',
+                    currency: 'DZD',
+                    maximumFractionDigits: 0
+                  }).format(recentSalesTotal)}
+                </p>
+              </div>
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[500px]">
                 <thead>
