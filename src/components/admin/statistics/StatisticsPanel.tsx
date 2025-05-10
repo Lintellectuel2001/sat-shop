@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Activity, RefreshCw } from 'lucide-react';
+import { Activity, RefreshCw, Trash2 } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 
 import StatsCards from './StatsCards';
@@ -10,11 +10,25 @@ import PeriodFilter from './PeriodFilter';
 import { useStatisticsData } from './hooks/useStatisticsData';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useProductDeletion } from '@/components/admin/products/hooks/useProductDeletion';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const StatisticsPanel = () => {
   const [viewMode, setViewMode] = useState<'daily' | 'weekly' | 'monthly'>('monthly');
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const { toast } = useToast();
+  const { handleProductDelete } = useProductDeletion();
+  const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   
   const { 
     totalProducts,
@@ -46,6 +60,26 @@ const StatisticsPanel = () => {
       title: "Réinitialisation",
       description: "Le total des bénéfices a été remis à zéro",
     });
+  };
+  
+  // Gestion de la suppression de produit
+  const handleDeleteClick = (id: string) => {
+    setProductToDelete(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (productToDelete) {
+      await handleProductDelete(productToDelete);
+      // Refresh est géré par le hook useStatisticsData qui actualise les données
+    }
+    setIsDeleteDialogOpen(false);
+    setProductToDelete(null);
+  };
+
+  const cancelDelete = () => {
+    setProductToDelete(null);
+    setIsDeleteDialogOpen(false);
   };
   
   // Utiliser soit le total calculé, soit le total réinitialisé
@@ -156,6 +190,7 @@ const StatisticsPanel = () => {
                     <th className="text-sm font-medium text-right py-2">Prix de vente</th>
                     <th className="text-sm font-medium text-right py-2">Bénéfice</th>
                     <th className="text-sm font-medium text-right py-2">Marge</th>
+                    <th className="text-sm font-medium text-right py-2">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -192,6 +227,18 @@ const StatisticsPanel = () => {
                         <td className={`text-right py-2.5 ${Number(margin) > 0 ? 'text-green-600' : 'text-red-500'}`}>
                           {margin}%
                         </td>
+                        <td className="text-right py-2.5">
+                          {sale.product_id && (
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={() => handleDeleteClick(sale.product_id!)}
+                              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </td>
                       </tr>
                     );
                   })}
@@ -201,9 +248,29 @@ const StatisticsPanel = () => {
           </div>
         )}
       </div>
+
+      {/* Dialogue de confirmation pour la suppression */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer ce produit ? Cette action ne peut pas être annulée.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelDelete}>Annuler</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
 
 export default StatisticsPanel;
-
