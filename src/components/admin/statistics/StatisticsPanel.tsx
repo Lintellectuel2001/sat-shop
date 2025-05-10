@@ -47,9 +47,6 @@ const StatisticsPanel = () => {
     recentSales
   } = useStatisticsData(viewMode, dateRange);
 
-  // Calculer la somme des bénéfices des ventes récentes
-  const recentSalesTotal = recentSales ? recentSales.reduce((sum, sale) => sum + sale.profit, 0) : 0;
-  
   // État local pour afficher ou réinitialiser le total
   const [displayedTotal, setDisplayedTotal] = useState<number | null>(null);
   
@@ -81,9 +78,6 @@ const StatisticsPanel = () => {
     setProductToDelete(null);
     setIsDeleteDialogOpen(false);
   };
-  
-  // Utiliser soit le total calculé, soit le total réinitialisé
-  const effectiveTotal = displayedTotal !== null ? displayedTotal : recentSalesTotal;
 
   return (
     <div className="space-y-8">
@@ -153,100 +147,6 @@ const StatisticsPanel = () => {
           registrationRate={registrationRate}
           isLoading={isLoading}
         />
-
-        {/* Affichage des ventes récentes avec les bénéfices calculés */}
-        {recentSales && recentSales.length > 0 && (
-          <div className="md:col-span-3 bg-white p-6 rounded-xl shadow-elegant">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-primary">Bénéfices par article (ventes récentes)</h3>
-              <div className="flex items-center gap-2">
-                <div className="bg-green-50 px-4 py-2 rounded-lg">
-                  <p className="text-sm font-medium">Bénéfice total:</p>
-                  <p className={`text-lg font-bold ${effectiveTotal > 0 ? 'text-green-600' : 'text-red-500'}`}>
-                    {new Intl.NumberFormat('fr-DZ', {
-                      style: 'currency',
-                      currency: 'DZD',
-                      maximumFractionDigits: 0
-                    }).format(effectiveTotal)}
-                  </p>
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={resetDisplayedTotal}
-                  className="flex items-center gap-1"
-                >
-                  <RefreshCw className="h-4 w-4" />
-                  <span>Remettre à zéro</span>
-                </Button>
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[500px]">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-sm font-medium text-left py-2">Produit</th>
-                    <th className="text-sm font-medium text-right py-2">Prix d'achat</th>
-                    <th className="text-sm font-medium text-right py-2">Prix de vente</th>
-                    <th className="text-sm font-medium text-right py-2">Bénéfice</th>
-                    <th className="text-sm font-medium text-right py-2">Marge</th>
-                    <th className="text-sm font-medium text-right py-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentSales.map((sale, index) => {
-                    // Calculer la marge en pourcentage
-                    const margin = sale.purchase_price > 0 
-                      ? ((sale.selling_price - sale.purchase_price) / sale.purchase_price * 100).toFixed(1) 
-                      : '∞';
-                    
-                    return (
-                      <tr key={index} className="border-b">
-                        <td className="py-2.5">{sale.product_name}</td>
-                        <td className="text-right py-2.5">
-                          {new Intl.NumberFormat('fr-DZ', {
-                            style: 'currency',
-                            currency: 'DZD',
-                            maximumFractionDigits: 0
-                          }).format(sale.purchase_price)}
-                        </td>
-                        <td className="text-right py-2.5">
-                          {new Intl.NumberFormat('fr-DZ', {
-                            style: 'currency',
-                            currency: 'DZD',
-                            maximumFractionDigits: 0
-                          }).format(sale.selling_price)}
-                        </td>
-                        <td className={`text-right py-2.5 font-medium ${sale.profit > 0 ? 'text-green-600' : 'text-red-500'}`}>
-                          {new Intl.NumberFormat('fr-DZ', {
-                            style: 'currency',
-                            currency: 'DZD',
-                            maximumFractionDigits: 0
-                          }).format(sale.profit)}
-                        </td>
-                        <td className={`text-right py-2.5 ${Number(margin) > 0 ? 'text-green-600' : 'text-red-500'}`}>
-                          {margin}%
-                        </td>
-                        <td className="text-right py-2.5">
-                          {sale.product_id && (
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              onClick={() => handleDeleteClick(sale.product_id!)}
-                              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Dialogue de confirmation pour la suppression */}
