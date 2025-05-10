@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Activity } from 'lucide-react';
+import { Activity, RefreshCw } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 
 import StatsCards from './StatsCards';
@@ -8,10 +8,13 @@ import SalesChart from './SalesChart';
 import UserStatistics from './UserStatistics';
 import PeriodFilter from './PeriodFilter';
 import { useStatisticsData } from './hooks/useStatisticsData';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 const StatisticsPanel = () => {
   const [viewMode, setViewMode] = useState<'daily' | 'weekly' | 'monthly'>('monthly');
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const { toast } = useToast();
   
   const { 
     totalProducts,
@@ -32,6 +35,21 @@ const StatisticsPanel = () => {
 
   // Calculer la somme des bénéfices des ventes récentes
   const recentSalesTotal = recentSales ? recentSales.reduce((sum, sale) => sum + sale.profit, 0) : 0;
+  
+  // État local pour afficher ou réinitialiser le total
+  const [displayedTotal, setDisplayedTotal] = useState<number | null>(null);
+  
+  // Fonction pour réinitialiser le total affiché
+  const resetDisplayedTotal = () => {
+    setDisplayedTotal(0);
+    toast({
+      title: "Réinitialisation",
+      description: "Le total des bénéfices a été remis à zéro",
+    });
+  };
+  
+  // Utiliser soit le total calculé, soit le total réinitialisé
+  const effectiveTotal = displayedTotal !== null ? displayedTotal : recentSalesTotal;
 
   return (
     <div className="space-y-8">
@@ -107,15 +125,26 @@ const StatisticsPanel = () => {
           <div className="md:col-span-3 bg-white p-6 rounded-xl shadow-elegant">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-primary">Bénéfices par article (ventes récentes)</h3>
-              <div className="bg-green-50 px-4 py-2 rounded-lg">
-                <p className="text-sm font-medium">Bénéfice total:</p>
-                <p className={`text-lg font-bold ${recentSalesTotal > 0 ? 'text-green-600' : 'text-red-500'}`}>
-                  {new Intl.NumberFormat('fr-DZ', {
-                    style: 'currency',
-                    currency: 'DZD',
-                    maximumFractionDigits: 0
-                  }).format(recentSalesTotal)}
-                </p>
+              <div className="flex items-center gap-2">
+                <div className="bg-green-50 px-4 py-2 rounded-lg">
+                  <p className="text-sm font-medium">Bénéfice total:</p>
+                  <p className={`text-lg font-bold ${effectiveTotal > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                    {new Intl.NumberFormat('fr-DZ', {
+                      style: 'currency',
+                      currency: 'DZD',
+                      maximumFractionDigits: 0
+                    }).format(effectiveTotal)}
+                  </p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={resetDisplayedTotal}
+                  className="flex items-center gap-1"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  <span>Remettre à zéro</span>
+                </Button>
               </div>
             </div>
             <div className="overflow-x-auto">
@@ -177,3 +206,4 @@ const StatisticsPanel = () => {
 };
 
 export default StatisticsPanel;
+
