@@ -211,9 +211,9 @@ const StatisticsPanel = () => {
                 </thead>
                 <tbody>
                   {recentSales.map((sale, index) => {
-                    // Calculer la marge en pourcentage - Converting the result to a string
+                    // Calculer la marge en pourcentage - Make sure it's a string
                     const margin = sale.purchase_price > 0 
-                      ? ((sale.selling_price - sale.purchase_price) / sale.purchase_price * 100).toFixed(1) 
+                      ? ((sale.selling_price - sale.purchase_price) / sale.purchase_price * 100).toFixed(1) + '%'
                       : '∞';
                     
                     return (
