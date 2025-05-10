@@ -15,10 +15,14 @@ import {
   ChartContainer,
   ChartTooltip
 } from "@/components/ui/chart";
-import { SalesDataPoint } from './hooks/useStatisticsData';
+
+interface SalesData {
+  name: string;
+  sales: number;
+}
 
 interface SalesChartProps {
-  salesData: SalesDataPoint[];
+  salesData: SalesData[];
 }
 
 const SalesChart = ({ salesData }: SalesChartProps) => {

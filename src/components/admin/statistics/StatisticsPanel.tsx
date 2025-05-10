@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Activity, RefreshCw, Trash2 } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
@@ -43,8 +44,7 @@ const StatisticsPanel = () => {
     registrationRate,
     totalProfit,
     profitMargin,
-    recentSales,
-    refetch
+    recentSales
   } = useStatisticsData(viewMode, dateRange);
 
   // Calculer la somme des bénéfices des ventes récentes
@@ -64,30 +64,14 @@ const StatisticsPanel = () => {
   
   // Gestion de la suppression de produit
   const handleDeleteClick = (id: string) => {
-    console.log("Demande de suppression pour le produit ID:", id);
     setProductToDelete(id);
     setIsDeleteDialogOpen(true);
   };
 
   const confirmDelete = async () => {
     if (productToDelete) {
-      console.log("Suppression du produit avec ID:", productToDelete);
-      try {
-        await handleProductDelete(productToDelete);
-        toast({
-          title: "Produit supprimé",
-          description: "Le produit a été supprimé avec succès",
-        });
-        // Rafraîchir les données après suppression
-        refetch();
-      } catch (error) {
-        console.error("Erreur lors de la suppression:", error);
-        toast({
-          variant: "destructive",
-          title: "Erreur",
-          description: "Impossible de supprimer le produit",
-        });
-      }
+      await handleProductDelete(productToDelete);
+      // Refresh est géré par le hook useStatisticsData qui actualise les données
     }
     setIsDeleteDialogOpen(false);
     setProductToDelete(null);
@@ -211,9 +195,9 @@ const StatisticsPanel = () => {
                 </thead>
                 <tbody>
                   {recentSales.map((sale, index) => {
-                    // Calculer la marge en pourcentage - Ensure it's always a string
-                    const margin: string = sale.purchase_price > 0 
-                      ? ((sale.selling_price - sale.purchase_price) / sale.purchase_price * 100).toFixed(1) + '%'
+                    // Calculer la marge en pourcentage
+                    const margin = sale.purchase_price > 0 
+                      ? ((sale.selling_price - sale.purchase_price) / sale.purchase_price * 100).toFixed(1) 
                       : '∞';
                     
                     return (
@@ -240,15 +224,15 @@ const StatisticsPanel = () => {
                             maximumFractionDigits: 0
                           }).format(sale.profit)}
                         </td>
-                        <td className={`text-right py-2.5 ${Number(margin.replace('%', '')) > 0 ? 'text-green-600' : 'text-red-500'}`}>
-                          {margin}
+                        <td className={`text-right py-2.5 ${Number(margin) > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                          {margin}%
                         </td>
                         <td className="text-right py-2.5">
                           {sale.product_id && (
                             <Button 
                               variant="ghost" 
                               size="icon" 
-                              onClick={() => handleDeleteClick(sale.product_id)}
+                              onClick={() => handleDeleteClick(sale.product_id!)}
                               className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                             >
                               <Trash2 className="h-4 w-4" />
