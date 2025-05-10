@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Activity, RefreshCw, Trash2 } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
@@ -241,7 +242,7 @@ const StatisticsPanel = () => {
                           }).format(sale.profit)}
                         </td>
                         <td className={`text-right py-2.5 ${Number(margin) > 0 ? 'text-green-600' : 'text-red-500'}`}>
-                          {margin}%
+                          {margin}
                         </td>
                         <td className="text-right py-2.5">
                           {sale.product_id && (
