@@ -211,8 +211,8 @@ const StatisticsPanel = () => {
                 </thead>
                 <tbody>
                   {recentSales.map((sale, index) => {
-                    // Calculer la marge en pourcentage - Make sure it's a string
-                    const margin = sale.purchase_price > 0 
+                    // Calculer la marge en pourcentage - Ensure it's always a string
+                    const margin: string = sale.purchase_price > 0 
                       ? ((sale.selling_price - sale.purchase_price) / sale.purchase_price * 100).toFixed(1) + '%'
                       : '∞';
                     
@@ -240,7 +240,7 @@ const StatisticsPanel = () => {
                             maximumFractionDigits: 0
                           }).format(sale.profit)}
                         </td>
-                        <td className={`text-right py-2.5 ${Number(margin) > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                        <td className={`text-right py-2.5 ${Number(margin.replace('%', '')) > 0 ? 'text-green-600' : 'text-red-500'}`}>
                           {margin}
                         </td>
                         <td className="text-right py-2.5">
