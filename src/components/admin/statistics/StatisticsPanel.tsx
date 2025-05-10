@@ -7,7 +7,6 @@ import StatsCards from './StatsCards';
 import SalesChart from './SalesChart';
 import UserStatistics from './UserStatistics';
 import PeriodFilter from './PeriodFilter';
-import ProfitabilityCard from './ProfitabilityCard';
 import { useStatisticsData } from './hooks/useStatisticsData';
 
 const StatisticsPanel = () => {
@@ -94,11 +93,6 @@ const StatisticsPanel = () => {
           </div>
           <SalesChart salesData={salesData} />
         </div>
-        
-        <ProfitabilityCard 
-          totalProfit={totalProfit}
-          profitMargin={profitMargin}
-        />
 
         <UserStatistics
           totalUsers={totalUsers}
