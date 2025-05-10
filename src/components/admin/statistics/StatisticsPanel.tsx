@@ -44,7 +44,8 @@ const StatisticsPanel = () => {
     registrationRate,
     totalProfit,
     profitMargin,
-    recentSales
+    recentSales,
+    refetch
   } = useStatisticsData(viewMode, dateRange);
 
   // Calculer la somme des bénéfices des ventes récentes
@@ -64,14 +65,30 @@ const StatisticsPanel = () => {
   
   // Gestion de la suppression de produit
   const handleDeleteClick = (id: string) => {
+    console.log("Demande de suppression pour le produit ID:", id);
     setProductToDelete(id);
     setIsDeleteDialogOpen(true);
   };
 
   const confirmDelete = async () => {
     if (productToDelete) {
-      await handleProductDelete(productToDelete);
-      // Refresh est géré par le hook useStatisticsData qui actualise les données
+      console.log("Suppression du produit avec ID:", productToDelete);
+      try {
+        await handleProductDelete(productToDelete);
+        toast({
+          title: "Produit supprimé",
+          description: "Le produit a été supprimé avec succès",
+        });
+        // Rafraîchir les données après suppression
+        refetch();
+      } catch (error) {
+        console.error("Erreur lors de la suppression:", error);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Impossible de supprimer le produit",
+        });
+      }
     }
     setIsDeleteDialogOpen(false);
     setProductToDelete(null);
@@ -232,7 +249,7 @@ const StatisticsPanel = () => {
                             <Button 
                               variant="ghost" 
                               size="icon" 
-                              onClick={() => handleDeleteClick(sale.product_id!)}
+                              onClick={() => handleDeleteClick(sale.product_id)}
                               className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                             >
                               <Trash2 className="h-4 w-4" />
