@@ -4,10 +4,13 @@ import { DateRange } from 'react-day-picker';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-interface SalesDataPoint {
+export interface SalesDataPoint {
   date: string;
   count: number;
   amount: number;
+  // Adding name and sales properties to make it compatible with SalesData
+  name: string;
+  sales: number;
 }
 
 interface RecentSale {
@@ -122,45 +125,28 @@ export const useStatisticsData = (viewMode: 'daily' | 'weekly' | 'monthly', date
         }
       }
       
-      const { data: salesByPeriod, error: salesError } = await supabase
-        .rpc('get_sales_by_period', {
-          time_constraint: timeConstraint,
-          group_format: groupByFormat,
-          order_col: orderFormat
-        });
-      
-      if (salesError) {
-        console.error('Error fetching sales data:', salesError);
-        
-        // Fallback: créer des données fictives pour le graphique
-        const mockData: SalesDataPoint[] = [];
-        const today = new Date();
-        
-        for (let i = 0; i < 6; i++) {
-          const date = new Date();
-          if (viewMode === 'daily') {
-            date.setDate(today.getDate() - i);
-          } else if (viewMode === 'weekly') {
-            date.setDate(today.getDate() - i * 7);
-          } else {
-            date.setMonth(today.getMonth() - i);
-          }
-          
-          mockData.push({
-            date: date.toISOString().split('T')[0],
-            count: Math.floor(Math.random() * 10) + 1,
-            amount: Math.floor(Math.random() * 10000) + 1000
+      try {
+        // Try to use the RPC function
+        const { data: salesByPeriod, error: salesError } = await supabase
+          .rpc('get_sales_by_period', {
+            time_constraint: timeConstraint,
+            group_format: groupByFormat,
+            order_col: orderFormat
           });
+        
+        if (salesError) {
+          throw salesError;
         }
         
-        setSalesData(mockData.reverse());
-      } else {
         // Formater les données pour le graphique
-        const formattedSales: SalesDataPoint[] = salesByPeriod.map((item: any) => ({
+        const formattedSales: SalesDataPoint[] = salesByPeriod ? salesByPeriod.map((item: any) => ({
           date: new Date(item.period).toISOString().split('T')[0],
           count: item.order_count,
-          amount: Number(item.total_amount) || 0
-        }));
+          amount: Number(item.total_amount) || 0,
+          // Add properties for SalesData compatibility
+          name: new Date(item.period).toISOString().split('T')[0],
+          sales: Number(item.total_amount) || 0
+        })) : [];
         
         setSalesData(formattedSales);
         
@@ -176,6 +162,35 @@ export const useStatisticsData = (viewMode: 'daily' | 'weekly' | 'monthly', date
             setRecentSalesGrowth(recentAmount > 0 ? 100 : 0);
           }
         }
+      } catch (rpcError) {
+        console.error('Error fetching sales data:', rpcError);
+        
+        // Fallback: créer des données fictives pour le graphique
+        const mockData: SalesDataPoint[] = [];
+        const today = new Date();
+        
+        for (let i = 0; i < 6; i++) {
+          const date = new Date();
+          if (viewMode === 'daily') {
+            date.setDate(today.getDate() - i);
+          } else if (viewMode === 'weekly') {
+            date.setDate(today.getDate() - i * 7);
+          } else {
+            date.setMonth(today.getMonth() - i);
+          }
+          
+          const dateString = date.toISOString().split('T')[0];
+          const amount = Math.floor(Math.random() * 10000) + 1000;
+          mockData.push({
+            date: dateString,
+            count: Math.floor(Math.random() * 10) + 1,
+            amount: amount,
+            name: dateString, // Add for SalesData compatibility
+            sales: amount // Add for SalesData compatibility
+          });
+        }
+        
+        setSalesData(mockData.reverse());
       }
       
       // Récupérer les statistiques utilisateurs
