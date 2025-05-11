@@ -21,6 +21,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell
+} from "@/components/ui/table";
 
 const StatisticsPanel = () => {
   const [viewMode, setViewMode] = useState<'daily' | 'weekly' | 'monthly'>('monthly');
@@ -79,6 +87,15 @@ const StatisticsPanel = () => {
     setIsDeleteDialogOpen(false);
   };
 
+  // Format currency function
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('fr-DZ', {
+      style: 'currency',
+      currency: 'DZD',
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -94,11 +111,7 @@ const StatisticsPanel = () => {
           <div className="bg-white shadow-sm border px-3 py-2 rounded-lg">
             <p className="text-sm font-medium">Bénéfice total:</p>
             <p className={`text-lg font-bold ${totalProfit > 0 ? 'text-green-600' : 'text-red-500'}`}>
-              {new Intl.NumberFormat('fr-DZ', {
-                style: 'currency',
-                currency: 'DZD',
-                maximumFractionDigits: 0
-              }).format(totalProfit)}
+              {formatCurrency(totalProfit)}
             </p>
           </div>
           <PeriodFilter 
@@ -149,13 +162,70 @@ const StatisticsPanel = () => {
         />
       </div>
 
+      {/* Section Bénéfices par article (ventes récentes) */}
+      <div className="bg-white p-6 rounded-xl shadow-elegant">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-primary">Bénéfices par article (ventes récentes)</h3>
+          <Button variant="outline" size="sm" className="flex items-center gap-2" onClick={resetDisplayedTotal}>
+            <RefreshCw className="h-4 w-4" />
+            <span>Réinitialiser</span>
+          </Button>
+        </div>
+
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Produit</TableHead>
+              <TableHead className="text-right">Prix de vente</TableHead>
+              <TableHead className="text-right">Prix d'achat</TableHead>
+              <TableHead className="text-right">Bénéfice</TableHead>
+              <TableHead className="text-right">Date</TableHead>
+              <TableHead></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {recentSales.length > 0 ? (
+              recentSales.map((sale) => (
+                <TableRow key={sale.id}>
+                  <TableCell className="font-medium">{sale.product_name}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(sale.selling_price)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(sale.purchase_price)}</TableCell>
+                  <TableCell className={`text-right font-semibold ${sale.profit > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                    {formatCurrency(sale.profit)}
+                  </TableCell>
+                  <TableCell className="text-right text-muted-foreground">
+                    {new Date(sale.created_at).toLocaleDateString('fr-FR')}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteClick(sale.id)}
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+                  Aucune vente récente à afficher
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
       {/* Dialogue de confirmation pour la suppression */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
             <AlertDialogDescription>
-              Êtes-vous sûr de vouloir supprimer ce produit ? Cette action ne peut pas être annulée.
+              Êtes-vous sûr de vouloir supprimer cet enregistrement de vente ? Cette action ne peut pas être annulée.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
