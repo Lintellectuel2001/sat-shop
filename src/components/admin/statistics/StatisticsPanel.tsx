@@ -53,7 +53,8 @@ const StatisticsPanel = () => {
     totalProfit,
     profitMargin,
     recentSales,
-    validatedOrdersSum
+    validatedOrdersSum,
+    validatedOrdersProfit
   } = useStatisticsData(viewMode, dateRange);
 
   // État local pour afficher ou réinitialiser le total
@@ -120,6 +121,12 @@ const StatisticsPanel = () => {
               <p className="text-sm font-medium">Total commandes validées:</p>
               <p className="text-lg font-bold text-primary">
                 {formatCurrency(validatedOrdersSum)}
+              </p>
+            </div>
+            <div className="bg-white shadow-sm border px-3 py-2 rounded-lg">
+              <p className="text-sm font-medium">Bénéfice sur commandes validées:</p>
+              <p className="text-lg font-bold text-emerald-600">
+                {formatCurrency(validatedOrdersProfit)}
               </p>
             </div>
           </div>

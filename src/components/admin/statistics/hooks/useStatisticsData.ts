@@ -40,6 +40,7 @@ interface StatisticsData {
   profitMargin: number;
   recentSales: RecentSale[];
   validatedOrdersSum: number;
+  validatedOrdersProfit: number;
 }
 
 export const useStatisticsData = (
@@ -62,7 +63,8 @@ export const useStatisticsData = (
     totalProfit: 0,
     profitMargin: 0,
     recentSales: [],
-    validatedOrdersSum: 0
+    validatedOrdersSum: 0,
+    validatedOrdersProfit: 0
   });
 
   const fetchRecentSales = async () => {
@@ -168,6 +170,54 @@ export const useStatisticsData = (
       return totalSum;
     } catch (error) {
       console.error("Erreur lors du calcul de la somme des commandes validées:", error);
+      return 0;
+    }
+  };
+
+  const calculateValidatedOrdersProfit = async () => {
+    try {
+      // Récupérer les commandes validées avec leur produit associé
+      const { data: validatedOrders, error } = await supabase
+        .from('orders')
+        .select('product_id, amount')
+        .eq('status', 'validated');
+
+      if (error) {
+        console.error("Erreur lors de la récupération des commandes validées:", error);
+        return 0;
+      }
+
+      let totalProfit = 0;
+
+      if (validatedOrders && Array.isArray(validatedOrders)) {
+        // Traiter chaque commande validée
+        for (const order of validatedOrders) {
+          if (order.product_id) {
+            // Récupérer les détails du produit pour cette commande
+            const { data: product } = await supabase
+              .from('products')
+              .select('price, purchase_price')
+              .eq('id', order.product_id)
+              .single();
+
+            if (product) {
+              // Extraire le prix de vente (en supprimant tout caractère non-numérique)
+              const sellingPrice = parseFloat(product.price.replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+              // S'assurer que purchase_price est un nombre
+              const purchasePrice = product.purchase_price || 0;
+              // Calculer le bénéfice pour cet article
+              const profit = sellingPrice - purchasePrice;
+              
+              // Ajouter au bénéfice total
+              totalProfit += profit;
+            }
+          }
+        }
+      }
+      
+      return totalProfit;
+    } catch (error) {
+      console.error("Erreur lors du calcul du bénéfice des commandes validées:", error);
       return 0;
     }
   };
@@ -362,6 +412,9 @@ export const useStatisticsData = (
         // Récupérer la somme des commandes validées
         const validatedOrdersSum = await fetchValidatedOrdersSum();
 
+        // Calculate the total profit from validated orders (selling price - purchase price)
+        const validatedOrdersProfit = await calculateValidatedOrdersProfit();
+
         setStatistics(prev => ({
           ...prev,
           salesData: salesDataResult,
@@ -371,6 +424,7 @@ export const useStatisticsData = (
           profitMargin: profitMarginCalc,
           recentSales: recentSalesData,
           validatedOrdersSum: validatedOrdersSum,
+          validatedOrdersProfit: validatedOrdersProfit,
           isLoading: false
         }));
       }
