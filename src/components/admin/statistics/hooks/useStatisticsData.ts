@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { DateRange } from 'react-day-picker';
@@ -40,6 +39,7 @@ interface StatisticsData {
   totalProfit: number;
   profitMargin: number;
   recentSales: RecentSale[];
+  validatedOrdersSum: number;
 }
 
 export const useStatisticsData = (
@@ -61,7 +61,8 @@ export const useStatisticsData = (
     registrationRate: 0,
     totalProfit: 0,
     profitMargin: 0,
-    recentSales: []
+    recentSales: [],
+    validatedOrdersSum: 0
   });
 
   const fetchRecentSales = async () => {
@@ -138,6 +139,36 @@ export const useStatisticsData = (
     } catch (error) {
       console.error("Erreur lors de la récupération des ventes récentes:", error);
       return [];
+    }
+  };
+
+  const fetchValidatedOrdersSum = async () => {
+    try {
+      // Récupérer les commandes validées
+      const { data: validatedOrders, error } = await supabase
+        .from('orders')
+        .select('amount')
+        .eq('status', 'validated');
+
+      if (error) {
+        console.error("Erreur lors de la récupération des commandes validées:", error);
+        return 0;
+      }
+
+      // Calculer la somme totale
+      let totalSum = 0;
+      if (validatedOrders && Array.isArray(validatedOrders)) {
+        totalSum = validatedOrders.reduce((sum, order) => {
+          // Extraire la valeur numérique du montant (qui pourrait être formaté)
+          const amount = parseFloat(order.amount.replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+          return sum + amount;
+        }, 0);
+      }
+
+      return totalSum;
+    } catch (error) {
+      console.error("Erreur lors du calcul de la somme des commandes validées:", error);
+      return 0;
     }
   };
 
@@ -328,6 +359,9 @@ export const useStatisticsData = (
           })).sort((a, b) => b.value - a.value);
         }
 
+        // Récupérer la somme des commandes validées
+        const validatedOrdersSum = await fetchValidatedOrdersSum();
+
         setStatistics(prev => ({
           ...prev,
           salesData: salesDataResult,
@@ -336,6 +370,7 @@ export const useStatisticsData = (
           totalProfit: calculatedTotalProfit,
           profitMargin: profitMarginCalc,
           recentSales: recentSalesData,
+          validatedOrdersSum: validatedOrdersSum,
           isLoading: false
         }));
       }

@@ -52,7 +52,8 @@ const StatisticsPanel = () => {
     registrationRate,
     totalProfit,
     profitMargin,
-    recentSales
+    recentSales,
+    validatedOrdersSum
   } = useStatisticsData(viewMode, dateRange);
 
   // État local pour afficher ou réinitialiser le total
@@ -108,11 +109,19 @@ const StatisticsPanel = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="bg-white shadow-sm border px-3 py-2 rounded-lg">
-            <p className="text-sm font-medium">Bénéfice total:</p>
-            <p className={`text-lg font-bold ${totalProfit > 0 ? 'text-green-600' : 'text-red-500'}`}>
-              {formatCurrency(totalProfit)}
-            </p>
+          <div className="flex space-x-3">
+            <div className="bg-white shadow-sm border px-3 py-2 rounded-lg">
+              <p className="text-sm font-medium">Bénéfice total:</p>
+              <p className={`text-lg font-bold ${totalProfit > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                {formatCurrency(totalProfit)}
+              </p>
+            </div>
+            <div className="bg-white shadow-sm border px-3 py-2 rounded-lg">
+              <p className="text-sm font-medium">Total commandes validées:</p>
+              <p className="text-lg font-bold text-primary">
+                {formatCurrency(validatedOrdersSum)}
+              </p>
+            </div>
           </div>
           <PeriodFilter 
             viewMode={viewMode} 
