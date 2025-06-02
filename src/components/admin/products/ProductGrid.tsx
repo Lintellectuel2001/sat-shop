@@ -45,6 +45,12 @@ const ProductGrid = ({ products, onEdit, onDelete, onToggleAvailability }: Produ
     setIsDeleteDialogOpen(false);
   };
 
+  const handleToggleAvailability = (productId: string, currentStatus: boolean) => {
+    // Inverser le statut actuel pour obtenir le nouveau statut
+    const newStatus = !currentStatus;
+    onToggleAvailability(productId, newStatus);
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -67,7 +73,7 @@ const ProductGrid = ({ products, onEdit, onDelete, onToggleAvailability }: Produ
               product={product}
               onEdit={onEdit}
               onDeleteClick={handleDeleteClick}
-              onToggleAvailability={onToggleAvailability}
+              onToggleAvailability={handleToggleAvailability}
             />
           ))}
         </TableBody>
