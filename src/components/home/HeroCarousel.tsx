@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -32,7 +31,7 @@ const HeroCarousel = () => {
   const plugin = useMemo(
     () =>
       Autoplay({
-        delay: 8000,
+        delay: 6000,
         stopOnInteraction: true,
       }),
     []
