@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Star, Check, X, Package } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 interface Product {
   id: string;
@@ -24,8 +25,18 @@ interface ProductGridProps {
 
 const ProductGrid = ({ products, isLoading }: ProductGridProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleProductClick = (product: Product) => {
+    if (product.is_available === false) {
+      toast({
+        variant: "destructive",
+        title: "Article non disponible",
+        description: "Cet article n'est actuellement pas disponible (stock épuisé ou désactivé).",
+      });
+      return;
+    }
+
     navigate(`/product/${product.id}`);
   };
 
@@ -47,7 +58,7 @@ const ProductGrid = ({ products, isLoading }: ProductGridProps) => {
         products.map((product) => (
           <Card 
             key={product.id} 
-            className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+            className={`overflow-hidden hover:shadow-lg transition-shadow cursor-pointer ${product.is_available === false ? 'opacity-60' : ''}`}
             onClick={() => handleProductClick(product)}
           >
             <div className="aspect-square overflow-hidden bg-white p-4 relative">

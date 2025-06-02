@@ -6,6 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import Navbar from "../components/Navbar";
 import { Button } from "@/components/ui/button";
 import ShareButtons from "../components/product/ShareButtons";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 
 interface Product {
   id: string;
@@ -18,6 +20,7 @@ interface Product {
   payment_link: string;
   rating?: number;
   reviews?: number;
+  is_available?: boolean;
 }
 
 const ProductDetails = () => {
@@ -60,6 +63,15 @@ const ProductDetails = () => {
 
   const handleOrder = async () => {
     if (!product) return;
+    
+    if (product.is_available === false) {
+      toast({
+        variant: "destructive",
+        title: "Article non disponible",
+        description: "Cet article n'est actuellement pas disponible pour commande.",
+      });
+      return;
+    }
     
     setOrderLoading(true);
     
@@ -155,6 +167,15 @@ const ProductDetails = () => {
             <h1 className="text-4xl font-bold">{product.name}</h1>
             <p className="text-2xl font-semibold text-primary">{product.price}</p>
             
+            {product.is_available === false && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  Cet article n'est actuellement pas disponible (stock épuisé ou désactivé).
+                </AlertDescription>
+              </Alert>
+            )}
+            
             {product.description && (
               <div className="prose max-w-none">
                 <p className="text-lg text-accent whitespace-pre-line">
@@ -180,9 +201,11 @@ const ProductDetails = () => {
             <Button 
               onClick={handleOrder}
               className="w-full lg:w-auto text-lg py-6"
-              disabled={orderLoading}
+              disabled={orderLoading || product.is_available === false}
             >
-              {orderLoading ? 'Redirection...' : 'Commander Maintenant'}
+              {orderLoading ? 'Redirection...' : 
+               product.is_available === false ? 'Article non disponible' : 
+               'Commander Maintenant'}
             </Button>
 
             <div className="bg-muted p-4 rounded-lg mt-8">

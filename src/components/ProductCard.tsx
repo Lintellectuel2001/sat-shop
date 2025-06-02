@@ -36,6 +36,15 @@ const ProductCard = ({
   const [isSharing, setIsSharing] = useState(false);
 
   const handleClick = () => {
+    if (!isAvailable) {
+      toast({
+        variant: "destructive",
+        title: "Article non disponible",
+        description: "Cet article n'est actuellement pas disponible (stock épuisé ou désactivé).",
+      });
+      return;
+    }
+
     if (id) {
       navigate(`/product/${id}`);
     }
@@ -77,7 +86,7 @@ const ProductCard = ({
 
   return (
     <div 
-      className="group bg-white rounded-2xl overflow-hidden shadow-elegant hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+      className={`group bg-white rounded-2xl overflow-hidden shadow-elegant hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1 ${!isAvailable ? 'opacity-60' : ''}`}
       onClick={handleClick}
     >
       <div className="aspect-square overflow-hidden bg-muted p-6 relative">
