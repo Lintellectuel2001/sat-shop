@@ -8,6 +8,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
@@ -26,6 +27,7 @@ const HeroCarousel = () => {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showText, setShowText] = useState(false);
+  const [api, setApi] = useState<CarouselApi>();
   
   const plugin = useMemo(
     () =>
@@ -64,7 +66,7 @@ const HeroCarousel = () => {
     fetchSlides();
   }, [toast]);
 
-  // Reset text visibility and show after 2 seconds
+  // Reset text visibility and show after 2 seconds when slides change
   useEffect(() => {
     setShowText(false);
     const timer = setTimeout(() => {
@@ -73,6 +75,24 @@ const HeroCarousel = () => {
 
     return () => clearTimeout(timer);
   }, [slides]);
+
+  // Handle slide changes using the carousel API
+  useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    const handleSlideChange = () => {
+      setShowText(false);
+      setTimeout(() => setShowText(true), 2000);
+    };
+
+    api.on("select", handleSlideChange);
+
+    return () => {
+      api.off("select", handleSlideChange);
+    };
+  }, [api]);
 
   if (isLoading) {
     return <div className="w-full bg-white pt-16 h-[85vh] max-h-[800px] flex items-center justify-center">
@@ -88,10 +108,7 @@ const HeroCarousel = () => {
           loop: true,
         }}
         plugins={[plugin]}
-        onSlideChange={() => {
-          setShowText(false);
-          setTimeout(() => setShowText(true), 2000);
-        }}
+        setApi={setApi}
       >
         <CarouselContent>
           {slides.map((slide: Slide) => (
