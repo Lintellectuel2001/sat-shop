@@ -25,6 +25,7 @@ const HeroCarousel = () => {
   const { toast } = useToast();
   const [slides, setSlides] = useState<Slide[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showText, setShowText] = useState(false);
   
   const plugin = useMemo(
     () =>
@@ -63,6 +64,16 @@ const HeroCarousel = () => {
     fetchSlides();
   }, [toast]);
 
+  // Reset text visibility and show after 2 seconds
+  useEffect(() => {
+    setShowText(false);
+    const timer = setTimeout(() => {
+      setShowText(true);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [slides]);
+
   if (isLoading) {
     return <div className="w-full bg-white pt-16 h-[85vh] max-h-[800px] flex items-center justify-center">
       <p>Chargement...</p>
@@ -77,6 +88,10 @@ const HeroCarousel = () => {
           loop: true,
         }}
         plugins={[plugin]}
+        onSlideChange={() => {
+          setShowText(false);
+          setTimeout(() => setShowText(true), 2000);
+        }}
       >
         <CarouselContent>
           {slides.map((slide: Slide) => (
@@ -99,25 +114,25 @@ const HeroCarousel = () => {
                 <div 
                   className={`absolute bottom-0 left-0 right-0 p-8 
                   bg-gradient-to-t from-black/50 to-transparent
-                  transform transition-all duration-300 ease-out
-                  translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100
+                  transform transition-all duration-500 ease-out
+                  ${showText ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}
                   ${slide.text_color || 'text-white'}`}
                 >
                   <h3 
-                    className="text-2xl font-bold mb-2 
-                    transform transition-all duration-300
-                    translate-x-10 group-hover:translate-x-0
-                    drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"
+                    className={`text-2xl font-bold mb-2 
+                    transform transition-all duration-500 delay-100
+                    ${showText ? 'translate-x-0' : 'translate-x-10'}
+                    drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]`}
                   >
                     {slide.title}
                   </h3>
                   
                   {slide.description && (
                     <p 
-                      className="text-lg
-                      transform transition-all duration-300
-                      translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100
-                      drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
+                      className={`text-lg
+                      transform transition-all duration-500 delay-200
+                      ${showText ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
+                      drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]`}
                     >
                       {slide.description}
                     </p>
