@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Activity, RefreshCw, Trash2 } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
@@ -112,12 +111,6 @@ const StatisticsPanel = () => {
         <div className="flex items-center gap-2">
           <div className="flex space-x-3">
             <div className="bg-white shadow-sm border px-3 py-2 rounded-lg">
-              <p className="text-sm font-medium">Bénéfice total:</p>
-              <p className={`text-lg font-bold ${totalProfit > 0 ? 'text-green-600' : 'text-red-500'}`}>
-                {formatCurrency(totalProfit)}
-              </p>
-            </div>
-            <div className="bg-white shadow-sm border px-3 py-2 rounded-lg">
               <p className="text-sm font-medium">Total commandes validées:</p>
               <p className="text-lg font-bold text-primary">
                 {formatCurrency(validatedOrdersSum)}
@@ -178,7 +171,6 @@ const StatisticsPanel = () => {
         />
       </div>
 
-      {/* Section Bénéfices par article (ventes récentes) */}
       <div className="bg-white p-6 rounded-xl shadow-elegant">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-primary">Bénéfices par article (ventes récentes)</h3>
@@ -235,7 +227,6 @@ const StatisticsPanel = () => {
         </Table>
       </div>
 
-      {/* Dialogue de confirmation pour la suppression */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
