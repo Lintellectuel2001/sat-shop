@@ -1,14 +1,17 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const NewsletterSection = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { data: siteSettings } = useSiteSettings();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,12 +83,19 @@ const NewsletterSection = () => {
             </Button>
           </form>
         </div>
-        <div className="lg:w-1/2">
-          <img 
-            src="/lovable-uploads/4f809d8c-2ceb-427e-ab7b-cc701210868b.png"
-            alt="Télécommande TV"
-            className="rounded-2xl shadow-elegant object-cover w-full h-[400px]"
-          />
+        <div className="lg:w-1/2 flex justify-center items-center">
+          <div className="bg-white p-8 rounded-2xl shadow-elegant">
+            <img 
+              src={siteSettings?.logo_url || "/lovable-uploads/d7990538-4e18-4b76-bb29-4e16e74bf512.png"}
+              alt={siteSettings?.logo_text || "Sat-shop"}
+              className="w-64 h-64 object-contain"
+            />
+            {siteSettings?.logo_text && (
+              <p className="text-center text-2xl font-bold text-primary mt-4">
+                {siteSettings.logo_text}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </section>
