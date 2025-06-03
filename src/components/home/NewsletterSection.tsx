@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight } from "lucide-react";
@@ -90,11 +89,6 @@ const NewsletterSection = () => {
               alt={siteSettings?.logo_text || "Sat-shop"}
               className="w-64 h-64 object-contain"
             />
-            {siteSettings?.logo_text && (
-              <p className="text-center text-2xl font-bold text-primary mt-4">
-                {siteSettings.logo_text}
-              </p>
-            )}
           </div>
         </div>
       </div>
