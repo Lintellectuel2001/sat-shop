@@ -13,25 +13,87 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminAccessButton = () => {
-  const [accessCode, setAccessCode] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleAccessCode = () => {
-    if (accessCode === "852654") {
-      setIsDialogOpen(false);
-      navigate("/admin");
-    } else {
+  const handleAdminLogin = async () => {
+    if (!email || !password) {
       toast({
         variant: "destructive",
-        title: "Code incorrect",
-        description: "Veuillez vérifier votre code d'accès",
+        title: "Champs requis",
+        description: "Veuillez entrer votre email et mot de passe",
       });
+      return;
     }
-    setAccessCode("");
+
+    setIsLoading(true);
+    try {
+      // Attempt to sign in
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password,
+      });
+
+      if (authError) {
+        throw authError;
+      }
+
+      if (!authData.user) {
+        throw new Error("Échec de l'authentification");
+      }
+
+      // Check if user is admin
+      const { data: adminData, error: adminError } = await supabase
+        .from('admin_users')
+        .select('id')
+        .eq('id', authData.user.id)
+        .maybeSingle();
+
+      if (adminError) {
+        console.error('Error checking admin status:', adminError);
+        await supabase.auth.signOut();
+        throw new Error("Erreur lors de la vérification des droits d'administration");
+      }
+
+      if (!adminData) {
+        await supabase.auth.signOut();
+        throw new Error("Accès refusé : droits d'administration requis");
+      }
+
+      // Success - user is authenticated and is an admin
+      setIsDialogOpen(false);
+      setEmail("");
+      setPassword("");
+      navigate("/admin");
+      
+      toast({
+        title: "Connexion réussie",
+        description: "Bienvenue dans l'administration",
+      });
+
+    } catch (error: any) {
+      console.error('Admin login error:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur de connexion",
+        description: error.message || "Identifiants incorrects ou droits insuffisants",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !isLoading) {
+      handleAdminLogin();
+    }
   };
 
   return (
@@ -49,23 +111,31 @@ const AdminAccessButton = () => {
         <DialogHeader>
           <DialogTitle>Accès Administrateur</DialogTitle>
           <DialogDescription>
-            Veuillez entrer le code d'accès pour continuer
+            Connectez-vous avec vos identifiants d'administrateur
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           <Input
-            type="password"
-            placeholder="Code d'accès"
-            value={accessCode}
-            onChange={(e) => setAccessCode(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleAccessCode();
-              }
-            }}
+            type="email"
+            placeholder="Email d'administrateur"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={isLoading}
           />
-          <Button onClick={handleAccessCode}>
-            Accéder
+          <Input
+            type="password"
+            placeholder="Mot de passe"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={isLoading}
+          />
+          <Button 
+            onClick={handleAdminLogin}
+            disabled={isLoading}
+          >
+            {isLoading ? "Connexion..." : "Se connecter"}
           </Button>
         </div>
       </DialogContent>
