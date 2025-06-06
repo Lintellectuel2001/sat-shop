@@ -1,175 +1,199 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Eye, EyeOff, Shield } from "lucide-react";
-import { useSecureAuth } from "@/hooks/useSecureAuth";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { sanitizeEmail, authRateLimiter } from '@/utils/securityValidation';
+import { useSecureAuthState } from '@/hooks/useSecureAuthState';
 
 interface SecureLoginFormProps {
-  onSuccess: (data: any) => void;
-  onError: (error: string) => void;
-  title?: string;
-  description?: string;
+  onSuccess?: () => void;
+  redirectTo?: string;
 }
 
-const SecureLoginForm: React.FC<SecureLoginFormProps> = ({
-  onSuccess,
-  onError,
-  title = "Connexion sécurisée",
-  description = "Connectez-vous avec vos identifiants"
-}) => {
+const SecureLoginForm: React.FC<SecureLoginFormProps> = ({ onSuccess, redirectTo = "/" }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { secureLogin, isLocked, getRemainingLockoutTime } = useSecureAuth();
+  const [isLocked, setIsLocked] = useState(false);
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const { logSecurityEvent } = useSecureAuthState();
 
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const getPasswordStrength = (password: string) => {
-    let strength = 0;
-    if (password.length >= 8) strength++;
-    if (/[A-Z]/.test(password)) strength++;
-    if (/[a-z]/.test(password)) strength++;
-    if (/[0-9]/.test(password)) strength++;
-    if (/[^A-Za-z0-9]/.test(password)) strength++;
-    return strength;
-  };
-
-  const getPasswordStrengthLabel = (strength: number) => {
-    switch (strength) {
-      case 0:
-      case 1: return { label: "Très faible", color: "text-red-500" };
-      case 2: return { label: "Faible", color: "text-orange-500" };
-      case 3: return { label: "Moyen", color: "text-yellow-500" };
-      case 4: return { label: "Fort", color: "text-blue-500" };
-      case 5: return { label: "Très fort", color: "text-green-500" };
-      default: return { label: "Inconnu", color: "text-gray-500" };
+  const checkRateLimit = useCallback(() => {
+    const clientId = `${navigator.userAgent}_${window.location.hostname}`;
+    
+    if (!authRateLimiter.isAllowed(clientId)) {
+      const remainingTime = Math.ceil(authRateLimiter.getRemainingTime(clientId) / 1000 / 60);
+      setIsLocked(true);
+      
+      toast({
+        variant: "destructive",
+        title: "Trop de tentatives",
+        description: `Veuillez réessayer dans ${remainingTime} minutes.`,
+      });
+      
+      return false;
     }
-  };
+    
+    return true;
+  }, [toast]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSecureLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (isLocked) {
-      const remainingTime = getRemainingLockoutTime();
-      onError(`Compte verrouillé. Réessayez dans ${remainingTime} minutes.`);
+    if (!checkRateLimit()) {
       return;
     }
 
-    if (!validateEmail(email)) {
-      onError("Format d'email invalide");
+    if (!email || !password) {
+      toast({
+        variant: "destructive",
+        title: "Champs requis",
+        description: "Veuillez entrer votre email et mot de passe",
+      });
       return;
     }
 
-    if (password.length < 8) {
-      onError("Le mot de passe doit contenir au moins 8 caractères");
+    if (password.length < 6) {
+      toast({
+        variant: "destructive",
+        title: "Mot de passe trop court",
+        description: "Le mot de passe doit contenir au moins 6 caractères",
+      });
       return;
     }
 
     setIsLoading(true);
+    
     try {
-      const result = await secureLogin(email, password);
+      const sanitizedEmail = sanitizeEmail(email);
       
-      if (result.success && result.data) {
-        onSuccess(result.data);
-      } else {
-        onError(result.error || "Erreur de connexion");
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: sanitizedEmail,
+        password: password,
+      });
+
+      if (error) {
+        await logSecurityEvent({
+          action: 'login_failed',
+          resource: 'authentication',
+          details: { 
+            email: sanitizedEmail,
+            error: error.message,
+            userAgent: navigator.userAgent
+          },
+          severity: 'medium'
+        });
+
+        throw error;
       }
+
+      if (!data.user) {
+        throw new Error("Échec de l'authentification");
+      }
+
+      await logSecurityEvent({
+        action: 'login_success',
+        resource: 'authentication',
+        details: { 
+          email: sanitizedEmail,
+          userAgent: navigator.userAgent
+        },
+        severity: 'low'
+      });
+
+      toast({
+        title: "Connexion réussie",
+        description: "Bienvenue !",
+      });
+
+      setEmail("");
+      setPassword("");
+      setIsLocked(false);
+
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        navigate(redirectTo);
+      }
+
     } catch (error: any) {
-      onError(error.message || "Erreur inattendue");
+      console.error('Secure login error:', error);
+      
+      let errorMessage = "Identifiants incorrects";
+      
+      if (error.message?.includes('Invalid login credentials')) {
+        errorMessage = "Email ou mot de passe incorrect";
+      } else if (error.message?.includes('Email not confirmed')) {
+        errorMessage = "Veuillez confirmer votre email avant de vous connecter";
+      } else if (error.message?.includes('Too many requests')) {
+        errorMessage = "Trop de tentatives. Veuillez réessayer plus tard";
+        setIsLocked(true);
+      }
+
+      toast({
+        variant: "destructive",
+        title: "Erreur de connexion",
+        description: errorMessage,
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const passwordStrength = getPasswordStrength(password);
-  const strengthInfo = getPasswordStrengthLabel(passwordStrength);
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !isLoading && !isLocked) {
+      handleSecureLogin(e as any);
+    }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="text-center mb-6">
-        <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-          <Shield className="h-6 w-6 text-blue-600" />
-        </div>
-        <h2 className="text-2xl font-bold">{title}</h2>
-        <p className="text-gray-600">{description}</p>
-      </div>
-
-      {isLocked && (
-        <Alert variant="destructive">
-          <AlertDescription>
-            Compte temporairement verrouillé suite à trop de tentatives échouées. 
-            Temps restant: {getRemainingLockoutTime()} minutes.
-          </AlertDescription>
-        </Alert>
-      )}
-
+    <form onSubmit={handleSecureLogin} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <label htmlFor="email" className="text-sm font-medium text-primary">
+          Email
+        </label>
         <Input
           id="email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="votre@email.com"
           disabled={isLoading || isLocked}
           required
+          autoComplete="email"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">Mot de passe</Label>
-        <div className="relative">
-          <Input
-            id="password"
-            type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Votre mot de passe"
-            disabled={isLoading || isLocked}
-            required
-          />
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-            onClick={() => setShowPassword(!showPassword)}
-            disabled={isLoading || isLocked}
-          >
-            {showPassword ? (
-              <EyeOff className="h-4 w-4" />
-            ) : (
-              <Eye className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-        {password && (
-          <p className={`text-sm ${strengthInfo.color}`}>
-            Force: {strengthInfo.label}
-          </p>
-        )}
+        <label htmlFor="password" className="text-sm font-medium text-primary">
+          Mot de passe
+        </label>
+        <Input
+          id="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="••••••••"
+          disabled={isLoading || isLocked}
+          required
+          minLength={6}
+          autoComplete="current-password"
+        />
       </div>
 
       <Button
         type="submit"
-        className="w-full"
-        disabled={isLoading || isLocked || !email || !password || passwordStrength < 2}
+        className="w-full bg-accent hover:bg-accent/90 text-white"
+        disabled={isLoading || isLocked}
       >
-        {isLoading ? "Connexion..." : "Se connecter"}
+        {isLoading ? "Connexion..." : isLocked ? "Bloqué" : "Se connecter"}
       </Button>
-
-      <div className="text-xs text-gray-500 mt-4">
-        <p>• Minimum 8 caractères requis</p>
-        <p>• Maximum 5 tentatives par période de 5 minutes</p>
-        <p>• Verrouillage de 15 minutes après échecs répétés</p>
-      </div>
     </form>
   );
 };
