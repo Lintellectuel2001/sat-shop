@@ -1,108 +1,102 @@
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useOrderManagement, OrderFormData } from '@/hooks/useOrderManagement';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from '@/hooks/use-toast';
 
 interface GuestOrderFormProps {
-  productId: string;
-  productName: string;
-  amount: string;
-  onOrderCreated?: (orderToken: string) => void;
+  onSubmit: (guestInfo: {
+    email: string;
+    phone: string;
+    address: string;
+    name: string;
+  }) => void;
+  isLoading: boolean;
 }
 
-const GuestOrderForm = ({ productId, productName, amount, onOrderCreated }: GuestOrderFormProps) => {
+const GuestOrderForm: React.FC<GuestOrderFormProps> = ({ onSubmit, isLoading }) => {
   const [formData, setFormData] = useState({
-    customerName: '',
-    customerEmail: '',
-    customerPhone: '',
-    customerAddress: '',
+    email: '',
+    phone: '',
+    address: '',
+    name: ''
   });
+  const { toast } = useToast();
 
-  const { createOrder, isLoading } = useOrderManagement();
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const orderData: OrderFormData = {
-      productId,
-      productName,
-      amount,
-      ...formData
-    };
-
-    try {
-      const order = await createOrder(orderData, true);
-      onOrderCreated?.(order.order_token);
-    } catch (error) {
-      // L'erreur est déjà gérée dans le hook
+    if (!formData.email || !formData.phone || !formData.name) {
+      toast({
+        variant: "destructive",
+        title: "Champs requis",
+        description: "Veuillez remplir tous les champs obligatoires",
+      });
+      return;
     }
+
+    onSubmit(formData);
   };
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+  const handleChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card>
       <CardHeader>
-        <CardTitle>Informations de commande</CardTitle>
+        <CardTitle>Informations de livraison</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="customerName">Nom complet *</Label>
+          <div>
+            <Label htmlFor="name">Nom complet *</Label>
             <Input
-              id="customerName"
-              value={formData.customerName}
-              onChange={(e) => handleInputChange('customerName', e.target.value)}
+              id="name"
+              type="text"
+              value={formData.name}
+              onChange={(e) => handleChange('name', e.target.value)}
               required
             />
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="customerEmail">Email *</Label>
+          
+          <div>
+            <Label htmlFor="email">Email *</Label>
             <Input
-              id="customerEmail"
+              id="email"
               type="email"
-              value={formData.customerEmail}
-              onChange={(e) => handleInputChange('customerEmail', e.target.value)}
+              value={formData.email}
+              onChange={(e) => handleChange('email', e.target.value)}
               required
             />
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="customerPhone">Téléphone</Label>
+          
+          <div>
+            <Label htmlFor="phone">Téléphone *</Label>
             <Input
-              id="customerPhone"
+              id="phone"
               type="tel"
-              value={formData.customerPhone}
-              onChange={(e) => handleInputChange('customerPhone', e.target.value)}
+              value={formData.phone}
+              onChange={(e) => handleChange('phone', e.target.value)}
+              required
             />
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="customerAddress">Adresse</Label>
-            <Textarea
-              id="customerAddress"
-              value={formData.customerAddress}
-              onChange={(e) => handleInputChange('customerAddress', e.target.value)}
-              placeholder="Adresse complète pour la livraison"
+          
+          <div>
+            <Label htmlFor="address">Adresse</Label>
+            <Input
+              id="address"
+              type="text"
+              value={formData.address}
+              onChange={(e) => handleChange('address', e.target.value)}
+              placeholder="Adresse de livraison (optionnel)"
             />
           </div>
-
-          <Button 
-            type="submit" 
-            className="w-full"
-            disabled={isLoading || !formData.customerName || !formData.customerEmail}
-          >
-            {isLoading ? 'Création...' : 'Créer la commande'}
+          
+          <Button type="submit" disabled={isLoading} className="w-full">
+            {isLoading ? 'Commande en cours...' : 'Confirmer la commande'}
           </Button>
         </form>
       </CardContent>

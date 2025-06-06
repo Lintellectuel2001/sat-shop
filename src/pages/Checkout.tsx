@@ -1,143 +1,158 @@
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useAuthState } from '@/hooks/useAuthState';
+import { useOrderManagement } from '@/hooks/useOrderManagement';
 import GuestOrderForm from '@/components/cart/GuestOrderForm';
 import OrderConfirmation from '@/components/cart/OrderConfirmation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Package, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft } from 'lucide-react';
 
 const Checkout = () => {
-  const { productId } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { isLoggedIn } = useAuthState();
+  const { createOrder, isLoading } = useOrderManagement();
   
-  const [product, setProduct] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [orderConfirmation, setOrderConfirmation] = useState<{
-    orderToken: string;
-    productName: string;
-    amount: string;
-    customerName: string;
-  } | null>(null);
+  const [confirmedOrder, setConfirmedOrder] = useState<any>(null);
+  
+  // Récupérer les paramètres du produit depuis l'URL
+  const productId = searchParams.get('productId');
+  const productName = searchParams.get('productName');
+  const productPrice = searchParams.get('productPrice');
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      if (!productId) return;
+  if (!productId || !productName || !productPrice) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">
+            Erreur - Produit non spécifié
+          </h1>
+          <Button onClick={() => navigate('/')}>
+            Retour à l'accueil
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
-      try {
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .eq('id', productId)
-          .single();
-
-        if (error) throw error;
-        setProduct(data);
-      } catch (error) {
-        console.error('Erreur lors du chargement du produit:', error);
-        toast({
-          variant: "destructive",
-          title: "Erreur",
-          description: "Produit non trouvé",
-        });
-        navigate('/');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchProduct();
-  }, [productId, navigate, toast]);
-
-  const handleOrderCreated = (orderToken: string) => {
-    setOrderConfirmation({
-      orderToken,
-      productName: product.name,
-      amount: product.price,
-      customerName: 'Client' // This will be updated with actual customer name
-    });
+  const handleGuestOrder = async (guestInfo: any) => {
+    try {
+      const order = await createOrder({
+        product_id: productId,
+        product_name: productName,
+        amount: productPrice,
+        guest_info: guestInfo
+      });
+      
+      setConfirmedOrder(order);
+    } catch (error) {
+      console.error('Erreur lors de la commande invité:', error);
+    }
   };
 
-  if (isLoading) {
+  const handleRegisteredUserOrder = async () => {
+    try {
+      const order = await createOrder({
+        product_id: productId,
+        product_name: productName,
+        amount: productPrice
+      });
+      
+      setConfirmedOrder(order);
+    } catch (error) {
+      console.error('Erreur lors de la commande utilisateur connecté:', error);
+    }
+  };
+
+  if (confirmedOrder) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-muted/30 to-accent/5 py-12">
+      <div className="min-h-screen bg-gray-50 py-8">
         <div className="container mx-auto px-4">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4">Chargement...</p>
+          <div className="max-w-md mx-auto">
+            <OrderConfirmation 
+              orderToken={confirmedOrder.order_token}
+              customerEmail={confirmedOrder.guest_email}
+              isGuest={!confirmedOrder.user_id}
+            />
+            <div className="text-center mt-6">
+              <Button 
+                onClick={() => navigate(`/order-tracking?token=${confirmedOrder.order_token}`)}
+                className="mr-4"
+              >
+                Suivre ma commande
+              </Button>
+              <Button variant="outline" onClick={() => navigate('/')}>
+                Retour à l'accueil
+              </Button>
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
-  if (!product) {
-    return null;
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-muted/30 to-accent/5 py-12">
+    <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
-        <div className="mb-6">
-          <Button
-            variant="outline"
+        <div className="max-w-2xl mx-auto">
+          <Button 
+            variant="ghost" 
             onClick={() => navigate(-1)}
-            className="mb-4"
+            className="mb-6"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="w-4 h-4 mr-2" />
             Retour
           </Button>
-        </div>
 
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-4">Finaliser la commande</h1>
-        </div>
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Finaliser la commande
+            </h1>
+          </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Résumé du produit */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Package className="h-5 w-5" />
-                Produit sélectionné
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-48 object-cover rounded-lg"
-                />
-                <div>
-                  <h3 className="font-semibold text-lg">{product.name}</h3>
-                  <p className="text-muted-foreground text-sm">
-                    {product.description}
-                  </p>
-                  <div className="flex justify-between items-center mt-4">
-                    <span className="text-2xl font-bold text-primary">
-                      {product.price}
-                    </span>
+          <div className="space-y-6">
+            {/* Résumé du produit */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Résumé de la commande</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="font-medium">{productName}</h3>
+                    <p className="text-sm text-gray-600">Quantité: 1</p>
                   </div>
+                  <p className="text-lg font-bold">{productPrice}</p>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* Formulaire de commande ou confirmation */}
-          <div>
-            {!orderConfirmation ? (
-              <GuestOrderForm
-                productId={product.id}
-                productName={product.name}
-                amount={product.price}
-                onOrderCreated={handleOrderCreated}
-              />
+            {/* Formulaire de commande */}
+            {isLoggedIn ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Commande pour utilisateur connecté</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 mb-4">
+                    Vous êtes connecté. Votre commande sera associée à votre compte.
+                  </p>
+                  <Button 
+                    onClick={handleRegisteredUserOrder}
+                    disabled={isLoading}
+                    className="w-full"
+                  >
+                    {isLoading ? 'Commande en cours...' : 'Confirmer la commande'}
+                  </Button>
+                </CardContent>
+              </Card>
             ) : (
-              <OrderConfirmation {...orderConfirmation} />
+              <GuestOrderForm 
+                onSubmit={handleGuestOrder}
+                isLoading={isLoading}
+              />
             )}
           </div>
         </div>

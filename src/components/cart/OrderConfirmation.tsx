@@ -1,76 +1,68 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Copy } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import { useToast } from '@/hooks/use-toast';
 
 interface OrderConfirmationProps {
   orderToken: string;
-  productName: string;
-  amount: string;
-  customerName: string;
+  customerEmail?: string;
+  isGuest: boolean;
 }
 
-const OrderConfirmation = ({ orderToken, productName, amount, customerName }: OrderConfirmationProps) => {
+const OrderConfirmation: React.FC<OrderConfirmationProps> = ({ 
+  orderToken, 
+  customerEmail, 
+  isGuest 
+}) => {
   const { toast } = useToast();
 
-  const copyOrderToken = () => {
+  const copyToken = () => {
     navigator.clipboard.writeText(orderToken);
     toast({
-      title: "Token copié",
-      description: "Le numéro de suivi a été copié dans le presse-papier",
+      title: "Copié !",
+      description: "Le numéro de commande a été copié dans le presse-papiers",
     });
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="max-w-md mx-auto">
       <CardHeader className="text-center">
-        <div className="flex justify-center mb-4">
-          <CheckCircle className="h-16 w-16 text-green-500" />
+        <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+          <CheckCircle className="w-8 h-8 text-green-600" />
         </div>
         <CardTitle className="text-green-600">Commande confirmée !</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="text-center">
-          <p className="text-sm text-gray-600 mb-2">Numéro de suivi :</p>
-          <div className="flex items-center justify-center gap-2">
-            <Badge variant="outline" className="text-lg font-mono">
-              {orderToken}
-            </Badge>
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <p className="text-sm text-gray-600 mb-2">Numéro de commande :</p>
+          <div className="flex items-center justify-between">
+            <span className="font-mono text-lg font-bold">{orderToken}</span>
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
-              onClick={copyOrderToken}
+              onClick={copyToken}
+              className="ml-2"
             >
-              <Copy className="h-4 w-4" />
+              <Copy className="w-4 h-4" />
             </Button>
           </div>
         </div>
-
-        <div className="space-y-2 pt-4 border-t">
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-600">Client :</span>
-            <span className="text-sm font-medium">{customerName}</span>
+        
+        {isGuest && (
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <p className="text-sm text-blue-700">
+              <strong>Important :</strong> Conservez ce numéro de commande pour suivre votre livraison.
+              {customerEmail && ` Un email de confirmation a été envoyé à ${customerEmail}.`}
+            </p>
           </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-600">Produit :</span>
-            <span className="text-sm font-medium">{productName}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-600">Montant :</span>
-            <span className="text-sm font-medium">{amount}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-600">Statut :</span>
-            <Badge variant="secondary">En attente</Badge>
-          </div>
-        </div>
-
-        <div className="text-center pt-4 border-t">
-          <p className="text-xs text-gray-500">
-            Conservez ce numéro de suivi pour suivre votre commande
+        )}
+        
+        <div className="text-center">
+          <p className="text-sm text-gray-600">
+            Votre commande est en cours de traitement. 
+            Vous recevrez bientôt une confirmation.
           </p>
         </div>
       </CardContent>

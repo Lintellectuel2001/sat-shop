@@ -1,49 +1,56 @@
 
 import React, { useState } from 'react';
-import { Order } from '@/hooks/useOrderManagement';
+import { useSearchParams } from 'react-router-dom';
 import OrderTrackingForm from '@/components/cart/OrderTrackingForm';
 import OrderDetails from '@/components/cart/OrderDetails';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { useOrderManagement } from '@/hooks/useOrderManagement';
+import { useEffect } from 'react';
 
 const OrderTracking = () => {
-  const [foundOrder, setFoundOrder] = useState<Order | null>(null);
+  const [searchParams] = useSearchParams();
+  const [order, setOrder] = useState<any>(null);
+  const { trackOrder, isLoading } = useOrderManagement();
 
-  const handleOrderFound = (order: Order) => {
-    setFoundOrder(order);
-  };
+  // Récupérer le token depuis l'URL si présent
+  const tokenFromUrl = searchParams.get('token');
 
-  const handleBackToSearch = () => {
-    setFoundOrder(null);
+  useEffect(() => {
+    if (tokenFromUrl) {
+      handleSearch(tokenFromUrl);
+    }
+  }, [tokenFromUrl]);
+
+  const handleSearch = async (token: string, email?: string) => {
+    const foundOrder = await trackOrder(token, email);
+    setOrder(foundOrder);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-muted/30 to-accent/5 py-12">
+    <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-4">Suivi de commande</h1>
-          <p className="text-muted-foreground">
-            Entrez votre numéro de suivi pour voir l'état de votre commande
-          </p>
-        </div>
-
-        {!foundOrder ? (
-          <OrderTrackingForm onOrderFound={handleOrderFound} />
-        ) : (
-          <div className="space-y-6">
-            <div className="text-center">
-              <Button
-                variant="outline"
-                onClick={handleBackToSearch}
-                className="mb-4"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Nouvelle recherche
-              </Button>
-            </div>
-            <OrderDetails order={foundOrder} />
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Suivi de commande
+            </h1>
+            <p className="text-gray-600">
+              Entrez votre numéro de commande pour suivre votre livraison
+            </p>
           </div>
-        )}
+
+          <div className="space-y-8">
+            <OrderTrackingForm onSearch={handleSearch} isLoading={isLoading} />
+            
+            {order && (
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold text-center">
+                  Détails de votre commande
+                </h2>
+                <OrderDetails order={order} />
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
