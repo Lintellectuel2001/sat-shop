@@ -1,10 +1,11 @@
 
-import { Star, Share2, Package } from "lucide-react";
+import { Star, Share2, Package, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import WishlistButton from "./wishlist/WishlistButton";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface ProductCardProps {
   id?: string;
@@ -50,8 +51,21 @@ const ProductCard = ({
     }
   };
 
+  const handleOrderClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isAvailable) {
+      toast({
+        variant: "destructive",
+        title: "Article non disponible",
+        description: "Cet article n'est actuellement pas disponible.",
+      });
+      return;
+    }
+    navigate(`/checkout/${id}`);
+  };
+
   const handleShare = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Éviter de naviguer vers la page produit
+    e.stopPropagation();
     setIsSharing(true);
     
     const shareUrl = `${window.location.origin}/product/${id}`;
@@ -65,7 +79,6 @@ const ProductCard = ({
       .catch((error) => console.log('Erreur de partage', error))
       .finally(() => setIsSharing(false));
     } else {
-      // Copier le lien si le partage natif n'est pas supporté
       navigator.clipboard.writeText(shareUrl)
         .then(() => {
           toast({
@@ -109,7 +122,7 @@ const ProductCard = ({
             className="bg-white/80 hover:bg-white"
           />
         </div>
-        {/* Availability badge */}
+        
         <Badge 
           className={`absolute top-2 left-2 ${
             isAvailable 
@@ -120,7 +133,6 @@ const ProductCard = ({
           {isAvailable ? 'Disponible' : 'Non Disponible'}
         </Badge>
         
-        {/* Category badge */}
         {category && (
           <Badge 
             className="absolute bottom-2 left-2 bg-primary hover:bg-primary/90"
@@ -129,7 +141,6 @@ const ProductCard = ({
           </Badge>
         )}
 
-        {/* Physical product badge */}
         {isPhysical && (
           <Badge 
             className="absolute bottom-2 right-2 bg-amber-500 hover:bg-amber-600"
@@ -144,7 +155,7 @@ const ProductCard = ({
       <div className="p-6">
         <h3 className="text-lg font-semibold text-primary">{name}</h3>
         <p className="text-accent font-medium mt-2">{price}</p>
-        <div className="flex items-center gap-1 mt-3">
+        <div className="flex items-center gap-1 mt-3 mb-4">
           {Array.from({ length: 5 }).map((_, i) => (
             <Star
               key={i}
@@ -155,6 +166,15 @@ const ProductCard = ({
           ))}
           <span className="text-sm text-primary/60 ml-2">({reviews})</span>
         </div>
+        
+        <Button
+          onClick={handleOrderClick}
+          className="w-full"
+          disabled={!isAvailable}
+        >
+          <ShoppingCart className="h-4 w-4 mr-2" />
+          Commander maintenant
+        </Button>
       </div>
     </div>
   );

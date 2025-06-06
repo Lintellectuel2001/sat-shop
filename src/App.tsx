@@ -8,6 +8,8 @@ import Cart from "./pages/Cart";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import Wishlist from "./pages/Wishlist";
+import OrderTracking from "./pages/OrderTracking";
+import Checkout from "./pages/Checkout";
 import LoginPanel from "./components/auth/LoginPanel";
 import RegisterPanel from "./components/auth/RegisterPanel";
 
@@ -23,6 +25,8 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/order-tracking" element={<OrderTracking />} />
+        <Route path="/checkout/:productId" element={<Checkout />} />
         <Route path="/login" element={<LoginPanel />} />
         <Route path="/register" element={<RegisterPanel />} />
       </Routes>

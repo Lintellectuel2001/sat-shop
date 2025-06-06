@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Search, Package } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 const NavLinks = () => {
@@ -31,6 +31,13 @@ const NavLinks = () => {
         className="nav-link font-medium"
       >
         Marketplace
+      </Link>
+      <Link 
+        to="/order-tracking" 
+        className="nav-link font-medium flex items-center gap-1"
+      >
+        <Package className="h-4 w-4" />
+        Suivi Commande
       </Link>
       <Link 
         to="/contact" 
