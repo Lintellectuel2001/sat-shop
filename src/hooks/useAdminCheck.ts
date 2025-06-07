@@ -16,15 +16,18 @@ export const useAdminCheck = () => {
 
     const checkAdminStatus = async () => {
       try {
+        console.log('🔍 Vérification du statut admin...');
+        
         // First verify user is authenticated
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
-          console.error('Session error:', sessionError);
+          console.error('❌ Erreur de session:', sessionError);
           throw sessionError;
         }
 
         if (!session?.user) {
+          console.log('❌ Aucune session utilisateur trouvée');
           if (mounted) {
             setIsAdmin(false);
             setIsLoading(false);
@@ -39,23 +42,29 @@ export const useAdminCheck = () => {
           return;
         }
 
+        console.log('✅ Session utilisateur trouvée:', session.user.email);
+
         // Use the new secure function to check admin status
         const { data: adminCheck, error: adminError } = await supabase
           .rpc('get_current_user_role');
 
+        console.log('🔍 Résultat de get_current_user_role:', { adminCheck, adminError });
+
         if (adminError) {
-          console.error('Error checking admin status:', adminError);
+          console.error('❌ Erreur lors de la vérification admin:', adminError);
           throw adminError;
         }
 
         const isUserAdmin = adminCheck === 'admin';
+        console.log('🎯 L\'utilisateur est-il admin?', isUserAdmin);
 
         if (mounted) {
           if (isUserAdmin) {
             setIsAdmin(true);
-            console.log('Admin access granted for user:', session.user.id);
+            console.log('✅ Accès admin accordé pour:', session.user.id);
           } else {
             setIsAdmin(false);
+            console.log('❌ Accès admin refusé pour:', session.user.id);
             toast({
               variant: "destructive",
               title: "Accès refusé",
@@ -67,7 +76,7 @@ export const useAdminCheck = () => {
           setSessionChecked(true);
         }
       } catch (error: any) {
-        console.error('Error in admin check:', error);
+        console.error('💥 Erreur dans la vérification admin:', error);
         
         if (mounted) {
           setIsAdmin(false);

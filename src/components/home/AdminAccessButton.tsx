@@ -54,6 +54,8 @@ const AdminAccessButton = () => {
     }
 
     setIsLoading(true);
+    console.log('🔐 Tentative de connexion admin pour:', email);
+    
     try {
       // Secure authentication attempt
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -61,7 +63,10 @@ const AdminAccessButton = () => {
         password: password,
       });
 
+      console.log('🔐 Résultat authentification:', { authData: !!authData.user, authError });
+
       if (authError) {
+        console.error('❌ Erreur authentification:', authError);
         throw authError;
       }
 
@@ -69,22 +74,28 @@ const AdminAccessButton = () => {
         throw new Error("Échec de l'authentification");
       }
 
+      console.log('✅ Authentification réussie, vérification des droits admin...');
+
       // Use the secure function to check admin status
       const { data: roleCheck, error: roleError } = await supabase
         .rpc('get_current_user_role');
 
+      console.log('🎯 Vérification du rôle:', { roleCheck, roleError });
+
       if (roleError) {
-        console.error('Error checking admin role:', roleError);
+        console.error('❌ Erreur vérification rôle:', roleError);
         await supabase.auth.signOut();
         throw new Error("Erreur lors de la vérification des droits d'administration");
       }
 
       if (roleCheck !== 'admin') {
+        console.log('❌ Utilisateur non admin, déconnexion...');
         await supabase.auth.signOut();
         throw new Error("Accès refusé : droits d'administration requis");
       }
 
       // Success - user is authenticated and is an admin
+      console.log('🎉 Accès admin accordé, redirection vers /admin');
       setIsDialogOpen(false);
       setEmail("");
       setPassword("");
@@ -96,7 +107,7 @@ const AdminAccessButton = () => {
       });
 
     } catch (error: any) {
-      console.error('Admin login error:', error);
+      console.error('💥 Erreur connexion admin:', error);
       
       // Secure error handling without exposing sensitive information
       let errorMessage = "Une erreur est survenue lors de la connexion";
