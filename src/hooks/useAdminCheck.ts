@@ -16,37 +16,15 @@ export const useAdminCheck = () => {
 
     const checkAdminStatus = async () => {
       try {
+        // First verify user is authenticated
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.error('Session error:', sessionError);
-          if (mounted) {
-            setIsAdmin(false);
-            setIsLoading(false);
-            setSessionChecked(true);
-            
-            // Si l'erreur est liée au refresh token, déconnectez l'utilisateur
-            if (sessionError.message?.includes('refresh_token_not_found')) {
-              await supabase.auth.signOut();
-              toast({
-                variant: "destructive",
-                title: "Session expirée",
-                description: "Votre session a expiré. Veuillez vous reconnecter.",
-              });
-              navigate('/login');
-            } else {
-              toast({
-                variant: "destructive",
-                title: "Erreur de session",
-                description: "Une erreur est survenue lors de la vérification de votre session",
-              });
-              navigate('/login');
-            }
-          }
-          return;
+          throw sessionError;
         }
 
-        if (!session) {
+        if (!session?.user) {
           if (mounted) {
             setIsAdmin(false);
             setIsLoading(false);
@@ -56,62 +34,64 @@ export const useAdminCheck = () => {
               title: "Accès refusé",
               description: "Vous devez être connecté pour accéder à cette page",
             });
-            navigate('/login');
+            navigate('/login', { replace: true });
           }
           return;
         }
 
-        // Add console.log to debug user session info
-        console.log('User session:', session.user);
+        // Use the new secure function to check admin status
+        const { data: adminCheck, error: adminError } = await supabase
+          .rpc('get_current_user_role');
 
-        const { data: adminData, error: adminError } = await supabase
-          .from('admin_users')
-          .select('id')
-          .eq('id', session.user.id)
-          .maybeSingle();
-        
-        // Add console.log to debug admin check
-        console.log('Admin check result:', { adminData, adminError });
+        if (adminError) {
+          console.error('Error checking admin status:', adminError);
+          throw adminError;
+        }
+
+        const isUserAdmin = adminCheck === 'admin';
 
         if (mounted) {
-          if (adminError) {
-            console.error('Error checking admin status:', adminError);
-            setIsAdmin(false);
-            toast({
-              variant: "destructive",
-              title: "Erreur",
-              description: "Une erreur est survenue lors de la vérification des droits",
-            });
-            navigate('/');
-          } else if (!adminData) {
+          if (isUserAdmin) {
+            setIsAdmin(true);
+            console.log('Admin access granted for user:', session.user.id);
+          } else {
             setIsAdmin(false);
             toast({
               variant: "destructive",
               title: "Accès refusé",
               description: "Vous n'avez pas les droits d'administration",
             });
-            navigate('/');
-          } else {
-            setIsAdmin(true);
+            navigate('/', { replace: true });
           }
           setIsLoading(false);
           setSessionChecked(true);
         }
-      } catch (error) {
+      } catch (error: any) {
+        console.error('Error in admin check:', error);
+        
         if (mounted) {
-          console.error('Error in checkAdminStatus:', error);
           setIsAdmin(false);
           setIsLoading(false);
           setSessionChecked(true);
           
-          // En cas d'erreur imprévue, on déconnecte l'utilisateur par sécurité
-          await supabase.auth.signOut();
-          toast({
-            variant: "destructive",
-            title: "Erreur de session",
-            description: "Une erreur est survenue. Veuillez vous reconnecter.",
-          });
-          navigate('/login');
+          // Handle specific errors securely
+          if (error.message?.includes('refresh_token_not_found') || 
+              error.message?.includes('invalid_token')) {
+            await supabase.auth.signOut();
+            toast({
+              variant: "destructive",
+              title: "Session expirée",
+              description: "Votre session a expiré. Veuillez vous reconnecter.",
+            });
+            navigate('/login', { replace: true });
+          } else {
+            toast({
+              variant: "destructive",
+              title: "Erreur de vérification",
+              description: "Une erreur est survenue lors de la vérification des droits",
+            });
+            navigate('/', { replace: true });
+          }
         }
       }
     };

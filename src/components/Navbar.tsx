@@ -12,7 +12,7 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { isLoggedIn, userId, handleSignOut } = useAuthState();
+  const { isLoggedIn, userId, handleSignOut, isLoading } = useAuthState();
   const { data: settings } = useSiteSettings();
 
   const toggleMobileMenu = () => {
@@ -35,13 +35,17 @@ const Navbar = () => {
           </div>
 
           <div className="hidden md:flex items-center gap-6">
-            {isLoggedIn ? (
+            {!isLoading && (
               <>
-                {userId && <NotificationsMenu userId={userId} />}
-                <UserButtons onLogout={handleSignOut} />
+                {isLoggedIn ? (
+                  <>
+                    {userId && <NotificationsMenu userId={userId} />}
+                    <UserButtons onLogout={handleSignOut} />
+                  </>
+                ) : (
+                  <AuthButtons />
+                )}
               </>
-            ) : (
-              <AuthButtons />
             )}
           </div>
 
