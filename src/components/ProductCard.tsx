@@ -1,91 +1,159 @@
 
-import React from 'react';
-import { Button } from "@/components/ui/button";
+import { Star, Share2, Package } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import WishlistButton from "./wishlist/WishlistButton";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Eye } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
-import WishlistButton from './wishlist/WishlistButton';
 
-interface Product {
-  id: string;
+interface ProductCardProps {
+  id?: string;
   name: string;
   price: string;
   image: string;
-  category: string;
-  description?: string;
-  is_available?: boolean;
+  rating: number;
+  reviews: number;
+  paymentLink?: string;
+  isAvailable?: boolean;
+  category?: string;
+  isPhysical?: boolean;
 }
 
-interface ProductCardProps {
-  product: Product;
-}
-
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard = ({ 
+  id = "1", 
+  name, 
+  price, 
+  image, 
+  rating, 
+  reviews, 
+  paymentLink,
+  isAvailable = true,
+  category,
+  isPhysical = false
+}: ProductCardProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isSharing, setIsSharing] = useState(false);
 
-  const handleViewDetails = () => {
-    navigate(`/product/${product.id}`);
+  const handleClick = () => {
+    if (!isAvailable) {
+      toast({
+        variant: "destructive",
+        title: "Article non disponible",
+        description: "Cet article n'est actuellement pas disponible (stock épuisé ou désactivé).",
+      });
+      return;
+    }
+
+    if (id) {
+      navigate(`/product/${id}`);
+    }
   };
 
-  const handleOrderNow = () => {
-    navigate(`/checkout?productId=${product.id}&productName=${encodeURIComponent(product.name)}&productPrice=${encodeURIComponent(product.price)}`);
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Éviter de naviguer vers la page produit
+    setIsSharing(true);
+    
+    const shareUrl = `${window.location.origin}/product/${id}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: name,
+        text: `Découvrez ${name}`,
+        url: shareUrl,
+      })
+      .catch((error) => console.log('Erreur de partage', error))
+      .finally(() => setIsSharing(false));
+    } else {
+      // Copier le lien si le partage natif n'est pas supporté
+      navigator.clipboard.writeText(shareUrl)
+        .then(() => {
+          toast({
+            title: "Lien copié",
+            description: "Le lien du produit a été copié dans le presse-papier",
+          });
+        })
+        .catch(() => {
+          toast({
+            variant: "destructive",
+            title: "Erreur",
+            description: "Impossible de copier le lien",
+          });
+        })
+        .finally(() => setIsSharing(false));
+    }
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow group">
-      <div className="relative">
-        <img 
-          src={product.image} 
-          alt={product.name}
-          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+    <div 
+      className={`group bg-white rounded-2xl overflow-hidden shadow-elegant hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1 ${!isAvailable ? 'opacity-60' : ''}`}
+      onClick={handleClick}
+    >
+      <div className="aspect-square overflow-hidden bg-muted p-6 relative">
+        <img
+          src={image}
+          alt={name}
+          className="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-300"
         />
-        <div className="absolute top-2 right-2">
-          <WishlistButton productId={product.id} />
+        <div className="absolute top-2 right-2 flex gap-2">
+          <button
+            onClick={handleShare}
+            className="bg-white/80 hover:bg-white p-2 rounded-full text-accent hover:text-accent/80 transition-colors"
+            disabled={isSharing}
+            aria-label="Partager ce produit"
+          >
+            <Share2 size={18} />
+          </button>
+          <WishlistButton 
+            productId={id} 
+            className="bg-white/80 hover:bg-white"
+          />
         </div>
-        {product.is_available === false && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <Badge variant="destructive">Indisponible</Badge>
-          </div>
-        )}
-      </div>
-      
-      <div className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold text-lg line-clamp-2">{product.name}</h3>
-        </div>
-        
-        <Badge variant="secondary" className="mb-2">
-          {product.category}
+        {/* Availability badge */}
+        <Badge 
+          className={`absolute top-2 left-2 ${
+            isAvailable 
+              ? 'bg-green-500 hover:bg-green-600' 
+              : 'bg-red-500 hover:bg-red-600'
+          }`}
+        >
+          {isAvailable ? 'Disponible' : 'Non Disponible'}
         </Badge>
         
-        {product.description && (
-          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-            {product.description}
-          </p>
+        {/* Category badge */}
+        {category && (
+          <Badge 
+            className="absolute bottom-2 left-2 bg-primary hover:bg-primary/90"
+          >
+            {category}
+          </Badge>
         )}
-        
-        <div className="flex justify-between items-center">
-          <span className="text-xl font-bold text-primary">{product.price}</span>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleViewDetails}
-              className="flex items-center gap-1"
-            >
-              <Eye className="w-4 h-4" />
-              Voir
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleOrderNow}
-              disabled={product.is_available === false}
-              className="flex items-center gap-1"
-            >
-              <ShoppingCart className="w-4 h-4" />
-              Commander
-            </Button>
-          </div>
+
+        {/* Physical product badge */}
+        {isPhysical && (
+          <Badge 
+            className="absolute bottom-2 right-2 bg-amber-500 hover:bg-amber-600"
+          >
+            <span className="flex items-center gap-1">
+              <Package size={14} />
+              Paiement à la livraison
+            </span>
+          </Badge>
+        )}
+      </div>
+      <div className="p-6">
+        <h3 className="text-lg font-semibold text-primary">{name}</h3>
+        <p className="text-accent font-medium mt-2">{price}</p>
+        <div className="flex items-center gap-1 mt-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Star
+              key={i}
+              className={`w-4 h-4 ${
+                i < rating ? "fill-[#8B5CF6] text-[#8B5CF6]" : "text-gray-200"
+              }`}
+            />
+          ))}
+          <span className="text-sm text-primary/60 ml-2">({reviews})</span>
         </div>
       </div>
     </div>

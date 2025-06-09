@@ -1,47 +1,71 @@
 
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 const NavLinks = () => {
-  const location = useLocation();
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
 
-  const isActive = (path: string) => location.pathname === path;
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+      setShowSearch(false);
+    }
+  };
 
   return (
-    <nav className="hidden md:flex items-center space-x-8">
+    <div className="flex items-center space-x-8">
       <Link 
         to="/" 
-        className={`text-sm font-medium transition-colors hover:text-primary ${
-          isActive('/') ? 'text-primary' : 'text-muted-foreground'
-        }`}
+        className="nav-link font-medium"
       >
         Accueil
       </Link>
       <Link 
         to="/marketplace" 
-        className={`text-sm font-medium transition-colors hover:text-primary ${
-          isActive('/marketplace') ? 'text-primary' : 'text-muted-foreground'
-        }`}
+        className="nav-link font-medium"
       >
-        Boutique
-      </Link>
-      <Link 
-        to="/order-tracking" 
-        className={`text-sm font-medium transition-colors hover:text-primary ${
-          isActive('/order-tracking') ? 'text-primary' : 'text-muted-foreground'
-        }`}
-      >
-        Suivi commande
+        Marketplace
       </Link>
       <Link 
         to="/contact" 
-        className={`text-sm font-medium transition-colors hover:text-primary ${
-          isActive('/contact') ? 'text-primary' : 'text-muted-foreground'
-        }`}
+        className="nav-link font-medium"
       >
-        Contact
+        Contactez-nous
       </Link>
-    </nav>
+      
+      <div className="relative flex items-center">
+        {showSearch ? (
+          <form onSubmit={handleSearch} className="flex items-center">
+            <Input
+              type="text"
+              placeholder="Rechercher..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-40 h-8 text-sm"
+              autoFocus
+              onBlur={() => {
+                if (!searchQuery) {
+                  setShowSearch(false);
+                }
+              }}
+            />
+          </form>
+        ) : (
+          <button
+            onClick={() => setShowSearch(true)}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <Search className="h-5 w-5" />
+          </button>
+        )}
+      </div>
+    </div>
   );
 };
 
