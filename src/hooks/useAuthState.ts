@@ -2,21 +2,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 export const useAuthState = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-  
-  // Get navigate function safely - will be undefined when not in Router context
-  let navigate: ((path: string) => void) | undefined;
-  
-  try {
-    // Only import and use useNavigate if we're in a Router context
-    const { useNavigate } = require('react-router-dom');
-    navigate = useNavigate();
-  } catch (error) {
-    console.log('Not in Router context, navigation disabled');
-  }
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   const handleSignOut = useCallback(async () => {
     try {
@@ -26,12 +18,8 @@ export const useAuthState = () => {
       setIsLoggedIn(false);
       setUserId(null);
       
-      if (navigate) {
-        navigate('/');
-      } else {
-        // Fallback for when not in Router context
-        window.location.href = '/';
-      }
+      // Secure navigation without fallback
+      navigate('/', { replace: true });
       
       toast({
         title: "Déconnexion réussie",
@@ -47,22 +35,39 @@ export const useAuthState = () => {
     }
   }, [navigate]);
 
+  const handleSessionError = useCallback(async (error: any) => {
+    console.error('Session error:', error);
+    
+    // Handle specific session errors securely
+    if (error.message?.includes('refresh_token_not_found') || 
+        error.message?.includes('invalid_token') ||
+        error.message?.includes('token_expired')) {
+      
+      // Force logout on token issues
+      await supabase.auth.signOut();
+      setIsLoggedIn(false);
+      setUserId(null);
+      
+      toast({
+        title: "Session expirée",
+        description: "Votre session a expiré. Veuillez vous reconnecter.",
+        variant: "destructive",
+      });
+      
+      navigate('/login', { replace: true });
+    }
+  }, [navigate]);
+
   useEffect(() => {
     let mounted = true;
 
     const checkAuthStatus = async () => {
       try {
+        setIsLoading(true);
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('Session check error:', error);
-          if (mounted) {
-            setIsLoggedIn(false);
-            setUserId(null);
-            if (error.message.includes('refresh_token_not_found')) {
-              await handleSignOut();
-            }
-          }
+          await handleSessionError(error);
           return;
         }
 
@@ -75,11 +80,11 @@ export const useAuthState = () => {
         if (mounted) {
           setIsLoggedIn(false);
           setUserId(null);
-          toast({
-            title: "Erreur de session",
-            description: "Une erreur est survenue lors de la vérification de votre session",
-            variant: "destructive",
-          });
+          await handleSessionError(error);
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
         }
       }
     };
@@ -89,34 +94,44 @@ export const useAuthState = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
 
+      console.log('Auth state change:', event);
+
       switch (event) {
         case 'SIGNED_IN':
           setIsLoggedIn(true);
           setUserId(session?.user?.id || null);
+          setIsLoading(false);
           break;
         case 'SIGNED_OUT':
           setIsLoggedIn(false);
           setUserId(null);
-          if (navigate) {
-            navigate('/');
-          } else {
-            // Fallback when not in Router context
-            window.location.href = '/';
-          }
+          setIsLoading(false);
+          navigate('/', { replace: true });
           break;
         case 'TOKEN_REFRESHED':
+          setIsLoggedIn(!!session);
+          setUserId(session?.user?.id || null);
+          setIsLoading(false);
+          break;
         case 'USER_UPDATED':
           setIsLoggedIn(!!session);
           setUserId(session?.user?.id || null);
+          setIsLoading(false);
           break;
         default:
-          const { error: authError } = await supabase.auth.getSession();
-          if (authError?.message?.includes('refresh_token_not_found')) {
-            await handleSignOut();
-          } else {
-            setIsLoggedIn(!!session);
-            setUserId(session?.user?.id || null);
+          // Handle any authentication errors
+          try {
+            const { error: authError } = await supabase.auth.getSession();
+            if (authError) {
+              await handleSessionError(authError);
+            } else {
+              setIsLoggedIn(!!session);
+              setUserId(session?.user?.id || null);
+            }
+          } catch (error) {
+            await handleSessionError(error);
           }
+          setIsLoading(false);
           break;
       }
     });
@@ -125,7 +140,7 @@ export const useAuthState = () => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [handleSignOut]);
+  }, [handleSessionError, navigate]);
 
-  return { isLoggedIn, userId, handleSignOut };
+  return { isLoggedIn, userId, handleSignOut, isLoading };
 };

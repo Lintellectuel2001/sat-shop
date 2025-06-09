@@ -72,6 +72,13 @@ const SecureLoginForm: React.FC<SecureLoginFormProps> = ({
       return;
     }
 
+    // Enhanced password complexity check
+    const complexity = getPasswordStrength(password);
+    if (complexity < 2) {
+      onError("Le mot de passe doit contenir au moins 2 types de caractères différents");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const result = await secureLogin(email, password);
@@ -119,6 +126,7 @@ const SecureLoginForm: React.FC<SecureLoginFormProps> = ({
           onChange={(e) => setEmail(e.target.value)}
           placeholder="votre@email.com"
           disabled={isLoading || isLocked}
+          autoComplete="email"
           required
         />
       </div>
@@ -133,6 +141,7 @@ const SecureLoginForm: React.FC<SecureLoginFormProps> = ({
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Votre mot de passe"
             disabled={isLoading || isLocked}
+            autoComplete="current-password"
             required
           />
           <Button
@@ -151,9 +160,14 @@ const SecureLoginForm: React.FC<SecureLoginFormProps> = ({
           </Button>
         </div>
         {password && (
-          <p className={`text-sm ${strengthInfo.color}`}>
-            Force: {strengthInfo.label}
-          </p>
+          <div className="flex justify-between items-center">
+            <p className={`text-sm ${strengthInfo.color}`}>
+              Force: {strengthInfo.label}
+            </p>
+            <p className="text-xs text-gray-500">
+              {passwordStrength}/5
+            </p>
+          </div>
         )}
       </div>
 
@@ -165,8 +179,9 @@ const SecureLoginForm: React.FC<SecureLoginFormProps> = ({
         {isLoading ? "Connexion..." : "Se connecter"}
       </Button>
 
-      <div className="text-xs text-gray-500 mt-4">
+      <div className="text-xs text-gray-500 mt-4 space-y-1">
         <p>• Minimum 8 caractères requis</p>
+        <p>• Au moins 2 types de caractères (majuscules, minuscules, chiffres, spéciaux)</p>
         <p>• Maximum 5 tentatives par période de 5 minutes</p>
         <p>• Verrouillage de 15 minutes après échecs répétés</p>
       </div>
