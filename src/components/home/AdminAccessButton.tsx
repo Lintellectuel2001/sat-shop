@@ -103,7 +103,7 @@ const AdminAccessButton = () => {
       
       if (error.message?.includes('Invalid login credentials')) {
         errorMessage = "Identifiants incorrects";
-      } else if (error.message?.includes('droits d'administration')) {
+      } else if (error.message?.includes('droits d\'administration')) {
         errorMessage = "Accès refusé : droits d'administration requis";
       } else if (error.message?.includes('too_many_requests')) {
         errorMessage = "Trop de tentatives. Veuillez réessayer plus tard";
