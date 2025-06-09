@@ -259,51 +259,36 @@ export type Database = {
           created_at: string
           customer_email: string | null
           customer_name: string | null
-          guest_address: string | null
-          guest_email: string | null
-          guest_phone: string | null
           id: string
-          order_token: string | null
           payment_id: string | null
           product_id: string | null
           product_name: string
           status: string
           updated_at: string
-          user_id: string | null
         }
         Insert: {
           amount: string
           created_at?: string
           customer_email?: string | null
           customer_name?: string | null
-          guest_address?: string | null
-          guest_email?: string | null
-          guest_phone?: string | null
           id?: string
-          order_token?: string | null
           payment_id?: string | null
           product_id?: string | null
           product_name: string
           status?: string
           updated_at?: string
-          user_id?: string | null
         }
         Update: {
           amount?: string
           created_at?: string
           customer_email?: string | null
           customer_name?: string | null
-          guest_address?: string | null
-          guest_email?: string | null
-          guest_phone?: string | null
           id?: string
-          order_token?: string | null
           payment_id?: string | null
           product_id?: string | null
           product_name?: string
           status?: string
           updated_at?: string
-          user_id?: string | null
         }
         Relationships: [
           {
@@ -723,10 +708,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      generate_order_token: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
       is_admin: {
         Args: { user_id?: string }
         Returns: boolean
