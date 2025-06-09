@@ -6,7 +6,6 @@ import { useToast } from '@/hooks/use-toast';
 interface AuthAttempt {
   timestamp: number;
   success: boolean;
-  ip?: string;
 }
 
 const MAX_ATTEMPTS = 5;
@@ -19,19 +18,14 @@ export const useSecureAuth = () => {
   const [lockoutEnd, setLockoutEnd] = useState<number | null>(null);
   const { toast } = useToast();
 
-  // Enhanced security: Clean up old attempts periodically
+  // Load attempts from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem('auth_attempts');
     if (stored) {
       try {
         const attempts = JSON.parse(stored);
-        // Filter out attempts older than 24 hours for cleanup
-        const cleanAttempts = attempts.filter((attempt: AuthAttempt) => 
-          Date.now() - attempt.timestamp < 24 * 60 * 60 * 1000
-        );
-        setAuthAttempts(cleanAttempts);
-        localStorage.setItem('auth_attempts', JSON.stringify(cleanAttempts));
-        checkLockoutStatus(cleanAttempts);
+        setAuthAttempts(attempts);
+        checkLockoutStatus(attempts);
       } catch (error) {
         console.error('Error parsing stored auth attempts:', error);
         localStorage.removeItem('auth_attempts');
@@ -39,7 +33,7 @@ export const useSecureAuth = () => {
     }
   }, []);
 
-  // Enhanced lockout checking with IP consideration
+  // Check if user is currently locked out
   const checkLockoutStatus = useCallback((attempts: AuthAttempt[]) => {
     const now = Date.now();
     const recentAttempts = attempts.filter(
@@ -64,8 +58,8 @@ export const useSecureAuth = () => {
     return false;
   }, []);
 
-  // Enhanced attempt recording with security logging
-  const recordAttempt = useCallback(async (success: boolean, email?: string) => {
+  // Record an authentication attempt
+  const recordAttempt = useCallback((success: boolean) => {
     const attempt: AuthAttempt = {
       timestamp: Date.now(),
       success
@@ -74,20 +68,6 @@ export const useSecureAuth = () => {
     const updatedAttempts = [...authAttempts, attempt];
     setAuthAttempts(updatedAttempts);
     localStorage.setItem('auth_attempts', JSON.stringify(updatedAttempts));
-
-    // Log security events for failed attempts
-    if (!success && email) {
-      try {
-        await supabase.rpc('log_security_event', {
-          p_action: 'failed_login_attempt',
-          p_resource: 'authentication',
-          p_details: { email: email.toLowerCase(), timestamp: new Date().toISOString() },
-          p_severity: 'medium'
-        });
-      } catch (error) {
-        console.error('Failed to log security event:', error);
-      }
-    }
 
     if (!success) {
       checkLockoutStatus(updatedAttempts);
@@ -101,7 +81,7 @@ export const useSecureAuth = () => {
     }
   }, [authAttempts, checkLockoutStatus]);
 
-  // Enhanced secure login with comprehensive validation
+  // Secure login function with rate limiting
   const secureLogin = useCallback(async (email: string, password: string) => {
     if (isLocked) {
       const remainingTime = lockoutEnd ? Math.ceil((lockoutEnd - Date.now()) / 1000 / 60) : 0;
@@ -113,12 +93,7 @@ export const useSecureAuth = () => {
       return { success: false, error: "Account locked" };
     }
 
-    // Enhanced input validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return { success: false, error: "Format d'email invalide" };
-    }
-
+    // Validate password strength
     if (password.length < 8) {
       toast({
         variant: "destructive",
@@ -128,23 +103,6 @@ export const useSecureAuth = () => {
       return { success: false, error: "Password too weak" };
     }
 
-    // Check password complexity
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasNumbers = /\d/.test(password);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-    
-    const complexityScore = [hasUpperCase, hasLowerCase, hasNumbers, hasSpecialChar].filter(Boolean).length;
-    
-    if (complexityScore < 2) {
-      toast({
-        variant: "destructive",
-        title: "Mot de passe trop simple",
-        description: "Le mot de passe doit contenir au moins 2 types de caractères (majuscules, minuscules, chiffres, caractères spéciaux)",
-      });
-      return { success: false, error: "Password too simple" };
-    }
-
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
@@ -152,38 +110,14 @@ export const useSecureAuth = () => {
       });
 
       if (error) {
-        await recordAttempt(false, email);
-        
-        // Enhanced error handling
-        let errorMessage = "Erreur de connexion";
-        if (error.message.includes('Invalid login credentials')) {
-          errorMessage = "Identifiants incorrects";
-        } else if (error.message.includes('too_many_requests')) {
-          errorMessage = "Trop de tentatives. Veuillez réessayer plus tard";
-        } else if (error.message.includes('email_not_confirmed')) {
-          errorMessage = "Veuillez confirmer votre email avant de vous connecter";
-        }
-        
-        return { success: false, error: errorMessage };
+        recordAttempt(false);
+        return { success: false, error: error.message };
       }
 
-      await recordAttempt(true, email);
-      
-      // Log successful login
-      try {
-        await supabase.rpc('log_security_event', {
-          p_action: 'successful_login',
-          p_resource: 'authentication',
-          p_details: { email: email.toLowerCase(), timestamp: new Date().toISOString() },
-          p_severity: 'low'
-        });
-      } catch (error) {
-        console.error('Failed to log security event:', error);
-      }
-      
+      recordAttempt(true);
       return { success: true, data };
     } catch (error: any) {
-      await recordAttempt(false, email);
+      recordAttempt(false);
       return { success: false, error: error.message };
     }
   }, [isLocked, lockoutEnd, recordAttempt, toast]);

@@ -16,18 +16,37 @@ export const useAdminCheck = () => {
 
     const checkAdminStatus = async () => {
       try {
-        console.log('🔍 Vérification du statut admin...');
-        
-        // First verify user is authenticated
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
-          console.error('❌ Erreur de session:', sessionError);
-          throw sessionError;
+          console.error('Session error:', sessionError);
+          if (mounted) {
+            setIsAdmin(false);
+            setIsLoading(false);
+            setSessionChecked(true);
+            
+            // Si l'erreur est liée au refresh token, déconnectez l'utilisateur
+            if (sessionError.message?.includes('refresh_token_not_found')) {
+              await supabase.auth.signOut();
+              toast({
+                variant: "destructive",
+                title: "Session expirée",
+                description: "Votre session a expiré. Veuillez vous reconnecter.",
+              });
+              navigate('/login');
+            } else {
+              toast({
+                variant: "destructive",
+                title: "Erreur de session",
+                description: "Une erreur est survenue lors de la vérification de votre session",
+              });
+              navigate('/login');
+            }
+          }
+          return;
         }
 
-        if (!session?.user) {
-          console.log('❌ Aucune session utilisateur trouvée');
+        if (!session) {
           if (mounted) {
             setIsAdmin(false);
             setIsLoading(false);
@@ -37,70 +56,62 @@ export const useAdminCheck = () => {
               title: "Accès refusé",
               description: "Vous devez être connecté pour accéder à cette page",
             });
-            navigate('/login', { replace: true });
+            navigate('/login');
           }
           return;
         }
 
-        console.log('✅ Session utilisateur trouvée:', session.user.email);
+        // Add console.log to debug user session info
+        console.log('User session:', session.user);
 
-        // Use the new secure function to check admin status
-        const { data: adminCheck, error: adminError } = await supabase
-          .rpc('get_current_user_role');
-
-        console.log('🔍 Résultat de get_current_user_role:', { adminCheck, adminError });
-
-        if (adminError) {
-          console.error('❌ Erreur lors de la vérification admin:', adminError);
-          throw adminError;
-        }
-
-        const isUserAdmin = adminCheck === 'admin';
-        console.log('🎯 L\'utilisateur est-il admin?', isUserAdmin);
+        const { data: adminData, error: adminError } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('id', session.user.id)
+          .maybeSingle();
+        
+        // Add console.log to debug admin check
+        console.log('Admin check result:', { adminData, adminError });
 
         if (mounted) {
-          if (isUserAdmin) {
-            setIsAdmin(true);
-            console.log('✅ Accès admin accordé pour:', session.user.id);
-          } else {
+          if (adminError) {
+            console.error('Error checking admin status:', adminError);
             setIsAdmin(false);
-            console.log('❌ Accès admin refusé pour:', session.user.id);
+            toast({
+              variant: "destructive",
+              title: "Erreur",
+              description: "Une erreur est survenue lors de la vérification des droits",
+            });
+            navigate('/');
+          } else if (!adminData) {
+            setIsAdmin(false);
             toast({
               variant: "destructive",
               title: "Accès refusé",
               description: "Vous n'avez pas les droits d'administration",
             });
-            navigate('/', { replace: true });
+            navigate('/');
+          } else {
+            setIsAdmin(true);
           }
           setIsLoading(false);
           setSessionChecked(true);
         }
-      } catch (error: any) {
-        console.error('💥 Erreur dans la vérification admin:', error);
-        
+      } catch (error) {
         if (mounted) {
+          console.error('Error in checkAdminStatus:', error);
           setIsAdmin(false);
           setIsLoading(false);
           setSessionChecked(true);
           
-          // Handle specific errors securely
-          if (error.message?.includes('refresh_token_not_found') || 
-              error.message?.includes('invalid_token')) {
-            await supabase.auth.signOut();
-            toast({
-              variant: "destructive",
-              title: "Session expirée",
-              description: "Votre session a expiré. Veuillez vous reconnecter.",
-            });
-            navigate('/login', { replace: true });
-          } else {
-            toast({
-              variant: "destructive",
-              title: "Erreur de vérification",
-              description: "Une erreur est survenue lors de la vérification des droits",
-            });
-            navigate('/', { replace: true });
-          }
+          // En cas d'erreur imprévue, on déconnecte l'utilisateur par sécurité
+          await supabase.auth.signOut();
+          toast({
+            variant: "destructive",
+            title: "Erreur de session",
+            description: "Une erreur est survenue. Veuillez vous reconnecter.",
+          });
+          navigate('/login');
         }
       }
     };
