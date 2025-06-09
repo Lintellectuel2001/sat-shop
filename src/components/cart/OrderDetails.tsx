@@ -1,124 +1,125 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Package, User, Mail, Phone, MapPin, Calendar } from 'lucide-react';
-
-interface Order {
-  id: string;
-  order_token: string;
-  product_name: string;
-  amount: string;
-  status: 'pending' | 'validated' | 'cancelled';
-  customer_name?: string;
-  customer_email?: string;
-  guest_email?: string;
-  guest_phone?: string;
-  guest_address?: string;
-  created_at: string;
-  user_id?: string;
-}
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Package, Calendar, User, Mail, Phone, MapPin } from 'lucide-react';
+import { Order } from '@/hooks/useOrderManagement';
 
 interface OrderDetailsProps {
   order: Order;
 }
 
-const OrderDetails: React.FC<OrderDetailsProps> = ({ order }) => {
-  const isGuestOrder = !order.user_id;
-  
+const OrderDetails = ({ order }: OrderDetailsProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'validated': return 'bg-green-500';
-      case 'cancelled': return 'bg-red-500';
-      default: return 'bg-yellow-500';
+      case 'pending':
+        return 'bg-yellow-500';
+      case 'validated':
+        return 'bg-green-500';
+      case 'cancelled':
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-500';
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'validated': return 'Validée';
-      case 'cancelled': return 'Annulée';
-      default: return 'En attente';
+      case 'pending':
+        return 'En attente';
+      case 'validated':
+        return 'Validée';
+      case 'cancelled':
+        return 'Annulée';
+      default:
+        return status;
     }
   };
 
   return (
-    <Card>
+    <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Package className="w-5 h-5" />
-            Commande #{order.order_token}
-          </CardTitle>
-          <Badge className={getStatusColor(order.status)}>
-            {getStatusText(order.status)}
-          </Badge>
-        </div>
+        <CardTitle className="flex items-center gap-2">
+          <Package className="h-5 w-5" />
+          Détails de la commande
+        </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
+        {/* Informations principales */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h4 className="font-semibold mb-2">Détails de la commande</h4>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <Package className="w-4 h-4 text-gray-500" />
-                <span>{order.product_name}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-gray-500">Montant:</span>
-                <span className="font-semibold">{order.amount}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-gray-500" />
-                <span>{new Date(order.created_at).toLocaleDateString('fr-FR')}</span>
-              </div>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Numéro :</span>
+              <Badge variant="outline" className="font-mono">
+                {order.order_token}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Statut :</span>
+              <Badge className={getStatusColor(order.status)}>
+                {getStatusLabel(order.status)}
+              </Badge>
             </div>
           </div>
           
-          <div>
-            <h4 className="font-semibold mb-2">
-              {isGuestOrder ? 'Informations client (invité)' : 'Informations client'}
-            </h4>
-            <div className="space-y-2 text-sm">
-              {(order.customer_name || order.guest_email) && (
-                <div className="flex items-center gap-2">
-                  <User className="w-4 h-4 text-gray-500" />
-                  <span>{order.customer_name || 'Client invité'}</span>
-                </div>
-              )}
-              
-              {(order.customer_email || order.guest_email) && (
-                <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-gray-500" />
-                  <span>{order.customer_email || order.guest_email}</span>
-                </div>
-              )}
-              
-              {order.guest_phone && (
-                <div className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-gray-500" />
-                  <span>{order.guest_phone}</span>
-                </div>
-              )}
-              
-              {order.guest_address && (
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-gray-500" />
-                  <span>{order.guest_address}</span>
-                </div>
-              )}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              <span className="text-sm">
+                {new Date(order.created_at).toLocaleDateString('fr-FR', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </span>
             </div>
           </div>
         </div>
-        
-        {isGuestOrder && (
-          <div className="bg-blue-50 p-3 rounded-lg">
-            <p className="text-xs text-blue-700">
-              Cette commande a été passée en tant qu'invité. 
-              Conservez le numéro de commande pour le suivi.
-            </p>
+
+        {/* Produit */}
+        <div className="border rounded-lg p-4">
+          <h3 className="font-medium mb-2">Produit commandé</h3>
+          <div className="flex justify-between items-center">
+            <span>{order.product_name}</span>
+            <span className="font-medium">{order.amount}</span>
           </div>
-        )}
+        </div>
+
+        {/* Informations client */}
+        <div className="border rounded-lg p-4">
+          <h3 className="font-medium mb-3">Informations client</h3>
+          <div className="space-y-2">
+            {order.customer_name && (
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4 text-gray-500" />
+                <span className="text-sm">{order.customer_name}</span>
+              </div>
+            )}
+            
+            {(order.customer_email || order.guest_email) && (
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4 text-gray-500" />
+                <span className="text-sm">{order.customer_email || order.guest_email}</span>
+              </div>
+            )}
+            
+            {order.guest_phone && (
+              <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4 text-gray-500" />
+                <span className="text-sm">{order.guest_phone}</span>
+              </div>
+            )}
+            
+            {order.guest_address && (
+              <div className="flex items-start gap-2">
+                <MapPin className="h-4 w-4 text-gray-500 mt-0.5" />
+                <span className="text-sm">{order.guest_address}</span>
+              </div>
+            )}
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

@@ -1,53 +1,71 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from "@/integrations/supabase/client";
-import { useAuthState } from './useAuthState';
 
-interface CreateOrderData {
-  product_id: string;
+export interface Order {
+  id: string;
   product_name: string;
   amount: string;
-  guest_info?: {
-    email: string;
-    phone: string;
-    address: string;
-    name: string;
-  };
+  status: string;
+  created_at: string;
+  updated_at: string;
+  order_token: string;
+  customer_name?: string;
+  customer_email?: string;
+  guest_email?: string;
+  guest_phone?: string;
+  guest_address?: string;
+  user_id?: string;
+  product_id?: string;
+}
+
+export interface OrderFormData {
+  productId: string;
+  productName: string;
+  amount: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone?: string;
+  customerAddress?: string;
 }
 
 export const useOrderManagement = () => {
+  const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { isLoggedIn, userId } = useAuthState();
 
-  const createOrder = async (orderData: CreateOrderData) => {
+  const createOrder = async (orderData: OrderFormData, isGuest: boolean = true) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-
       const orderPayload = {
-        product_id: orderData.product_id,
-        product_name: orderData.product_name,
+        product_name: orderData.productName,
         amount: orderData.amount,
-        user_id: isLoggedIn ? userId : null,
-        customer_name: isLoggedIn ? null : orderData.guest_info?.name,
-        guest_email: isLoggedIn ? null : orderData.guest_info?.email,
-        guest_phone: isLoggedIn ? null : orderData.guest_info?.phone,
-        guest_address: isLoggedIn ? null : orderData.guest_info?.address,
-        status: 'pending'
+        product_id: orderData.productId,
+        status: 'pending',
+        ...(isGuest ? {
+          guest_email: orderData.customerEmail,
+          guest_phone: orderData.customerPhone,
+          guest_address: orderData.customerAddress,
+          customer_name: orderData.customerName
+        } : {
+          customer_email: orderData.customerEmail,
+          customer_name: orderData.customerName,
+          user_id: (await supabase.auth.getUser()).data.user?.id
+        })
       };
 
       const { data, error } = await supabase
         .from('orders')
-        .insert([orderPayload])
-        .select('*')
+        .insert(orderPayload)
+        .select()
         .single();
 
       if (error) throw error;
 
       toast({
         title: "Commande créée",
-        description: `Votre commande #${data.order_token} a été créée avec succès`,
+        description: `Votre commande a été créée avec succès. Numéro de suivi: ${data.order_token}`,
       });
 
       return data;
@@ -64,54 +82,23 @@ export const useOrderManagement = () => {
     }
   };
 
-  const trackOrder = async (orderToken: string, email?: string) => {
+  const getOrderByToken = async (token: string) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-
-      let query = supabase
-        .from('orders')
-        .select('*')
-        .eq('order_token', orderToken.toUpperCase());
-
-      // Si un email est fourni pour une commande invité, l'utiliser pour la vérification
-      if (email && !isLoggedIn) {
-        query = query.eq('guest_email', email);
-      }
-
       const { data, error } = await supabase
         .from('orders')
         .select('*')
-        .eq('order_token', orderToken.toUpperCase())
-        .maybeSingle();
+        .eq('order_token', token)
+        .single();
 
       if (error) throw error;
-
-      if (!data) {
-        toast({
-          variant: "destructive",
-          title: "Commande introuvable",
-          description: "Aucune commande trouvée avec ce numéro",
-        });
-        return null;
-      }
-
-      // Vérification supplémentaire pour les commandes invités avec email
-      if (email && data.guest_email && data.guest_email !== email) {
-        toast({
-          variant: "destructive",
-          title: "Email incorrect",
-          description: "L'email ne correspond pas à cette commande",
-        });
-        return null;
-      }
-
       return data;
     } catch (error) {
-      console.error('Erreur lors de la recherche de commande:', error);
+      console.error('Erreur lors de la récupération de la commande:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Impossible de rechercher la commande",
+        description: "Commande non trouvée",
       });
       throw error;
     } finally {
@@ -120,22 +107,22 @@ export const useOrderManagement = () => {
   };
 
   const getUserOrders = async () => {
-    if (!isLoggedIn || !userId) return [];
-
+    setIsLoading(true);
     try {
-      setIsLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
 
       const { data, error } = await supabase
         .from('orders')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-
+      setOrders(data || []);
       return data || [];
     } catch (error) {
-      console.error('Erreur lors du chargement des commandes:', error);
+      console.error('Erreur lors de la récupération des commandes:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -148,10 +135,10 @@ export const useOrderManagement = () => {
   };
 
   return {
-    createOrder,
-    trackOrder,
-    getUserOrders,
+    orders,
     isLoading,
-    isLoggedIn
+    createOrder,
+    getOrderByToken,
+    getUserOrders
   };
 };

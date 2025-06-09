@@ -1,66 +1,61 @@
 
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search } from 'lucide-react';
+import { useOrderManagement, Order } from '@/hooks/useOrderManagement';
 
 interface OrderTrackingFormProps {
-  onSearch: (token: string, email?: string) => void;
-  isLoading: boolean;
+  onOrderFound?: (order: Order) => void;
 }
 
-const OrderTrackingForm: React.FC<OrderTrackingFormProps> = ({ onSearch, isLoading }) => {
+const OrderTrackingForm = ({ onOrderFound }: OrderTrackingFormProps) => {
   const [orderToken, setOrderToken] = useState('');
-  const [email, setEmail] = useState('');
+  const { getOrderByToken, isLoading } = useOrderManagement();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (orderToken.trim()) {
-      onSearch(orderToken.trim(), email.trim() || undefined);
+    
+    if (!orderToken.trim()) return;
+
+    try {
+      const order = await getOrderByToken(orderToken.trim());
+      onOrderFound?.(order);
+    } catch (error) {
+      // L'erreur est déjà gérée dans le hook
     }
   };
 
   return (
-    <Card className="max-w-md mx-auto">
+    <Card className="w-full max-w-md mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Search className="w-5 h-5" />
+          <Search className="h-5 w-5" />
           Suivre ma commande
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="orderToken">Numéro de commande *</Label>
+          <div className="space-y-2">
+            <Label htmlFor="orderToken">Numéro de suivi</Label>
             <Input
               id="orderToken"
-              type="text"
               value={orderToken}
-              onChange={(e) => setOrderToken(e.target.value.toUpperCase())}
-              placeholder="Ex: ABC12345"
+              onChange={(e) => setOrderToken(e.target.value)}
+              placeholder="Entrez votre numéro de suivi"
+              className="font-mono"
               required
-              className="uppercase"
             />
           </div>
-          
-          <div>
-            <Label htmlFor="email">Email (optionnel)</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="votre@email.com"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Pour les commandes invités, l'email aide à la vérification
-            </p>
-          </div>
-          
-          <Button type="submit" disabled={isLoading} className="w-full">
-            {isLoading ? 'Recherche...' : 'Rechercher ma commande'}
+
+          <Button 
+            type="submit" 
+            className="w-full"
+            disabled={isLoading || !orderToken.trim()}
+          >
+            {isLoading ? 'Recherche...' : 'Suivre la commande'}
           </Button>
         </form>
       </CardContent>
