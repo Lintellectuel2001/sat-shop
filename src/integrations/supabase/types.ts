@@ -550,42 +550,6 @@ export type Database = {
           },
         ]
       }
-      security_audit_log: {
-        Row: {
-          action: string
-          created_at: string | null
-          details: Json | null
-          id: string
-          ip_address: unknown | null
-          resource: string
-          severity: string | null
-          user_agent: string | null
-          user_id: string | null
-        }
-        Insert: {
-          action: string
-          created_at?: string | null
-          details?: Json | null
-          id?: string
-          ip_address?: unknown | null
-          resource: string
-          severity?: string | null
-          user_agent?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          action?: string
-          created_at?: string | null
-          details?: Json | null
-          id?: string
-          ip_address?: unknown | null
-          resource?: string
-          severity?: string | null
-          user_agent?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       site_settings: {
         Row: {
           created_at: string
@@ -763,26 +727,9 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
       is_admin: {
         Args: { user_id?: string }
         Returns: boolean
-      }
-      is_order_owner: {
-        Args: { order_id: string; token?: string }
-        Returns: boolean
-      }
-      log_security_event: {
-        Args: {
-          p_action: string
-          p_resource: string
-          p_details?: Json
-          p_severity?: string
-        }
-        Returns: undefined
       }
     }
     Enums: {

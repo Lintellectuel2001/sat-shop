@@ -23,41 +23,21 @@ const AdminAccessButton = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const validateInput = (email: string, password: string): string | null => {
-    if (!email || !password) {
-      return "Veuillez entrer votre email et mot de passe";
-    }
-    
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return "Format d'email invalide";
-    }
-    
-    // Enhanced password validation
-    if (password.length < 8) {
-      return "Le mot de passe doit contenir au moins 8 caractères";
-    }
-    
-    return null;
-  };
-
   const handleAdminLogin = async () => {
-    const validationError = validateInput(email, password);
-    if (validationError) {
+    if (!email || !password) {
       toast({
         variant: "destructive",
         title: "Champs requis",
-        description: validationError,
+        description: "Veuillez entrer votre email et mot de passe",
       });
       return;
     }
 
     setIsLoading(true);
     try {
-      // Secure authentication attempt
+      // Attempt to sign in
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: email.trim().toLowerCase(),
+        email: email.trim(),
         password: password,
       });
 
@@ -69,17 +49,20 @@ const AdminAccessButton = () => {
         throw new Error("Échec de l'authentification");
       }
 
-      // Use the secure function to check admin status
-      const { data: roleCheck, error: roleError } = await supabase
-        .rpc('get_current_user_role');
+      // Check if user is admin
+      const { data: adminData, error: adminError } = await supabase
+        .from('admin_users')
+        .select('id')
+        .eq('id', authData.user.id)
+        .maybeSingle();
 
-      if (roleError) {
-        console.error('Error checking admin role:', roleError);
+      if (adminError) {
+        console.error('Error checking admin status:', adminError);
         await supabase.auth.signOut();
         throw new Error("Erreur lors de la vérification des droits d'administration");
       }
 
-      if (roleCheck !== 'admin') {
+      if (!adminData) {
         await supabase.auth.signOut();
         throw new Error("Accès refusé : droits d'administration requis");
       }
@@ -97,22 +80,10 @@ const AdminAccessButton = () => {
 
     } catch (error: any) {
       console.error('Admin login error:', error);
-      
-      // Secure error handling without exposing sensitive information
-      let errorMessage = "Une erreur est survenue lors de la connexion";
-      
-      if (error.message?.includes('Invalid login credentials')) {
-        errorMessage = "Identifiants incorrects";
-      } else if (error.message?.includes('droits d'administration')) {
-        errorMessage = "Accès refusé : droits d'administration requis";
-      } else if (error.message?.includes('too_many_requests')) {
-        errorMessage = "Trop de tentatives. Veuillez réessayer plus tard";
-      }
-      
       toast({
         variant: "destructive",
         title: "Erreur de connexion",
-        description: errorMessage,
+        description: error.message || "Identifiants incorrects ou droits insuffisants",
       });
     } finally {
       setIsLoading(false);
@@ -151,7 +122,6 @@ const AdminAccessButton = () => {
             onChange={(e) => setEmail(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={isLoading}
-            autoComplete="email"
           />
           <Input
             type="password"
@@ -160,11 +130,10 @@ const AdminAccessButton = () => {
             onChange={(e) => setPassword(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={isLoading}
-            autoComplete="current-password"
           />
           <Button 
             onClick={handleAdminLogin}
-            disabled={isLoading || !email || !password}
+            disabled={isLoading}
           >
             {isLoading ? "Connexion..." : "Se connecter"}
           </Button>

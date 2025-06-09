@@ -101,16 +101,7 @@ const ProductsSection = () => {
           {products.map((product) => (
             <ProductCard
               key={product.id}
-              id={product.id}
-              name={product.name}
-              price={product.price}
-              image={product.image}
-              rating={product.rating || 5}
-              reviews={product.reviews || 0}
-              paymentLink={product.payment_link}
-              isAvailable={product.is_available !== false}
-              category={product.category?.toUpperCase()}
-              isPhysical={product.is_physical}
+              product={product}
             />
           ))}
         </div>
