@@ -11,7 +11,6 @@ import MarketingNotificationManager from '@/components/admin/marketing/Marketing
 import SiteSettingsManager from '@/components/admin/settings/SiteSettingsManager';
 import BackupManager from '@/components/admin/backup/BackupManager';
 import RLSChecker from '@/components/admin/security/RLSChecker';
-import SecurityAuditPanel from '@/components/admin/SecurityAuditPanel';
 
 interface Product {
   id: string;
@@ -86,10 +85,7 @@ const AdminTabsContent: React.FC<AdminTabsContentProps> = ({
       </TabsContent>
       
       <TabsContent value="security">
-        <div className="space-y-6">
-          <RLSChecker />
-          <SecurityAuditPanel />
-        </div>
+        <RLSChecker />
       </TabsContent>
     </div>
   );
