@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Home, LayoutDashboard, Users, Database, ShoppingCart, Shield } from 'lucide-react';
+import { Home, LayoutDashboard, Users, Database, ShoppingCart, Shield, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import ProductManager from '@/components/admin/ProductManager';
 import SlideManager from '@/components/admin/SlideManager';
@@ -15,6 +15,7 @@ import UserManager from '@/components/admin/users/UserManager';
 import BackupManager from '@/components/admin/backup/BackupManager';
 import OrderManager from '@/components/admin/orders/OrderManager';
 import RLSChecker from '@/components/admin/security/RLSChecker';
+import SEOManager from '@/components/admin/seo/SEOManager';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
 
 interface Product {
@@ -157,6 +158,10 @@ const Admin = () => {
               <TabsTrigger value="slides" className="data-[state=active]:bg-white data-[state=active]:text-accent">Diaporama</TabsTrigger>
               <TabsTrigger value="promo" className="data-[state=active]:bg-white data-[state=active]:text-accent">Codes Promo</TabsTrigger>
               <TabsTrigger value="notifications" className="data-[state=active]:bg-white data-[state=active]:text-accent">Notifications</TabsTrigger>
+              <TabsTrigger value="seo" className="data-[state=active]:bg-white data-[state=active]:text-accent">
+                <Search className="h-4 w-4 mr-1" />
+                SEO & Analytics
+              </TabsTrigger>
               <TabsTrigger value="settings" className="data-[state=active]:bg-white data-[state=active]:text-accent">Gestion Logo</TabsTrigger>
               <TabsTrigger value="backup" className="data-[state=active]:bg-white data-[state=active]:text-accent">
                 <Database className="h-4 w-4 mr-1" />
@@ -195,6 +200,10 @@ const Admin = () => {
               
               <TabsContent value="notifications">
                 <MarketingNotificationManager />
+              </TabsContent>
+
+              <TabsContent value="seo">
+                <SEOManager />
               </TabsContent>
 
               <TabsContent value="settings">
