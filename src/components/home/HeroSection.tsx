@@ -31,7 +31,7 @@ const HeroSection = () => {
           {/* Contenu textuel */}
           <div className="lg:w-1/2 space-y-8 animate-fade-in">
             {/* Badge de statut avec effet néon */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent-100 text-accent-700 rounded-full text-sm font-semibold neon-glow hover-lift ripple-effect">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent-100 text-accent-700 rounded-full text-sm font-medium neon-glow hover-lift ripple-effect">
               <Sparkles className="w-4 h-4 animate-pulse" />
               <span>Services Premium IPTV</span>
               <Star className="w-3 h-3 animate-pulse" style={{ animationDelay: '0.5s' }} />
@@ -73,15 +73,15 @@ const HeroSection = () => {
             {/* Statistiques avec animations 3D */}
             <div className="flex items-center gap-8 pt-8 border-t border-primary-200">
               <div className="text-center card-modern p-4 hover-lift">
-                <div className="text-2xl font-bold text-primary-900 gradient-text">1000+</div>
+                <div className="text-2xl font-medium text-primary-900 gradient-text">1000+</div>
                 <div className="text-sm text-primary-600">Clients satisfaits</div>
               </div>
               <div className="text-center card-modern p-4 hover-lift" style={{ animationDelay: '0.2s' }}>
-                <div className="text-2xl font-bold text-primary-900 gradient-text">24/7</div>
+                <div className="text-2xl font-medium text-primary-900 gradient-text">24/7</div>
                 <div className="text-sm text-primary-600">Support disponible</div>
               </div>
               <div className="text-center card-modern p-4 hover-lift" style={{ animationDelay: '0.4s' }}>
-                <div className="text-2xl font-bold text-primary-900 gradient-text">99.9%</div>
+                <div className="text-2xl font-medium text-primary-900 gradient-text">99.9%</div>
                 <div className="text-sm text-primary-600">Disponibilité</div>
               </div>
             </div>
