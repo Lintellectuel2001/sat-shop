@@ -63,11 +63,14 @@
   }
 
   .glass-effect {
-    @apply bg-white/95 backdrop-blur-xl border border-white/20 shadow-modern;
+    @apply bg-white backdrop-blur-xl border border-white shadow-modern;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-color: rgba(255, 255, 255, 0.2);
   }
   
   .mobile-menu {
-    @apply fixed inset-0 z-50 bg-white/98 backdrop-blur-md;
+    @apply fixed inset-0 z-50 backdrop-blur-md;
+    background-color: rgba(255, 255, 255, 0.98);
     visibility: hidden;
     opacity: 0;
     transform: translateY(-100%);
