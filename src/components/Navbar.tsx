@@ -7,6 +7,7 @@ import AuthButtons from "./navbar/AuthButtons";
 import UserButtons from "./navbar/UserButtons";
 import NotificationsMenu from "./marketing/NotificationsMenu";
 import MobileMenu from "./navbar/MobileMenu";
+import ThemeToggle from "./theme/ThemeToggle";
 import { useAuthState } from "@/hooks/useAuthState";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
@@ -34,7 +35,8 @@ const Navbar = () => {
             <NavLinks />
           </div>
 
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-4">
+            <ThemeToggle />
             {isLoggedIn ? (
               <>
                 {userId && <NotificationsMenu userId={userId} />}
@@ -45,13 +47,16 @@ const Navbar = () => {
             )}
           </div>
 
-          <button 
-            className="md:hidden p-2 text-accent rounded-full hover:bg-primary/5"
-            onClick={toggleMobileMenu}
-            aria-label="Menu"
-          >
-            <Menu size={24} />
-          </button>
+          <div className="flex items-center gap-2 md:hidden">
+            <ThemeToggle />
+            <button 
+              className="p-2 text-accent rounded-full hover:bg-primary/5"
+              onClick={toggleMobileMenu}
+              aria-label="Menu"
+            >
+              <Menu size={24} />
+            </button>
+          </div>
         </div>
       </div>
 
