@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -19,11 +20,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Poppins", "Inter", "sans-serif"],
-        serif: ["Playfair Display", "serif"],
-        display: ["Playfair Display", "Poppins", "sans-serif"],
-        body: ["Inter", "Poppins", "sans-serif"],
-        heading: ["Playfair Display", "serif"],
+        sans: ["Inter", "Plus Jakarta Sans", "sans-serif"],
+        display: ["Cal Sans", "Inter", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
