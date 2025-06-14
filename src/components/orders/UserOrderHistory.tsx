@@ -6,15 +6,9 @@ import { Package, Clock, CheckCircle, XCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthState } from "@/hooks/useAuthState";
+import { Tables } from "@/integrations/supabase/types";
 
-interface Order {
-  id: string;
-  product_name: string;
-  amount: string;
-  status: 'pending' | 'validated' | 'cancelled';
-  created_at: string;
-  order_token?: string;
-}
+type Order = Tables<'orders'>;
 
 const UserOrderHistory = () => {
   const [orders, setOrders] = useState<Order[]>([]);

@@ -8,18 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Package, Clock, CheckCircle, XCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Tables } from "@/integrations/supabase/types";
 
-interface Order {
-  id: string;
-  product_name: string;
-  amount: string;
-  status: 'pending' | 'validated' | 'cancelled';
-  created_at: string;
-  customer_name?: string;
-  customer_email?: string;
-  guest_email?: string;
-  order_token?: string;
-}
+type Order = Tables<'orders'>;
 
 const OrderTracker = () => {
   const [searchQuery, setSearchQuery] = useState('');
