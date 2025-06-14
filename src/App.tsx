@@ -9,6 +9,7 @@ import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import Wishlist from "./pages/Wishlist";
 import Orders from "./pages/Orders";
+import COD from "./pages/COD";
 import LoginPanel from "./components/auth/LoginPanel";
 import RegisterPanel from "./components/auth/RegisterPanel";
 
@@ -25,6 +26,7 @@ function App() {
         <Route path="/admin" element={<Admin />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/orders" element={<Orders />} />
+        <Route path="/cod" element={<COD />} />
         <Route path="/login" element={<LoginPanel />} />
         <Route path="/register" element={<RegisterPanel />} />
       </Routes>
