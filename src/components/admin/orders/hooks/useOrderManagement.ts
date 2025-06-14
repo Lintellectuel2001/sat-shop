@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from "@/integrations/supabase/client";
@@ -48,6 +47,7 @@ export const useOrderManagement = () => {
   async function fetchOrders() {
     try {
       setIsLoading(true);
+      // Récupérer TOUTES les commandes (utilisateurs connectés ET invités)
       const { data, error } = await supabase
         .from('orders')
         .select('*')
@@ -60,6 +60,9 @@ export const useOrderManagement = () => {
         ...order,
         status: order.status as 'pending' | 'validated' | 'cancelled'
       })) || [];
+      
+      console.log('Commandes récupérées (incluant les invités):', typedData.length);
+      console.log('Commandes d\'invités:', typedData.filter(order => !order.user_id && order.guest_email).length);
       
       setOrders(typedData);
     } catch (error) {
