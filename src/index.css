@@ -1,5 +1,4 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cal+Sans:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -17,14 +16,14 @@
   }
 
   body {
-    font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Poppins', 'Inter', sans-serif;
     @apply bg-primary-50 text-primary-900 antialiased;
     line-height: 1.6;
     overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Cal Sans', 'Inter', sans-serif;
+    font-family: 'Playfair Display', 'Poppins', serif;
     @apply font-semibold tracking-tight leading-tight;
   }
 
@@ -46,6 +45,7 @@
 
   p {
     @apply text-primary-600 leading-relaxed;
+    font-family: 'Inter', 'Poppins', sans-serif;
   }
 }
 
