@@ -42,6 +42,13 @@ const ProductCard = ({
       });
       return;
     }
+    
+    // Si c'est un produit physique, rediriger vers la page COD
+    if (isPhysical) {
+      navigate('/cod');
+      return;
+    }
+    
     navigate(`/product/${id}`);
   };
 
@@ -61,6 +68,19 @@ const ProductCard = ({
       title: "Ajouté aux favoris",
       description: `${name} a été ajouté à vos favoris.`,
     });
+  };
+
+  const handleOrderClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isAvailable) return;
+    
+    if (isPhysical) {
+      // Pour les produits physiques, rediriger vers la page COD
+      navigate('/cod');
+    } else {
+      // Pour les produits numériques, aller vers la page de détails
+      navigate(`/product/${id}`);
+    }
   };
 
   return (
@@ -190,10 +210,11 @@ const ProductCard = ({
           
           <Button 
             className="btn-modern text-sm px-6 py-2 h-auto ripple-effect"
-            onClick={handleCardClick}
+            onClick={handleOrderClick}
             disabled={!isAvailable}
           >
-            {isAvailable ? 'Voir détails' : 'Indisponible'}
+            {!isAvailable ? 'Indisponible' : 
+             isPhysical ? 'Commander avec livraison' : 'Voir détails'}
           </Button>
         </div>
       </div>
