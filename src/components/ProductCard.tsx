@@ -75,8 +75,18 @@ const ProductCard = ({
     if (!isAvailable) return;
     
     if (isPhysical) {
-      // Pour les produits physiques, rediriger vers la page COD
-      navigate('/cod');
+      // Pour les produits physiques, rediriger vers la page COD avec les détails du produit
+      navigate('/cod', { 
+        state: { 
+          selectedProduct: {
+            id,
+            name,
+            price,
+            image,
+            category
+          }
+        }
+      });
     } else {
       // Pour les produits numériques, aller vers la page de détails
       navigate(`/product/${id}`);

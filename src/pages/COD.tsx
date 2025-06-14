@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "../components/Navbar";
@@ -22,7 +23,16 @@ interface Product {
 const COD = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const { toast } = useToast();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Vérifier s'il y a un produit sélectionné passé via navigation
+    if (location.state?.selectedProduct) {
+      setSelectedProduct(location.state.selectedProduct);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const fetchPhysicalProducts = async () => {
@@ -82,7 +92,11 @@ const COD = () => {
       
       <main className="container mx-auto px-4 pt-32 pb-16">
         <CODHeader />
-        <CODProductGrid products={products} isLoading={loading} />
+        <CODProductGrid 
+          products={products} 
+          isLoading={loading} 
+          preselectedProduct={selectedProduct}
+        />
       </main>
     </div>
   );

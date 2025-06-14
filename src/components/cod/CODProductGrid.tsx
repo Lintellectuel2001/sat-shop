@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,11 +22,20 @@ interface Product {
 interface CODProductGridProps {
   products: Product[];
   isLoading: boolean;
+  preselectedProduct?: Product | null;
 }
 
-const CODProductGrid = ({ products, isLoading }: CODProductGridProps) => {
+const CODProductGrid = ({ products, isLoading, preselectedProduct }: CODProductGridProps) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showOrderForm, setShowOrderForm] = useState(false);
+
+  // Ouvrir automatiquement le formulaire si un produit est présélectionné
+  useEffect(() => {
+    if (preselectedProduct) {
+      setSelectedProduct(preselectedProduct);
+      setShowOrderForm(true);
+    }
+  }, [preselectedProduct]);
 
   const handleOrderClick = (product: Product) => {
     console.log('Bouton commander cliqué pour le produit:', product.name);
