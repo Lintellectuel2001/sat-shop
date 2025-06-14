@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -125,7 +124,7 @@ const HeroCarousel = () => {
                 <div 
                   className={`absolute inset-0 bg-gradient-to-r ${slide.color} to-transparent 
                   opacity-60 transition-all duration-700 ease-in-out 
-                  group-hover:opacity-40`}
+                  group-hover:opacity-40 group-hover:backdrop-blur-sm`}
                 />
                 
                 <div 
