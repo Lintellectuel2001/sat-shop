@@ -20,6 +20,10 @@ export interface Order {
   amount: string;
   customer_name?: string;
   customer_email?: string;
+  user_id?: string;
+  guest_email?: string;
+  guest_phone?: string;
+  guest_address?: string;
   status: 'pending' | 'validated' | 'cancelled';
   payment_id?: string;
   created_at: string;

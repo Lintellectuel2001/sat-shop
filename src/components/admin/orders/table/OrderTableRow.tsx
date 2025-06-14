@@ -4,7 +4,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { Order } from '../../products/hooks/useProductTypes';
 import OrderStatusBadge from './OrderStatusBadge';
 import OrderActions from './OrderActions';
-import { formatDate, formatCustomerInfo } from './formatUtils';
+import { formatDate } from './formatUtils';
 
 interface OrderTableRowProps {
   order: Order;
@@ -72,7 +72,8 @@ const OrderTableRow: React.FC<OrderTableRowProps> = ({ order, onStatusChange, on
       
       <TableCell>
         <OrderActions 
-          order={order} 
+          orderId={order.id}
+          status={order.status}
           onStatusChange={onStatusChange}
           onDeleteClick={onDeleteClick}
         />
