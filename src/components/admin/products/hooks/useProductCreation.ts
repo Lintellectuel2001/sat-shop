@@ -43,21 +43,11 @@ export const useProductCreation = (onProductsChange: () => void) => {
         return;
       }
 
-      if (!newProduct.name || !newProduct.price || !newProduct.category || !newProduct.image) {
+      if (!newProduct.name || !newProduct.price || !newProduct.category || !newProduct.image || !newProduct.payment_link) {
         toast({
           variant: "destructive",
           title: "Erreur",
           description: "Tous les champs obligatoires doivent être remplis",
-        });
-        return;
-      }
-
-      // Vérifier le lien de paiement seulement pour les produits numériques (non physiques)
-      if (!newProduct.is_physical && !newProduct.payment_link) {
-        toast({
-          variant: "destructive",
-          title: "Erreur",
-          description: "Le lien de paiement est requis pour les produits numériques",
         });
         return;
       }
@@ -69,7 +59,7 @@ export const useProductCreation = (onProductsChange: () => void) => {
           price: newProduct.price,
           category: newProduct.category,
           image: newProduct.image,
-          payment_link: newProduct.is_physical ? null : newProduct.payment_link, // null pour produits physiques
+          payment_link: newProduct.payment_link,
           description: newProduct.description,
           features: newProduct.features,
           is_available: newProduct.is_available !== undefined ? newProduct.is_available : true,

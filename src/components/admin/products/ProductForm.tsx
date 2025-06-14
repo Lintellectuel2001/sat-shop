@@ -64,7 +64,7 @@ const ProductForm = ({ product, onProductChange, onSubmit, submitLabel }: Produc
       return;
     }
 
-    // Vérifier si un lien de paiement est requis seulement pour les produits numériques (non physiques)
+    // Vérifier si un lien de paiement est requis (sauf pour les produits physiques)
     if (!product.is_physical && !product.payment_link) {
       toast({
         variant: "destructive",
