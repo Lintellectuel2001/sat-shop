@@ -29,11 +29,13 @@ const CODProductGrid = ({ products, isLoading }: CODProductGridProps) => {
   const [showOrderForm, setShowOrderForm] = useState(false);
 
   const handleOrderClick = (product: Product) => {
+    console.log('Bouton commander cliqué pour le produit:', product.name);
     setSelectedProduct(product);
     setShowOrderForm(true);
   };
 
   const handleCloseForm = () => {
+    console.log('Fermeture du formulaire de commande');
     setShowOrderForm(false);
     setSelectedProduct(null);
   };
@@ -106,8 +108,13 @@ const CODProductGrid = ({ products, isLoading }: CODProductGridProps) => {
               </div>
               
               <Button 
-                onClick={() => handleOrderClick(product)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleOrderClick(product);
+                }}
                 className="w-full btn-modern"
+                type="button"
               >
                 Commander avec livraison
               </Button>
