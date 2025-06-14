@@ -24,6 +24,42 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_settings: {
+        Row: {
+          created_at: string
+          ga_tracking_id: string | null
+          gtag_tracking_id: string | null
+          id: string
+          is_enabled: boolean | null
+          track_downloads: boolean | null
+          track_ecommerce: boolean | null
+          track_scroll: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          ga_tracking_id?: string | null
+          gtag_tracking_id?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          track_downloads?: boolean | null
+          track_ecommerce?: boolean | null
+          track_scroll?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          ga_tracking_id?: string | null
+          gtag_tracking_id?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          track_downloads?: boolean | null
+          track_ecommerce?: boolean | null
+          track_scroll?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       backups: {
         Row: {
           created_at: string
@@ -217,6 +253,36 @@ export type Database = {
           target_audience?: string | null
           title?: string
           type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      meta_descriptions: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          keywords: string | null
+          page_url: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          keywords?: string | null
+          page_url: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          keywords?: string | null
+          page_url?: string
+          title?: string
           updated_at?: string
         }
         Relationships: []
@@ -583,6 +649,45 @@ export type Database = {
           severity?: string | null
           user_agent?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      seo_keywords: {
+        Row: {
+          created_at: string
+          current_position: number | null
+          difficulty: string | null
+          id: string
+          keyword: string
+          last_checked: string | null
+          previous_position: number | null
+          search_volume: number | null
+          target_url: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_position?: number | null
+          difficulty?: string | null
+          id?: string
+          keyword: string
+          last_checked?: string | null
+          previous_position?: number | null
+          search_volume?: number | null
+          target_url: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_position?: number | null
+          difficulty?: string | null
+          id?: string
+          keyword?: string
+          last_checked?: string | null
+          previous_position?: number | null
+          search_volume?: number | null
+          target_url?: string
+          updated_at?: string
         }
         Relationships: []
       }

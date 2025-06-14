@@ -41,7 +41,7 @@ const MetaDescriptionManager = () => {
     queryKey: ['meta-descriptions'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('seo_meta_data')
+        .from('meta_descriptions')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -63,7 +63,7 @@ const MetaDescriptionManager = () => {
     setIsLoading(true);
     try {
       const { error } = await supabase
-        .from('seo_meta_data')
+        .from('meta_descriptions')
         .insert([newMeta]);
 
       if (error) throw error;
@@ -94,7 +94,7 @@ const MetaDescriptionManager = () => {
     setIsLoading(true);
     try {
       const { error } = await supabase
-        .from('seo_meta_data')
+        .from('meta_descriptions')
         .update({
           title: editingMeta.title,
           description: editingMeta.description,
@@ -127,7 +127,7 @@ const MetaDescriptionManager = () => {
     setIsLoading(true);
     try {
       const { error } = await supabase
-        .from('seo_meta_data')
+        .from('meta_descriptions')
         .delete()
         .eq('id', id);
 
