@@ -105,23 +105,23 @@ const ProductCard = ({
           </Button>
         </div>
 
-        {/* Badges avec effets 3D - AGRANDIS */}
-        <div className="absolute top-4 left-4 flex flex-col gap-3">
+        {/* Badges avec effets 3D - TEXTE RÉDUIT */}
+        <div className="absolute top-4 left-4 flex flex-col gap-2">
           {/* Badge de disponibilité */}
           <Badge 
             className={`${isAvailable 
-              ? 'badge-available hover-lift neon-glow px-4 py-2 text-sm' 
-              : 'badge-unavailable hover-lift px-4 py-2 text-sm'
+              ? 'badge-available hover-lift neon-glow px-2 py-1 text-xs' 
+              : 'badge-unavailable hover-lift px-2 py-1 text-xs'
             } transform-gpu`}
           >
             {isAvailable ? (
-              <span className="flex items-center gap-2">
-                <Check className="h-4 w-4 animate-pulse" />
+              <span className="flex items-center gap-1">
+                <Check className="h-3 w-3 animate-pulse" />
                 Disponible
               </span>
             ) : (
-              <span className="flex items-center gap-2">
-                <X className="h-4 w-4 animate-pulse" />
+              <span className="flex items-center gap-1">
+                <X className="h-3 w-3 animate-pulse" />
                 Épuisé
               </span>
             )}
@@ -129,7 +129,7 @@ const ProductCard = ({
 
           {/* Badge de catégorie */}
           {category && (
-            <Badge className="bg-white/90 text-primary-700 hover:bg-white font-medium hover-lift animate-morph px-4 py-2 text-sm">
+            <Badge className="bg-white/90 text-primary-700 hover:bg-white font-medium hover-lift animate-morph px-2 py-1 text-xs">
               {category.toUpperCase()}
             </Badge>
           )}
@@ -137,8 +137,8 @@ const ProductCard = ({
 
         {/* Badge produit physique */}
         {isPhysical && (
-          <Badge className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white hover-lift pulse-3d px-4 py-2 text-sm">
-            <Package className="h-4 w-4 mr-2 animate-pulse" />
+          <Badge className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white hover-lift pulse-3d px-2 py-1 text-xs">
+            <Package className="h-3 w-3 mr-1 animate-pulse" />
             Livraison
           </Badge>
         )}
