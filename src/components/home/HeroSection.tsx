@@ -28,54 +28,25 @@ const HeroSection = () => {
 
       <div className="container-modern relative z-10">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-16">
-          {/* Contenu textuel avec design 3D avancé */}
+          {/* Contenu textuel */}
           <div className="lg:w-1/2 space-y-8 animate-fade-in">
-            {/* Badge de statut avec effet néon 3D */}
-            <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-accent-100/80 to-purple-100/80 backdrop-blur-sm text-accent-700 rounded-full text-sm font-semibold neon-glow hover-lift ripple-effect border border-accent-200/50 shadow-modern">
+            {/* Badge de statut avec effet néon */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent-100 text-accent-700 rounded-full text-sm font-semibold neon-glow hover-lift ripple-effect">
               <Sparkles className="w-4 h-4 animate-pulse" />
-              <span className="font-bold bg-gradient-to-r from-accent-600 to-purple-600 bg-clip-text text-transparent">
-                Services Premium IPTV
-              </span>
-              <Star className="w-3 h-3 animate-pulse text-accent-500" style={{ animationDelay: '0.5s' }} />
+              <span>Services Premium IPTV</span>
+              <Star className="w-3 h-3 animate-pulse" style={{ animationDelay: '0.5s' }} />
             </div>
 
-            {/* Titre principal avec effets 3D avancés */}
-            <div className="space-y-8 perspective-container">
-              <h1 className="leading-tight transform-gpu relative">
-                <span className="block text-5xl md:text-6xl lg:text-7xl font-black mb-4 relative">
-                  <span className="absolute inset-0 text-accent-600/20 transform translate-x-2 translate-y-2 blur-sm">
-                    Découvrez l'excellence
-                  </span>
-                  <span className="relative bg-gradient-to-r from-primary-900 via-primary-800 to-accent-700 bg-clip-text text-transparent drop-shadow-2xl">
-                    Découvrez l'excellence
-                  </span>
-                </span>
-                
-                <span className="block text-4xl md:text-5xl lg:text-6xl font-black relative group">
-                  <span className="absolute inset-0 text-accent-500/30 transform translate-x-3 translate-y-3 blur-md">
-                    avec Sat-shop
-                  </span>
-                  <span className="relative gradient-text hover-lift inline-block transform-gpu transition-all duration-500 hover:scale-105">
-                    avec{" "}
-                    <span className="relative inline-block">
-                      <span className="absolute inset-0 bg-gradient-to-r from-accent-400 to-purple-500 blur-lg opacity-50 group-hover:opacity-75 transition-opacity duration-300"></span>
-                      <span className="relative font-black bg-gradient-to-r from-accent-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                        Sat-shop
-                      </span>
-                    </span>
-                  </span>
-                </span>
+            {/* Titre principal avec effets avancés */}
+            <div className="space-y-6 perspective-container">
+              <h1 className="leading-tight transform-gpu">
+                Découvrez l'excellence avec{" "}
+                <span className="gradient-text hover-lift inline-block">Sat-shop</span>
               </h1>
               
-              <p className="text-xl md:text-2xl text-primary-600 leading-relaxed max-w-2xl hover-lift relative">
-                <span className="absolute inset-0 text-primary-300/20 transform translate-x-1 translate-y-1 blur-sm">
-                  Explorez notre sélection premium de services IPTV, conçue pour 
-                  transformer votre expérience de divertissement avec une qualité exceptionnelle.
-                </span>
-                <span className="relative font-medium bg-gradient-to-r from-primary-700 to-primary-500 bg-clip-text text-transparent">
-                  Explorez notre sélection premium de services IPTV, conçue pour 
-                  transformer votre expérience de divertissement avec une qualité exceptionnelle.
-                </span>
+              <p className="text-xl text-primary-600 leading-relaxed max-w-2xl hover-lift">
+                Explorez notre sélection premium de services IPTV, conçue pour 
+                transformer votre expérience de divertissement avec une qualité exceptionnelle.
               </p>
             </div>
 
@@ -83,50 +54,35 @@ const HeroSection = () => {
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button 
                 onClick={() => navigate('/marketplace')}
-                className="btn-modern group ripple-effect relative overflow-hidden"
+                className="btn-modern group ripple-effect"
               >
-                <span className="absolute inset-0 bg-gradient-to-r from-accent-400/20 to-purple-400/20 blur-xl transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></span>
-                <span className="relative flex items-center">
-                  Explorer nos services
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-                </span>
+                Explorer nos services
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
               </Button>
               
               <Button 
                 variant="outline"
                 onClick={() => navigate('/contact')}
-                className="btn-secondary group ripple-effect relative overflow-hidden"
+                className="btn-secondary group ripple-effect"
               >
-                <span className="absolute inset-0 bg-gradient-to-r from-accent-400/10 to-purple-400/10 blur-xl transform translate-x-full group-hover:translate-x-0 transition-transform duration-700"></span>
-                <span className="relative flex items-center">
-                  <Zap className="mr-2 w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
-                  Nous contacter
-                </span>
+                <Zap className="mr-2 w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                Nous contacter
               </Button>
             </div>
 
-            {/* Statistiques avec animations 3D améliorées */}
-            <div className="flex items-center gap-8 pt-8 border-t border-primary-200/50 backdrop-blur-sm">
-              <div className="text-center card-modern p-6 hover-lift relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-accent-400/5 to-purple-400/5 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-                <div className="relative">
-                  <div className="text-3xl font-black text-primary-900 gradient-text mb-1">1000+</div>
-                  <div className="text-sm text-primary-600 font-medium">Clients satisfaits</div>
-                </div>
+            {/* Statistiques avec animations 3D */}
+            <div className="flex items-center gap-8 pt-8 border-t border-primary-200">
+              <div className="text-center card-modern p-4 hover-lift">
+                <div className="text-2xl font-bold text-primary-900 gradient-text">1000+</div>
+                <div className="text-sm text-primary-600">Clients satisfaits</div>
               </div>
-              <div className="text-center card-modern p-6 hover-lift relative group" style={{ animationDelay: '0.2s' }}>
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-400/5 to-pink-400/5 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-                <div className="relative">
-                  <div className="text-3xl font-black text-primary-900 gradient-text mb-1">24/7</div>
-                  <div className="text-sm text-primary-600 font-medium">Support disponible</div>
-                </div>
+              <div className="text-center card-modern p-4 hover-lift" style={{ animationDelay: '0.2s' }}>
+                <div className="text-2xl font-bold text-primary-900 gradient-text">24/7</div>
+                <div className="text-sm text-primary-600">Support disponible</div>
               </div>
-              <div className="text-center card-modern p-6 hover-lift relative group" style={{ animationDelay: '0.4s' }}>
-                <div className="absolute inset-0 bg-gradient-to-r from-pink-400/5 to-accent-400/5 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-                <div className="relative">
-                  <div className="text-3xl font-black text-primary-900 gradient-text mb-1">99.9%</div>
-                  <div className="text-sm text-primary-600 font-medium">Disponibilité</div>
-                </div>
+              <div className="text-center card-modern p-4 hover-lift" style={{ animationDelay: '0.4s' }}>
+                <div className="text-2xl font-bold text-primary-900 gradient-text">99.9%</div>
+                <div className="text-sm text-primary-600">Disponibilité</div>
               </div>
             </div>
           </div>
