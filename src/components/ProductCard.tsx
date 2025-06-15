@@ -70,12 +70,12 @@ const ProductCard = ({
       }`}
       onClick={handleCardClick}
     >
-      {/* Image container avec overlay au survol et effets 3D - AGRANDI */}
-      <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-primary-50 to-accent-50 rounded-xl mb-8 transform-gpu">
+      {/* Image container avec overlay au survol et effets 3D - IMAGE AGRANDIE */}
+      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-primary-50 to-accent-50 rounded-xl mb-8 transform-gpu">
         <img
           src={image}
           alt={name}
-          className="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-500 hover-lift"
+          className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-500 hover-lift"
           style={{ 
             filter: 'drop-shadow(0 15px 35px rgba(99, 102, 241, 0.15))',
             transformStyle: 'preserve-3d'
