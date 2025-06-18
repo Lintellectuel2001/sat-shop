@@ -1,21 +1,29 @@
-
 import { CapacitorConfig } from '@capacitor/core';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.100dd59328f84b90bf1f697c285ac699',
-  appName: 'sat-shop',
+  appId: 'com.satshop.app',
+  appName: 'Sat-shop',
   webDir: 'dist',
   server: {
-    url: 'https://100dd593-28f8-4b90-bf1f-697c285ac699.lovableproject.com?forceHideBadge=true',
-    cleartext: true
+    androidScheme: 'https'
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 2000,
-      backgroundColor: '#ffffff',
+      launchShowDuration: 3000,
+      backgroundColor: '#6366F1',
       androidScaleType: 'CENTER_CROP',
-      showSpinner: false
+      showSpinner: true,
+      spinnerColor: '#FFFFFF'
+    },
+    StatusBar: {
+      style: 'DARK',
+      backgroundColor: '#6366F1'
     }
+  },
+  android: {
+    allowMixedContent: true,
+    captureInput: true,
+    webContentsDebuggingEnabled: false
   }
 };
 
