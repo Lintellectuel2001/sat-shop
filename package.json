@@ -16,10 +16,10 @@
     "capacitor:build:android": "npm run build && npx cap sync android && npx cap build android"
   },
   "dependencies": {
+    "@capacitor/android": "^6.0.0",
     "@capacitor/cli": "^6.0.0",
     "@capacitor/core": "^6.0.0",
     "@capacitor/ios": "^6.0.0",
-    "@capacitor/android": "^6.0.0",
     "@capacitor/splash-screen": "^6.0.0",
     "@capacitor/status-bar": "^6.0.0",
     "@chargily/chargily-pay": "^2.1.0",
@@ -60,7 +60,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
     "date-fns": "^3.6.0",
-    "embla-carousel-autoplay": "^8.5.1",
+    "embla-carousel-autoplay": "^8.3.0",
     "embla-carousel-react": "^8.3.0",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.451.0",
