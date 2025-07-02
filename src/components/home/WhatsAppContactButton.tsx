@@ -8,7 +8,7 @@ const WhatsAppContactButton = () => {
     window.open(whatsappUrl, '_blank');
   };
   return <button onClick={openWhatsAppChat} aria-label="Contacter sur WhatsApp" className="fixed bottom-24 right-4 bg-[#25D366] text-white p-3 rounded-full shadow-lg hover:bg-[#1FAA59] transition-colors duration-300 z-50 text-base mx-0 my-0 px-[8px] py-[8px]">
-      <MessageCircleQuestion className="h-10 w-10" />
+      <MessageCircleQuestion className="h-7 w-7" />
     </button>;
 };
 export default WhatsAppContactButton;
