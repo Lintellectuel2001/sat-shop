@@ -84,7 +84,7 @@ const AdminAccessButton = () => {
   return <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="icon" className="fixed bottom-4 right-4 shadow-lg hover:shadow-xl transition-all duration-200 mx-0 rounded-3xl text-left font-normal px-[5px] text-sm">
-          <UserCog className="h-4 w-4" />
+          <UserCog className="h-2 w-2" />
         </Button>
       </DialogTrigger>
       <DialogContent>
