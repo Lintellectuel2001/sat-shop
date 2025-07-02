@@ -67,11 +67,11 @@ const ProductCard = ({
     <div 
       className={`group card-modern hover-lift cursor-pointer relative overflow-hidden ripple-effect perspective-container ${
         !isAvailable ? 'opacity-60' : ''
-      }`}
+      } scale-110`}
       onClick={handleCardClick}
     >
       {/* Image container avec overlay au survol et effets 3D - AGRANDI */}
-      <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-primary-50 to-accent-50 rounded-xl mb-8 transform-gpu">
+      <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-primary-50 to-accent-50 rounded-xl mb-10 transform-gpu">
         <img
           src={image}
           alt={name}
