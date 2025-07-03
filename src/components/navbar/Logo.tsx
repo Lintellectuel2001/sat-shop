@@ -13,7 +13,8 @@ const Logo = ({ logoUrl, logoText, altText }: LogoProps) => {
       <img 
         src={logoUrl}
         alt={altText}
-        className="h-12 w-auto"
+        className="h-12 w-auto animate-[spin_3s_linear_infinite] transform-gpu"
+        style={{ transformStyle: 'preserve-3d' }}
       />
       {logoText && (
         <span className="text-lg font-semibold text-primary">
