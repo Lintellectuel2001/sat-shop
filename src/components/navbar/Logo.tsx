@@ -13,7 +13,7 @@ const Logo = ({ logoUrl, logoText, altText }: LogoProps) => {
       <img 
         src={logoUrl}
         alt={altText}
-        className="h-12 w-auto animate-spin"
+        className="h-12 w-auto"
       />
       {logoText && (
         <span className="text-lg font-semibold text-primary">
