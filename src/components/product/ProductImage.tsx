@@ -8,9 +8,11 @@ interface ProductImageProps {
   isAvailable: boolean;
   category?: string;
   isPhysical: boolean;
+  productId: string;
+  productPrice: string;
 }
 
-const ProductImage = ({ image, name, isAvailable, category, isPhysical }: ProductImageProps) => {
+const ProductImage = ({ image, name, isAvailable, category, isPhysical, productId, productPrice }: ProductImageProps) => {
   return (
     <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-primary-50 to-accent-50 rounded-xl mb-10 transform-gpu">
       <img
@@ -27,7 +29,12 @@ const ProductImage = ({ image, name, isAvailable, category, isPhysical }: Produc
       <div className="absolute inset-0 holographic opacity-0 group-hover:opacity-30 transition-opacity duration-500"></div>
       
       {/* Overlay au survol avec effets 3D */}
-      <ProductActions isAvailable={isAvailable} productName={name} />
+      <ProductActions 
+        isAvailable={isAvailable} 
+        productName={name} 
+        productId={productId} 
+        productPrice={productPrice} 
+      />
 
       <ProductBadges 
         isAvailable={isAvailable} 

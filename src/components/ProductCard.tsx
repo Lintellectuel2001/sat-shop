@@ -57,6 +57,8 @@ const ProductCard = ({
         isAvailable={isAvailable}
         category={category}
         isPhysical={isPhysical}
+        productId={id}
+        productPrice={price}
       />
 
       <ProductInfo 

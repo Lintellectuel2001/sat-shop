@@ -3,3 +3,9 @@ project_id = "kyjuwizqndxvbuswmkiw"
 
 [functions.check-rls]
 verify_jwt = true
+
+[functions.create-payment]
+verify_jwt = false
+
+[functions.chargily-webhook]
+verify_jwt = false
