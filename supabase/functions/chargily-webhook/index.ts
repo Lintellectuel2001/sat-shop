@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { verifySignature } from "npm:@chargily/chargily-pay@2.1.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -16,17 +17,39 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const payload = await req.json();
-    console.log("Webhook received:", payload);
+    // Get raw body for signature verification
+    const body = await req.text();
+    console.log("Webhook received, body length:", body.length);
 
-    // Vérifier la signature du webhook (sécurité)
-    const chargilySecret = Deno.env.get("CHARGILY_SECRET_KEY");
-    const signature = req.headers.get("x-chargily-signature");
+    // Verify webhook signature using official Chargily method
+    const chargilyApiKey = Deno.env.get("CHARGILY_API_KEY");
+    const signature = req.headers.get("signature");
     
-    if (!signature || !chargilySecret) {
-      console.error("Invalid webhook signature or missing secret");
-      return new Response("Unauthorized", { status: 401 });
+    if (!signature) {
+      console.error("No signature header found");
+      return new Response("Signature header is missing", { status: 400 });
     }
+    
+    if (!chargilyApiKey) {
+      console.error("Chargily API key not configured");
+      return new Response("Webhook verification failed", { status: 403 });
+    }
+
+    try {
+      // Verify the webhook signature using Chargily's official method
+      const isValid = verifySignature(Buffer.from(body), signature, chargilyApiKey);
+      if (!isValid) {
+        console.error("Invalid webhook signature");
+        return new Response("Signature is invalid", { status: 403 });
+      }
+      console.log("Webhook signature verified successfully");
+    } catch (verifyError) {
+      console.error("Error verifying signature:", verifyError);
+      return new Response("Signature verification failed", { status: 403 });
+    }
+
+    const payload = JSON.parse(body);
+    console.log("Webhook payload:", payload);
 
     // Vérifier que le paiement est confirmé
     if (payload.type === "checkout.paid") {
