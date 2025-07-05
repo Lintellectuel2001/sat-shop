@@ -39,10 +39,11 @@ const ChargilyPaymentButton: React.FC<ChargilyPaymentButtonProps> = ({
           title: "Informations manquantes",
           description: "Veuillez fournir votre nom et email pour continuer.",
         });
+        setIsLoading(false);
         return;
       }
 
-      console.log("Initiating payment for:", { productId, productName, amount });
+      console.log("Initiating payment for:", { productId, productName, amount, customerEmail, customerName });
 
       // Appeler la fonction Edge pour créer le paiement
       const { data, error } = await supabase.functions.invoke('create-payment', {
@@ -56,12 +57,20 @@ const ChargilyPaymentButton: React.FC<ChargilyPaymentButtonProps> = ({
         },
       });
 
+      console.log("Function response:", { data, error });
+
       if (error) {
-        console.error("Payment creation error:", error);
-        throw error;
+        console.error("Supabase function error:", error);
+        throw new Error(`Erreur de fonction: ${error.message}`);
+      }
+
+      if (!data) {
+        console.error("No data returned from function");
+        throw new Error("Aucune réponse de la fonction de paiement");
       }
 
       if (!data.success) {
+        console.error("Payment creation failed:", data.error);
         throw new Error(data.error || "Erreur lors de la création du paiement");
       }
 
@@ -69,8 +78,10 @@ const ChargilyPaymentButton: React.FC<ChargilyPaymentButtonProps> = ({
 
       // Rediriger vers l'interface de paiement Chargily
       if (data.checkout_url) {
+        console.log("Redirecting to:", data.checkout_url);
         window.location.href = data.checkout_url;
       } else {
+        console.error("No checkout_url in response:", data);
         throw new Error("URL de paiement non reçue");
       }
 
