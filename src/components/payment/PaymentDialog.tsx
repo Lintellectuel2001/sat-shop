@@ -77,6 +77,13 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
   const isFormValid = customerInfo.name.trim() && customerInfo.email.trim();
   const numericPrice = parseFloat(price) || 0;
 
+  console.log("PaymentDialog state:", { 
+    customerInfo, 
+    isFormValid, 
+    numericPrice,
+    open 
+  });
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -128,6 +135,13 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
           </div>
 
           <div className="pt-4">
+            <div className="mb-2 text-sm text-muted-foreground">
+              {!isFormValid && (
+                <span className="text-destructive">
+                  ⚠️ Nom et email sont obligatoires
+                </span>
+              )}
+            </div>
             {isFormValid ? (
               <ChargilyPaymentButton
                 productId={productId}
