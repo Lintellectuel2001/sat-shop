@@ -71,6 +71,9 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify(paymentData),
     });
 
+    console.log("Chargily API response status:", response.status);
+    console.log("Chargily API response headers:", Object.fromEntries(response.headers));
+
     if (!response.ok) {
       const errorData = await response.text();
       console.error("Chargily API error:", response.status, errorData);
@@ -78,11 +81,11 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const result = await response.json();
-    console.log("Chargily payment created successfully:", result);
+    console.log("Chargily API full response:", JSON.stringify(result, null, 2));
 
     if (!result.checkout_url) {
-      console.error("No checkout_url in response:", result);
-      throw new Error("No checkout URL received from Chargily");
+      console.error("No checkout_url in response. Full response:", result);
+      throw new Error(`No checkout URL received from Chargily. Response: ${JSON.stringify(result)}`);
     }
 
     return new Response(JSON.stringify({
