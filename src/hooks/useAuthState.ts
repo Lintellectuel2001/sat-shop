@@ -6,7 +6,6 @@ import { toast } from '@/hooks/use-toast';
 export const useAuthState = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
   
   // Get navigate function safely - will be undefined when not in Router context
   let navigate: ((path: string) => void) | undefined;
@@ -26,7 +25,6 @@ export const useAuthState = () => {
       
       setIsLoggedIn(false);
       setUserId(null);
-      setUser(null);
       
       if (navigate) {
         navigate('/');
@@ -61,7 +59,6 @@ export const useAuthState = () => {
           if (mounted) {
             setIsLoggedIn(false);
             setUserId(null);
-            setUser(null);
             if (error.message.includes('refresh_token_not_found')) {
               await handleSignOut();
             }
@@ -72,14 +69,12 @@ export const useAuthState = () => {
         if (mounted) {
           setIsLoggedIn(!!session);
           setUserId(session?.user?.id || null);
-          setUser(session?.user || null);
         }
       } catch (error: any) {
         console.error('Session check error:', error);
         if (mounted) {
           setIsLoggedIn(false);
           setUserId(null);
-          setUser(null);
           toast({
             title: "Erreur de session",
             description: "Une erreur est survenue lors de la vérification de votre session",
@@ -98,12 +93,10 @@ export const useAuthState = () => {
         case 'SIGNED_IN':
           setIsLoggedIn(true);
           setUserId(session?.user?.id || null);
-          setUser(session?.user || null);
           break;
         case 'SIGNED_OUT':
           setIsLoggedIn(false);
           setUserId(null);
-          setUser(null);
           if (navigate) {
             navigate('/');
           } else {
@@ -115,7 +108,6 @@ export const useAuthState = () => {
         case 'USER_UPDATED':
           setIsLoggedIn(!!session);
           setUserId(session?.user?.id || null);
-          setUser(session?.user || null);
           break;
         default:
           const { error: authError } = await supabase.auth.getSession();
@@ -124,7 +116,6 @@ export const useAuthState = () => {
           } else {
             setIsLoggedIn(!!session);
             setUserId(session?.user?.id || null);
-            setUser(session?.user || null);
           }
           break;
       }
@@ -136,5 +127,5 @@ export const useAuthState = () => {
     };
   }, [handleSignOut]);
 
-  return { isLoggedIn, userId, user, handleSignOut };
+  return { isLoggedIn, userId, handleSignOut };
 };

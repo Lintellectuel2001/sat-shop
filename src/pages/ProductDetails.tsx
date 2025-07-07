@@ -6,7 +6,6 @@ import { useToast } from "@/hooks/use-toast";
 import Navbar from "../components/Navbar";
 import { Button } from "@/components/ui/button";
 import ShareButtons from "../components/product/ShareButtons";
-import PaymentDialog from "../components/payment/PaymentDialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 
@@ -74,16 +73,55 @@ const ProductDetails = () => {
       return;
     }
     
-    // Record the purchase action in cart_history for analytics
+    setOrderLoading(true);
+    
     try {
+      // Create a new order in the orders table
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders')
+        .insert([{
+          product_id: product.id,
+          product_name: product.name,
+          amount: product.price,
+          status: 'pending'
+        }])
+        .select()
+        .single();
+      
+      if (orderError) throw orderError;
+
+      // Record the purchase action in cart_history
       await supabase.from('cart_history').insert({
         product_id: product.id,
-        action_type: 'purchase_initiated',
+        action_type: 'purchase',
         payment_status: 'initiated',
       });
+
       console.log('Order action recorded in statistics');
+      
+      // Send notification email in the background without waiting for result
+      supabase.functions.invoke('send-order-notification', {
+        body: {
+          productName: product.name,
+          productPrice: product.price,
+        },
+      }).catch((error) => {
+        console.error('Error sending notification:', error);
+      });
+      
+      // Immediately redirect to payment link
+      window.location.href = product.payment_link;
     } catch (error) {
       console.error('Error recording order action:', error);
+      setOrderLoading(false);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Un problème est survenu lors de la commande",
+      });
+      
+      // Still redirect to payment link even if tracking fails
+      window.location.href = product.payment_link;
     }
   };
 
@@ -160,21 +198,15 @@ const ProductDetails = () => {
               </div>
             )}
 
-            <PaymentDialog
-              productId={product.id}
-              productName={product.name}
-              price={product.price}
+            <Button 
+              onClick={handleOrder}
+              className="w-full lg:w-auto text-lg py-6"
+              disabled={orderLoading || product.is_available === false}
             >
-              <Button 
-                onClick={handleOrder}
-                className="w-full lg:w-auto text-lg py-6"
-                disabled={orderLoading || product.is_available === false}
-              >
-                {orderLoading ? 'Redirection...' : 
-                 product.is_available === false ? 'Article non disponible' : 
-                 'Commander Maintenant'}
-              </Button>
-            </PaymentDialog>
+              {orderLoading ? 'Redirection...' : 
+               product.is_available === false ? 'Article non disponible' : 
+               'Commander Maintenant'}
+            </Button>
 
             <div className="bg-muted p-4 rounded-lg mt-8">
               <h3 className="font-semibold mb-2">Paiement sécurisé</h3>

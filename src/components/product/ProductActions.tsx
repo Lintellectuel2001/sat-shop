@@ -2,16 +2,13 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import PaymentDialog from "../payment/PaymentDialog";
 
 interface ProductActionsProps {
   isAvailable: boolean;
   productName: string;
-  productId: string;
-  productPrice: string;
 }
 
-const ProductActions = ({ isAvailable, productName, productId, productPrice }: ProductActionsProps) => {
+const ProductActions = ({ isAvailable, productName }: ProductActionsProps) => {
   const { toast } = useToast();
 
   const handleQuickAdd = (e: React.MouseEvent) => {
@@ -34,20 +31,14 @@ const ProductActions = ({ isAvailable, productName, productId, productPrice }: P
 
   return (
     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center gap-4 perspective-container">
-      <PaymentDialog
-        productId={productId}
-        productName={productName}
-        price={productPrice}
+      <Button
+        size="sm"
+        onClick={handleQuickAdd}
+        className="bg-white/90 text-primary-900 hover:bg-white shadow-soft hover-lift neon-glow px-4 py-2"
+        disabled={!isAvailable}
       >
-        <Button
-          size="sm"
-          onClick={handleQuickAdd}
-          className="bg-white/90 text-primary-900 hover:bg-white shadow-soft hover-lift neon-glow px-4 py-2"
-          disabled={!isAvailable}
-        >
-          <ShoppingCart className="w-5 h-5 animate-pulse" />
-        </Button>
-      </PaymentDialog>
+        <ShoppingCart className="w-5 h-5 animate-pulse" />
+      </Button>
       <Button
         size="sm"
         variant="outline"

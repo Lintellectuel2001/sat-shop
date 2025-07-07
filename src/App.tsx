@@ -11,8 +11,6 @@ import Wishlist from "./pages/Wishlist";
 import Orders from "./pages/Orders";
 import LoginPanel from "./components/auth/LoginPanel";
 import RegisterPanel from "./components/auth/RegisterPanel";
-import PaymentSuccess from "./pages/payment/Success";
-import PaymentFailure from "./pages/payment/Failure";
 
 function App() {
   return (
@@ -29,8 +27,6 @@ function App() {
         <Route path="/orders" element={<Orders />} />
         <Route path="/login" element={<LoginPanel />} />
         <Route path="/register" element={<RegisterPanel />} />
-        <Route path="/payment/success" element={<PaymentSuccess />} />
-        <Route path="/payment/failure" element={<PaymentFailure />} />
       </Routes>
     </Router>
   );
