@@ -102,8 +102,12 @@ const ProductDetails = () => {
       // Send notification email in the background without waiting for result
       supabase.functions.invoke('send-order-notification', {
         body: {
+          orderId: orderData.id,
+          customerName: orderData.customer_name || 'Client anonyme',
+          customerEmail: orderData.customer_email || orderData.guest_email || 'Non fourni',
+          customerPhone: orderData.guest_phone || 'Non fourni',
           productName: product.name,
-          productPrice: product.price,
+          productPrice: product.price
         },
       }).catch((error) => {
         console.error('Error sending notification:', error);

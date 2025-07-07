@@ -3,3 +3,6 @@ project_id = "kyjuwizqndxvbuswmkiw"
 
 [functions.check-rls]
 verify_jwt = true
+
+[functions.send-order-notification]
+verify_jwt = false
