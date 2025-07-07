@@ -80,6 +80,11 @@ const handler = async (req: Request): Promise<Response> => {
     const result = await response.json();
     console.log("Chargily payment created successfully:", result);
 
+    if (!result.checkout_url) {
+      console.error("No checkout_url in response:", result);
+      throw new Error("No checkout URL received from Chargily");
+    }
+
     return new Response(JSON.stringify({
       success: true,
       checkout_url: result.checkout_url,
