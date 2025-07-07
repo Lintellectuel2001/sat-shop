@@ -74,7 +74,7 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
     }));
   };
 
-  const isFormValid = customerInfo.name.trim() && customerInfo.email.trim();
+  const isFormValid = Boolean(customerInfo.name.trim() && customerInfo.email.trim());
   const numericPrice = parseFloat(price) || 0;
 
   console.log("PaymentDialog state:", { 
