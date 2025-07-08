@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button";
 import ShareButtons from "../components/product/ShareButtons";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface Product {
   id: string;
@@ -30,6 +33,12 @@ const ProductDetails = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [orderLoading, setOrderLoading] = useState(false);
+  const [showOrderForm, setShowOrderForm] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState({
+    name: '',
+    email: '',
+    phone: ''
+  });
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -61,7 +70,7 @@ const ProductDetails = () => {
     fetchProduct();
   }, [id, navigate, toast]);
 
-  const handleOrder = async () => {
+  const handleOrder = () => {
     if (!product) return;
     
     if (product.is_available === false) {
@@ -73,17 +82,34 @@ const ProductDetails = () => {
       return;
     }
     
+    // Ouvrir le formulaire de commande
+    setShowOrderForm(true);
+  };
+
+  const handleOrderSubmit = async () => {
+    if (!product || !customerInfo.name.trim() || !customerInfo.email.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Informations manquantes",
+        description: "Veuillez remplir tous les champs obligatoires.",
+      });
+      return;
+    }
+    
     setOrderLoading(true);
     
     try {
-      // Create a new order in the orders table
+      // Create a new order in the orders table with customer info
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
         .insert([{
           product_id: product.id,
           product_name: product.name,
           amount: product.price,
-          status: 'pending'
+          status: 'pending',
+          customer_name: customerInfo.name,
+          customer_email: customerInfo.email,
+          guest_phone: customerInfo.phone
         }])
         .select()
         .single();
@@ -99,13 +125,13 @@ const ProductDetails = () => {
 
       console.log('Order action recorded in statistics');
       
-      // Send notification email in the background without waiting for result
+      // Send notification email with customer info
       supabase.functions.invoke('send-order-notification', {
         body: {
           orderId: orderData.id,
-          customerName: orderData.customer_name || 'Client anonyme',
-          customerEmail: orderData.customer_email || orderData.guest_email || 'Non fourni',
-          customerPhone: orderData.guest_phone || 'Non fourni',
+          customerName: customerInfo.name,
+          customerEmail: customerInfo.email,
+          customerPhone: customerInfo.phone || 'Non fourni',
           productName: product.name,
           productPrice: product.price
         },
@@ -113,7 +139,8 @@ const ProductDetails = () => {
         console.error('Error sending notification:', error);
       });
       
-      // Immediately redirect to payment link
+      // Close dialog and redirect to payment link
+      setShowOrderForm(false);
       window.location.href = product.payment_link;
     } catch (error) {
       console.error('Error recording order action:', error);
@@ -123,9 +150,6 @@ const ProductDetails = () => {
         title: "Erreur",
         description: "Un problème est survenu lors de la commande",
       });
-      
-      // Still redirect to payment link even if tracking fails
-      window.location.href = product.payment_link;
     }
   };
 
@@ -226,6 +250,70 @@ const ProductDetails = () => {
           </div>
         </div>
       </main>
+
+      {/* Dialog pour saisir les informations client */}
+      <Dialog open={showOrderForm} onOpenChange={setShowOrderForm}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Informations de commande</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="name">Nom complet *</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Votre nom complet"
+                value={customerInfo.name}
+                onChange={(e) => setCustomerInfo(prev => ({ ...prev, name: e.target.value }))}
+                className="mt-1"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="votre.email@exemple.com"
+                value={customerInfo.email}
+                onChange={(e) => setCustomerInfo(prev => ({ ...prev, email: e.target.value }))}
+                className="mt-1"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="phone">Téléphone (optionnel)</Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="0123456789"
+                value={customerInfo.phone}
+                onChange={(e) => setCustomerInfo(prev => ({ ...prev, phone: e.target.value }))}
+                className="mt-1"
+              />
+            </div>
+            
+            <div className="flex gap-2 mt-6">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowOrderForm(false)}
+                className="flex-1"
+              >
+                Annuler
+              </Button>
+              <Button 
+                onClick={handleOrderSubmit}
+                disabled={orderLoading || !customerInfo.name.trim() || !customerInfo.email.trim()}
+                className="flex-1"
+              >
+                {orderLoading ? 'Traitement...' : 'Confirmer la commande'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
