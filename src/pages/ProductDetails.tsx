@@ -11,6 +11,7 @@ import { AlertTriangle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuthState } from "@/hooks/useAuthState";
 
 interface Product {
   id: string;
@@ -30,15 +31,11 @@ const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isLoggedIn, userId } = useAuthState();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [orderLoading, setOrderLoading] = useState(false);
-  const [showOrderForm, setShowOrderForm] = useState(false);
-  const [customerInfo, setCustomerInfo] = useState({
-    name: '',
-    email: '',
-    phone: ''
-  });
+  const [userProfile, setUserProfile] = useState<any>(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -70,7 +67,29 @@ const ProductDetails = () => {
     fetchProduct();
   }, [id, navigate, toast]);
 
-  const handleOrder = () => {
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (isLoggedIn && userId) {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .single();
+
+          if (!error && data) {
+            setUserProfile(data);
+          }
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [isLoggedIn, userId]);
+
+  const handleOrder = async () => {
     if (!product) return;
     
     if (product.is_available === false) {
@@ -82,23 +101,24 @@ const ProductDetails = () => {
       return;
     }
     
-    // Ouvrir le formulaire de commande
-    setShowOrderForm(true);
-  };
-
-  const handleOrderSubmit = async () => {
-    if (!product || !customerInfo.name.trim() || !customerInfo.email.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Informations manquantes",
-        description: "Veuillez remplir tous les champs obligatoires.",
-      });
-      return;
-    }
-    
     setOrderLoading(true);
     
     try {
+      // Déterminer les informations client
+      let customerName, customerEmail, customerPhone;
+      
+      if (isLoggedIn && userProfile) {
+        // Client connecté - utiliser ses informations
+        customerName = userProfile.full_name || userProfile.email || 'Client connecté';
+        customerEmail = userProfile.email || 'email non disponible';
+        customerPhone = userProfile.phone || 'Non fourni';
+      } else {
+        // Client non connecté
+        customerName = 'Client inconnu';
+        customerEmail = 'inconnu@example.com';
+        customerPhone = 'Non fourni';
+      }
+
       // Create a new order in the orders table with customer info
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
@@ -107,9 +127,10 @@ const ProductDetails = () => {
           product_name: product.name,
           amount: product.price,
           status: 'pending',
-          customer_name: customerInfo.name,
-          customer_email: customerInfo.email,
-          guest_phone: customerInfo.phone
+          customer_name: customerName,
+          customer_email: customerEmail,
+          guest_phone: customerPhone,
+          user_id: isLoggedIn ? userId : null
         }])
         .select()
         .single();
@@ -121,6 +142,7 @@ const ProductDetails = () => {
         product_id: product.id,
         action_type: 'purchase',
         payment_status: 'initiated',
+        user_id: isLoggedIn ? userId : null
       });
 
       console.log('Order action recorded in statistics');
@@ -129,9 +151,9 @@ const ProductDetails = () => {
       supabase.functions.invoke('send-order-notification', {
         body: {
           orderId: orderData.id,
-          customerName: customerInfo.name,
-          customerEmail: customerInfo.email,
-          customerPhone: customerInfo.phone || 'Non fourni',
+          customerName: customerName,
+          customerEmail: customerEmail,
+          customerPhone: customerPhone,
           productName: product.name,
           productPrice: product.price
         },
@@ -139,8 +161,7 @@ const ProductDetails = () => {
         console.error('Error sending notification:', error);
       });
       
-      // Close dialog and redirect to payment link
-      setShowOrderForm(false);
+      // Redirect to payment link
       window.location.href = product.payment_link;
     } catch (error) {
       console.error('Error recording order action:', error);
@@ -251,69 +272,6 @@ const ProductDetails = () => {
         </div>
       </main>
 
-      {/* Dialog pour saisir les informations client */}
-      <Dialog open={showOrderForm} onOpenChange={setShowOrderForm}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Informations de commande</DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="name">Nom complet *</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Votre nom complet"
-                value={customerInfo.name}
-                onChange={(e) => setCustomerInfo(prev => ({ ...prev, name: e.target.value }))}
-                className="mt-1"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="email">Email *</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="votre.email@exemple.com"
-                value={customerInfo.email}
-                onChange={(e) => setCustomerInfo(prev => ({ ...prev, email: e.target.value }))}
-                className="mt-1"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="phone">Téléphone (optionnel)</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="0123456789"
-                value={customerInfo.phone}
-                onChange={(e) => setCustomerInfo(prev => ({ ...prev, phone: e.target.value }))}
-                className="mt-1"
-              />
-            </div>
-            
-            <div className="flex gap-2 mt-6">
-              <Button 
-                variant="outline" 
-                onClick={() => setShowOrderForm(false)}
-                className="flex-1"
-              >
-                Annuler
-              </Button>
-              <Button 
-                onClick={handleOrderSubmit}
-                disabled={orderLoading || !customerInfo.name.trim() || !customerInfo.email.trim()}
-                className="flex-1"
-              >
-                {orderLoading ? 'Traitement...' : 'Confirmer la commande'}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
