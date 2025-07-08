@@ -77,7 +77,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Envoyer l'email de notification
     const emailResponse = await resend.emails.send({
       from: "SatShop <onboarding@resend.dev>",
-      to: ["admin@votre-domaine.com"], // ⚠️ IMPORTANT: Remplacez par votre email !
+      to: ["mehalli.rabie@gmail.com"], // Remplacez par votre email si différent
       subject: `🎉 Nouvelle commande reçue - ${productName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
