@@ -1,20 +1,25 @@
 
 import React from 'react';
-import ModernNavbar from "../components/modern/ModernNavbar";
+import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import ModernHeroSection from "../components/modern/ModernHeroSection";
+import HeroSection from "../components/home/HeroSection";
 import NewsletterSection from "../components/home/NewsletterSection";
-import ModernProductsSection from "../components/modern/ModernProductsSection";
+import ProductsSection from "../components/home/ProductsSection";
+import HeroCarousel from "../components/home/HeroCarousel";
 import AdminAccessButton from "../components/home/AdminAccessButton";
 import WhatsAppContactButton from "../components/home/WhatsAppContactButton";
 
+// NOTE: This page already uses components that require React Router and React Query
+// These will be properly provided by our updated App.tsx and main.tsx setup
+
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <ModernNavbar />
+    <div className="min-h-screen">
+      <Navbar />
       
-      <ModernHeroSection />
-      <ModernProductsSection />
+      <HeroCarousel />
+      <HeroSection />
+      <ProductsSection />
       <NewsletterSection />
       <Footer />
 
