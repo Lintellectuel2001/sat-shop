@@ -160,6 +160,20 @@ const ProductDetails = () => {
       }).catch((error) => {
         console.error('Error sending notification:', error);
       });
+
+      // Send Telegram notification
+      supabase.functions.invoke('send-telegram-notification', {
+        body: {
+          orderId: orderData.id,
+          customerName: customerName,
+          customerEmail: customerEmail,
+          customerPhone: customerPhone,
+          productName: product.name,
+          productPrice: product.price
+        },
+      }).catch((error) => {
+        console.error('Error sending Telegram notification:', error);
+      });
       
       // Redirect to payment link
       window.location.href = product.payment_link;
