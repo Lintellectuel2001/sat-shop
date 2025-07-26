@@ -6,6 +6,9 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { validateEmail, validatePassword } from "@/utils/validation";
+import Logo from "@/components/navbar/Logo";
+import ForgotPasswordDialog from "./ForgotPasswordDialog";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const LoginPanel = () => {
   const [email, setEmail] = useState("");
@@ -13,8 +16,10 @@ const LoginPanel = () => {
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { data: settings } = useSiteSettings();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,10 +114,17 @@ const LoginPanel = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-secondary pt-32 pb-16 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-white to-secondary pt-16 pb-16 px-4">
       <div className="container mx-auto max-w-md">
         <div className="bg-white rounded-2xl shadow-elegant p-8">
           <div className="text-center mb-8">
+            <div className="flex justify-center mb-6">
+              <Logo 
+                logoUrl={settings?.logo_url || "/lovable-uploads/d7990538-4e18-4b76-bb29-4e16e74bf512.png"}
+                logoText={settings?.logo_text}
+                altText={settings?.logo_text || "Sat-shop"}
+              />
+            </div>
             <h1 className="text-3xl font-bold text-primary mb-2">Connexion</h1>
             <p className="text-primary/60">
               Connectez-vous à votre compte Sat-shop
@@ -161,6 +173,16 @@ const LoginPanel = () => {
               {loading ? "Connexion en cours..." : "Se connecter"}
             </Button>
 
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => setShowForgotPassword(true)}
+                className="text-sm text-accent hover:text-accent/80 transition-colors underline-offset-4 hover:underline"
+              >
+                Mot de passe oublié ?
+              </button>
+            </div>
+
             <div className="text-center text-sm text-primary/60">
               Pas encore de compte ?{" "}
               <button
@@ -174,6 +196,11 @@ const LoginPanel = () => {
           </form>
         </div>
       </div>
+
+      <ForgotPasswordDialog 
+        open={showForgotPassword}
+        onOpenChange={setShowForgotPassword}
+      />
     </div>
   );
 };
