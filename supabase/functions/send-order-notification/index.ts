@@ -24,18 +24,48 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Get admin email from environment or settings table
+    const adminEmail = Deno.env.get('ADMIN_EMAIL');
+    if (!adminEmail) {
+      console.error('ADMIN_EMAIL environment variable not set');
+      return new Response(
+        JSON.stringify({ error: 'Admin email configuration missing' }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { orderId, customerName, customerEmail, customerPhone, productName, productPrice }: OrderNotificationRequest = await req.json();
+    // Input validation and sanitization
+    const requestData = await req.json();
+    const { orderId, customerName, customerEmail, customerPhone, productName, productPrice }: OrderNotificationRequest = requestData;
+    
+    if (!orderId || !customerName || !customerEmail || !productName || !productPrice) {
+      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Sanitize inputs
+    const sanitize = (input: string) => input.replace(/[<>'"&]/g, '');
+    const sanitizedData = {
+      orderId: sanitize(orderId),
+      customerName: sanitize(customerName),
+      customerEmail: sanitize(customerEmail),
+      customerPhone: sanitize(customerPhone || ''),
+      productName: sanitize(productName),
+      productPrice: sanitize(productPrice)
+    };
 
     // Récupérer les informations du produit pour avoir le prix d'achat
     const { data: productData, error: productError } = await supabase
       .from('products')
       .select('id, purchase_price')
-      .eq('name', productName)
+      .eq('name', sanitizedData.productName)
       .single();
 
     if (productError) {
@@ -49,7 +79,7 @@ const handler = async (req: Request): Promise<Response> => {
     const purchasePrice = productData.purchase_price || 0;
 
     // Calculer le bénéfice net
-    const salePrice = parseFloat(productPrice.replace(/[^0-9.-]+/g, ""));
+    const salePrice = parseFloat(sanitizedData.productPrice.replace(/[^0-9.-]+/g, ""));
     const netProfit = salePrice - purchasePrice;
 
     // Récupérer les statistiques du produit (commandes validées)
@@ -77,8 +107,8 @@ const handler = async (req: Request): Promise<Response> => {
     // Envoyer l'email de notification
     const emailResponse = await resend.emails.send({
       from: "SatShop <onboarding@resend.dev>",
-      to: ["mehalli.rabie@gmail.com"], // Remplacez par votre email si différent
-      subject: `🎉 Nouvelle commande reçue - ${productName}`,
+      to: [adminEmail],
+      subject: `🎉 Nouvelle commande reçue - ${sanitizedData.productName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
           <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
@@ -86,15 +116,15 @@ const handler = async (req: Request): Promise<Response> => {
             
             <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
               <h2 style="color: #1e40af; margin-bottom: 15px;">👤 Informations Client</h2>
-              <p><strong>Nom :</strong> ${customerName}</p>
-              <p><strong>Email :</strong> ${customerEmail}</p>
-              <p><strong>Téléphone :</strong> ${customerPhone}</p>
+              <p><strong>Nom :</strong> ${sanitizedData.customerName}</p>
+              <p><strong>Email :</strong> ${sanitizedData.customerEmail}</p>
+              <p><strong>Téléphone :</strong> ${sanitizedData.customerPhone}</p>
             </div>
 
             <div style="background-color: #f0f9ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
               <h2 style="color: #1e40af; margin-bottom: 15px;">📦 Détails Produit</h2>
-              <p><strong>Produit :</strong> ${productName}</p>
-              <p><strong>Prix de vente :</strong> ${productPrice}</p>
+              <p><strong>Produit :</strong> ${sanitizedData.productName}</p>
+              <p><strong>Prix de vente :</strong> ${sanitizedData.productPrice}</p>
               <p><strong>Prix d'achat :</strong> ${purchasePrice} DA</p>
               <p style="color: #16a34a; font-weight: bold; font-size: 18px;"><strong>💰 Bénéfice net :</strong> ${netProfit.toFixed(2)} DA</p>
             </div>

@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -20,7 +21,37 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { orderId, customerName, customerEmail, customerPhone, productName, productPrice }: TelegramNotificationRequest = await req.json();
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Input validation
+    const requestData = await req.json();
+    const { orderId, customerName, customerEmail, customerPhone, productName, productPrice }: TelegramNotificationRequest = requestData;
+    
+    // Validate required fields
+    if (!orderId || !customerName || !customerEmail || !productName || !productPrice) {
+      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Sanitize inputs to prevent injection attacks
+    const sanitize = (input: string) => input.replace(/[<>'"&]/g, '');
+    const sanitizedData = {
+      orderId: sanitize(orderId),
+      customerName: sanitize(customerName),
+      customerEmail: sanitize(customerEmail),
+      customerPhone: sanitize(customerPhone || ''),
+      productName: sanitize(productName),
+      productPrice: sanitize(productPrice)
+    };
 
     const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
     const chatId = Deno.env.get("TELEGRAM_CHAT_ID");
@@ -33,18 +64,18 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Créer le message formaté
+    // Créer le message formaté avec données sanitisées
     const message = `🛒 *NOUVELLE COMMANDE*
 
-📦 *Produit:* ${productName}
-💰 *Prix:* ${productPrice}
+📦 *Produit:* ${sanitizedData.productName}
+💰 *Prix:* ${sanitizedData.productPrice}
 
 👤 *Client:*
-• Nom: ${customerName}
-• Email: ${customerEmail}
-• Téléphone: ${customerPhone}
+• Nom: ${sanitizedData.customerName}
+• Email: ${sanitizedData.customerEmail}
+• Téléphone: ${sanitizedData.customerPhone}
 
-🆔 *ID Commande:* ${orderId}
+🆔 *ID Commande:* ${sanitizedData.orderId}
 
 📅 *Date:* ${new Date().toLocaleDateString('fr-FR', { 
       year: 'numeric', 
