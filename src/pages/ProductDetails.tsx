@@ -113,9 +113,9 @@ const ProductDetails = () => {
         customerEmail = userProfile.email || 'email non disponible';
         customerPhone = userProfile.phone || 'Non fourni';
       } else {
-        // Client non connecté
-        customerName = 'Client inconnu';
-        customerEmail = 'inconnu@example.com';
+        // Client non connecté - utiliser des informations génériques
+        customerName = 'Client non connecté';
+        customerEmail = 'client.non.connecte@satshop-guest.com'; // Email valide pour les guests
         customerPhone = 'Non fourni';
       }
 

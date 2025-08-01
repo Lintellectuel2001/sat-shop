@@ -117,7 +117,7 @@ const handler = async (req: Request): Promise<Response> => {
             <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
               <h2 style="color: #1e40af; margin-bottom: 15px;">👤 Informations Client</h2>
               <p><strong>Nom :</strong> ${sanitizedData.customerName}</p>
-              <p><strong>Email :</strong> ${sanitizedData.customerEmail}</p>
+              <p><strong>Email :</strong> ${sanitizedData.customerEmail === 'client.non.connecte@satshop-guest.com' ? 'Client non connecté' : sanitizedData.customerEmail}</p>
               <p><strong>Téléphone :</strong> ${sanitizedData.customerPhone}</p>
             </div>
 
