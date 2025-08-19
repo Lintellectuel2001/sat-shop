@@ -1,11 +1,13 @@
 
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import { Menu } from "lucide-react";
 import Logo from "./navbar/Logo";
 import NavLinks from "./navbar/NavLinks";
 import AuthButtons from "./navbar/AuthButtons";
 import UserButtons from "./navbar/UserButtons";
 import NotificationsMenu from "./marketing/NotificationsMenu";
+import { ThemeToggle } from "./ui/theme-toggle";
 import MobileMenu from "./navbar/MobileMenu";
 import { useAuthState } from "@/hooks/useAuthState";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
@@ -21,9 +23,14 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-effect">
-      <div className="container mx-auto">
-        <div className="flex items-center justify-between h-20 px-4">
+    <motion.nav 
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="fixed top-0 left-0 right-0 z-50 glass-effect"
+    >
+      <div className="container-modern">
+        <div className="flex items-center justify-between h-16 px-4">
           <Logo 
             logoUrl={settings?.logo_url || "/lovable-uploads/d7990538-4e18-4b76-bb29-4e16e74bf512.png"}
             logoText={settings?.logo_text}
@@ -34,7 +41,8 @@ const Navbar = () => {
             <NavLinks />
           </div>
 
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-4">
+            <ThemeToggle />
             {isLoggedIn ? (
               <>
                 {userId && <NotificationsMenu userId={userId} />}
@@ -46,11 +54,11 @@ const Navbar = () => {
           </div>
 
           <button 
-            className="md:hidden p-2 text-accent rounded-full hover:bg-primary/5"
+            className="md:hidden p-2 text-foreground rounded-lg hover:bg-secondary/50 transition-colors"
             onClick={toggleMobileMenu}
             aria-label="Menu"
           >
-            <Menu size={24} />
+            <Menu size={20} />
           </button>
         </div>
       </div>
@@ -62,7 +70,7 @@ const Navbar = () => {
         onClose={() => setIsMobileMenuOpen(false)}
         isOpen={isMobileMenuOpen}
       />
-    </nav>
+    </motion.nav>
   );
 };
 

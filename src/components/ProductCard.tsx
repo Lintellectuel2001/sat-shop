@@ -1,9 +1,11 @@
 
 import React from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { ShoppingCart, Heart, Star } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import ProductImage from './product/ProductImage';
-import ProductInfo from './product/ProductInfo';
 
 interface ProductCardProps {
   id: string;
@@ -35,49 +37,141 @@ const ProductCard = ({
   const handleCardClick = () => {
     if (!isAvailable) {
       toast({
+        title: "Produit indisponible",
+        description: "Ce produit n'est actuellement pas disponible.",
         variant: "destructive",
-        title: "Article non disponible",
-        description: "Cet article n'est actuellement pas disponible.",
       });
       return;
     }
     navigate(`/product/${id}`);
   };
 
+  const handleQuickAdd = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isAvailable) return;
+    
+    toast({
+      title: "Ajouté au panier",
+      description: `${name} a été ajouté à votre panier.`,
+    });
+  };
+
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast({
+      title: "Ajouté aux favoris",
+      description: `${name} a été ajouté à vos favoris.`,
+    });
+  };
+
   return (
-    <div 
-      className={`group card-modern hover-lift cursor-pointer relative overflow-hidden ripple-effect perspective-container ${
-        !isAvailable ? 'opacity-60' : ''
-      } scale-110`}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -4, scale: 1.02 }}
+      transition={{ duration: 0.2 }}
+      className="product-card group cursor-pointer"
       onClick={handleCardClick}
     >
-      <ProductImage 
-        image={image}
-        name={name}
-        isAvailable={isAvailable}
-        category={category}
-        isPhysical={isPhysical}
-      />
+      {/* Image Container */}
+      <div className="relative aspect-square overflow-hidden bg-secondary/30 rounded-t-xl">
+        <img
+          src={image}
+          alt={name}
+          className="w-full h-full object-cover p-4 group-hover:scale-110 transition-transform duration-300"
+        />
+        
+        {/* Badges */}
+        <div className="absolute top-3 left-3 flex flex-col gap-2">
+          <Badge className={isAvailable ? 'badge-available' : 'badge-unavailable'}>
+            {isAvailable ? 'Disponible' : 'Épuisé'}
+          </Badge>
+          {category && (
+            <Badge variant="secondary" className="text-xs">
+              {category.toUpperCase()}
+            </Badge>
+          )}
+          {isPhysical && (
+            <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400">
+              Livraison
+            </Badge>
+          )}
+        </div>
 
-      <ProductInfo 
-        name={name}
-        price={price}
-        rating={rating}
-        reviews={reviews}
-        isPhysical={isPhysical}
-        isAvailable={isAvailable}
-        onCardClick={handleCardClick}
-      />
-
-      {/* Effet de brillance au survol avec animation 3D */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 -left-full h-full w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 group-hover:animate-pulse"></div>
-        <div className="absolute -top-1/2 -right-1/2 w-40 h-40 bg-gradient-to-r from-accent-400/10 to-purple-400/10 rounded-full animate-float"></div>
+        {/* Quick Actions */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          whileHover={{ opacity: 1 }}
+          className="absolute inset-0 bg-black/20 flex items-center justify-center gap-2 rounded-t-xl"
+        >
+          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+            <Button
+              size="sm"
+              onClick={handleQuickAdd}
+              className="bg-white/90 text-foreground hover:bg-white shadow-sm"
+              disabled={!isAvailable}
+            >
+              <ShoppingCart className="w-4 h-4" />
+            </Button>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleWishlist}
+              className="bg-white/90 border-white/50 text-foreground hover:bg-white shadow-sm"
+            >
+              <Heart className="w-4 h-4" />
+            </Button>
+          </motion.div>
+        </motion.div>
       </div>
 
-      {/* Bordure lumineuse au survol */}
-      <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-accent-200 transition-all duration-500 pointer-events-none animate-glow"></div>
-    </div>
+      {/* Content */}
+      <div className="p-4 space-y-3">
+        <h3 className="font-semibold text-lg text-foreground group-hover:text-accent transition-colors line-clamp-2">
+          {name}
+        </h3>
+
+        {/* Rating */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            {[...Array(5)].map((_, i) => (
+              <Star 
+                key={i} 
+                className={`w-4 h-4 ${
+                  i < rating 
+                    ? 'fill-yellow-400 text-yellow-400' 
+                    : 'text-muted-foreground'
+                }`}
+              /> 
+            ))}
+          </div>
+          <span className="text-sm text-muted-foreground">({reviews})</span>
+        </div>
+
+        {/* Price and CTA */}
+        <div className="flex items-center justify-between pt-2">
+          <div className="space-y-1">
+            <span className="text-2xl font-bold text-foreground">
+              {price}
+            </span>
+            {isPhysical && (
+              <div className="text-xs text-amber-600 dark:text-amber-400 font-medium">
+                Paiement à la livraison
+              </div>
+            )}
+          </div>
+          
+          <Button 
+            className="btn-modern"
+            disabled={!isAvailable}
+          >
+            {isAvailable ? 'Voir' : 'Épuisé'}
+          </Button>
+        </div>
+      </div>
+    </motion.div>
   );
 };
 
