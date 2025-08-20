@@ -74,26 +74,26 @@ const ProductCard = ({
       onClick={handleCardClick}
     >
       {/* Image Container */}
-      <div className="relative aspect-square overflow-hidden bg-secondary/30 rounded-t-xl">
+      <div className="relative aspect-[4/3] overflow-hidden bg-secondary/30 rounded-t-xl">
         <img
           src={image}
           alt={name}
-          className="w-full h-full object-cover p-4 group-hover:scale-110 transition-transform duration-300"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
         
         {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-2">
-          <Badge className={isAvailable ? 'badge-available' : 'badge-unavailable'}>
-            {isAvailable ? 'Disponible' : 'Épuisé'}
+        <div className="absolute top-2 left-2 flex flex-col gap-1">
+          <Badge className={`text-[10px] px-2 py-0.5 ${isAvailable ? 'badge-available' : 'badge-unavailable'}`}>
+            {isAvailable ? 'Dispo' : 'Épuisé'}
           </Badge>
           {category && (
-            <Badge variant="secondary" className="text-xs">
-              {category.toUpperCase()}
+            <Badge variant="secondary" className="text-[10px] px-2 py-0.5">
+              {category}
             </Badge>
           )}
           {isPhysical && (
-            <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400">
-              Livraison
+            <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400 text-[10px] px-2 py-0.5">
+              📦
             </Badge>
           )}
         </div>
@@ -108,10 +108,10 @@ const ProductCard = ({
             <Button
               size="sm"
               onClick={handleQuickAdd}
-              className="bg-white/90 text-foreground hover:bg-white shadow-sm"
+              className="bg-white/90 text-foreground hover:bg-white shadow-sm h-8 w-8 p-0"
               disabled={!isAvailable}
             >
-              <ShoppingCart className="w-4 h-4" />
+              <ShoppingCart className="w-3 h-3" />
             </Button>
           </motion.div>
           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
@@ -119,27 +119,27 @@ const ProductCard = ({
               size="sm"
               variant="outline"
               onClick={handleWishlist}
-              className="bg-white/90 border-white/50 text-foreground hover:bg-white shadow-sm"
+              className="bg-white/90 border-white/50 text-foreground hover:bg-white shadow-sm h-8 w-8 p-0"
             >
-              <Heart className="w-4 h-4" />
+              <Heart className="w-3 h-3" />
             </Button>
           </motion.div>
         </motion.div>
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-3">
-        <h3 className="font-semibold text-lg text-foreground group-hover:text-accent transition-colors line-clamp-2">
+      <div className="p-3 space-y-2">
+        <h3 className="font-semibold text-sm text-foreground group-hover:text-accent transition-colors line-clamp-2 leading-tight">
           {name}
         </h3>
 
         {/* Rating */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
             {[...Array(5)].map((_, i) => (
               <Star 
                 key={i} 
-                className={`w-4 h-4 ${
+                className={`w-3 h-3 ${
                   i < rating 
                     ? 'fill-yellow-400 text-yellow-400' 
                     : 'text-muted-foreground'
@@ -147,24 +147,25 @@ const ProductCard = ({
               /> 
             ))}
           </div>
-          <span className="text-sm text-muted-foreground">({reviews})</span>
+          <span className="text-xs text-muted-foreground">({reviews})</span>
         </div>
 
         {/* Price and CTA */}
-        <div className="flex items-center justify-between pt-2">
-          <div className="space-y-1">
-            <span className="text-2xl font-bold text-foreground">
+        <div className="flex items-center justify-between pt-1">
+          <div className="space-y-0.5">
+            <span className="text-lg font-bold text-foreground">
               {price}
             </span>
             {isPhysical && (
-              <div className="text-xs text-amber-600 dark:text-amber-400 font-medium">
-                Paiement à la livraison
+              <div className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
+                Paiement livraison
               </div>
             )}
           </div>
           
           <Button 
-            className="btn-modern"
+            size="sm"
+            className="btn-modern text-xs px-3 py-1 h-7"
             disabled={!isAvailable}
           >
             {isAvailable ? 'Voir' : 'Épuisé'}
