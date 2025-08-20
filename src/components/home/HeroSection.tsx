@@ -40,7 +40,7 @@ const HeroSection = () => {
           {/* Content */}
           <div className="space-y-8">
             <motion.div {...fadeInUp}>
-              <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
+              <h1 className="text-5xl lg:text-7xl font-bold leading-tight text-foreground">
                 Découvrez l'excellence avec{' '}
                 <span className="gradient-text">Sat-shop</span>
               </h1>
@@ -123,7 +123,7 @@ const HeroSection = () => {
                 className="absolute -top-4 -right-4 bg-card rounded-xl p-4 shadow-lg border border-border"
               >
                 <div className="text-2xl">🎬</div>
-                <div className="text-sm font-medium">Streaming HD</div>
+                <div className="text-sm font-medium text-card-foreground">Streaming HD</div>
               </motion.div>
               
               <motion.div 
@@ -132,7 +132,7 @@ const HeroSection = () => {
                 className="absolute -bottom-4 -left-4 bg-card rounded-xl p-4 shadow-lg border border-border"
               >
                 <div className="text-2xl">⚡</div>
-                <div className="text-sm font-medium">Ultra Rapide</div>
+                <div className="text-sm font-medium text-card-foreground">Ultra Rapide</div>
               </motion.div>
             </div>
           </motion.div>
