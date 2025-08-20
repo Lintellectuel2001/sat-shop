@@ -110,8 +110,8 @@ const HeroSection = () => {
           >
             <div className="relative">
               <img
-                src="/lovable-uploads/4eb70ddd-f939-43e6-a24f-4a9228a2bd9a.png"
-                alt="Services premium"
+                src="/lovable-uploads/b2c903e2-7816-4770-a684-fda4325c61d5.png"
+                alt="Services premium IPTV"
                 className="w-full h-auto rounded-2xl shadow-2xl"
               />
               <div className="absolute inset-0 bg-gradient-to-tr from-accent/20 to-transparent rounded-2xl"></div>
