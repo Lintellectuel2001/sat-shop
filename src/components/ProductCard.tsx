@@ -78,7 +78,7 @@ const ProductCard = ({
         <img
           src={image}
           alt={name}
-          className="w-full h-full object-cover p-4 group-hover:scale-110 transition-transform duration-300"
+          className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
         />
         
         {/* Badges */}
