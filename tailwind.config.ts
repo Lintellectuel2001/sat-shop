@@ -75,12 +75,13 @@ export default {
           600: "#DC2626",
         },
         muted: {
-          DEFAULT: "#F8FAFC",
-          foreground: "#64748B",
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
         },
-        subtle: "#F1F5F9",
-        soft: "#FAFBFC",
-        card: "#FFFFFF",
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
         gradient: {
           from: "#6366F1",
           via: "#8B5CF6",
