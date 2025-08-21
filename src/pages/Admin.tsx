@@ -111,9 +111,9 @@ const Admin = () => {
   if (!isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center p-8 bg-white rounded-lg shadow-md">
+        <div className="text-center p-8 bg-card rounded-lg shadow-md border border-border">
           <h1 className="text-2xl font-bold text-destructive mb-4">Accès refusé</h1>
-          <p className="mb-6">Vous n'avez pas les droits d'accès à cette page.</p>
+          <p className="mb-6 text-foreground">Vous n'avez pas les droits d'accès à cette page.</p>
           <Button asChild>
             <Link to="/">Retour à l'accueil</Link>
           </Button>
@@ -123,7 +123,7 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-secondary/10">
+    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/10">
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div className="flex items-center">
@@ -142,32 +142,32 @@ const Admin = () => {
           </Button>
         </div>
         
-        <div className="bg-white rounded-xl shadow-elegant p-6 mb-8">
+        <div className="bg-card rounded-xl shadow-elegant p-6 mb-8 border border-border">
           <Tabs defaultValue="statistics" className="w-full">
             <TabsList className="mb-6 w-full justify-start overflow-x-auto flex-nowrap whitespace-nowrap bg-secondary/50 p-1 rounded-lg">
-              <TabsTrigger value="statistics" className="data-[state=active]:bg-white data-[state=active]:text-accent">Statistiques</TabsTrigger>
-              <TabsTrigger value="users" className="data-[state=active]:bg-white data-[state=active]:text-accent">
+              <TabsTrigger value="statistics" className="data-[state=active]:bg-card data-[state=active]:text-accent">Statistiques</TabsTrigger>
+              <TabsTrigger value="users" className="data-[state=active]:bg-card data-[state=active]:text-accent">
                 <Users className="h-4 w-4 mr-1" />
                 Utilisateurs
               </TabsTrigger>
-              <TabsTrigger value="products" className="data-[state=active]:bg-white data-[state=active]:text-accent">Produits</TabsTrigger>
-              <TabsTrigger value="orders" className="data-[state=active]:bg-white data-[state=active]:text-accent">
+              <TabsTrigger value="products" className="data-[state=active]:bg-card data-[state=active]:text-accent">Produits</TabsTrigger>
+              <TabsTrigger value="orders" className="data-[state=active]:bg-card data-[state=active]:text-accent">
                 <ShoppingCart className="h-4 w-4 mr-1" />
                 Commandes
               </TabsTrigger>
-              <TabsTrigger value="slides" className="data-[state=active]:bg-white data-[state=active]:text-accent">Diaporama</TabsTrigger>
-              <TabsTrigger value="promo" className="data-[state=active]:bg-white data-[state=active]:text-accent">Codes Promo</TabsTrigger>
-              <TabsTrigger value="notifications" className="data-[state=active]:bg-white data-[state=active]:text-accent">Notifications</TabsTrigger>
-              <TabsTrigger value="seo" className="data-[state=active]:bg-white data-[state=active]:text-accent">
+              <TabsTrigger value="slides" className="data-[state=active]:bg-card data-[state=active]:text-accent">Diaporama</TabsTrigger>
+              <TabsTrigger value="promo" className="data-[state=active]:bg-card data-[state=active]:text-accent">Codes Promo</TabsTrigger>
+              <TabsTrigger value="notifications" className="data-[state=active]:bg-card data-[state=active]:text-accent">Notifications</TabsTrigger>
+              <TabsTrigger value="seo" className="data-[state=active]:bg-card data-[state=active]:text-accent">
                 <Search className="h-4 w-4 mr-1" />
                 SEO & Analytics
               </TabsTrigger>
-              <TabsTrigger value="settings" className="data-[state=active]:bg-white data-[state=active]:text-accent">Gestion Logo</TabsTrigger>
-              <TabsTrigger value="backup" className="data-[state=active]:bg-white data-[state=active]:text-accent">
+              <TabsTrigger value="settings" className="data-[state=active]:bg-card data-[state=active]:text-accent">Gestion Logo</TabsTrigger>
+              <TabsTrigger value="backup" className="data-[state=active]:bg-card data-[state=active]:text-accent">
                 <Database className="h-4 w-4 mr-1" />
                 Sauvegardes
               </TabsTrigger>
-              <TabsTrigger value="security" className="data-[state=active]:bg-white data-[state=active]:text-accent">
+              <TabsTrigger value="security" className="data-[state=active]:bg-card data-[state=active]:text-accent">
                 <Shield className="h-4 w-4 mr-1" />
                 Sécurité
               </TabsTrigger>
