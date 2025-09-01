@@ -228,7 +228,7 @@ const ProductDetails = () => {
                 </ul>
               </div>}
 
-            <Button onClick={handleOrder} className="w-full lg:w-auto text-lg py-6" disabled={orderLoading || product.is_available === false}>
+            <Button onClick={handleOrder} className="w-full lg:w-auto text-lg py-6 text-black" disabled={orderLoading || product.is_available === false}>
               {orderLoading ? 'Redirection...' : product.is_available === false ? 'Article non disponible' : 'Commander Maintenant'}
             </Button>
 
