@@ -18,17 +18,9 @@ const queryClient = new QueryClient({
 
 // Configuration pour les appareils mobiles
 if (Capacitor.isNativePlatform()) {
-  // Détection du mode sombre/clair automatique
-  const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  
-  // Configuration de la barre de statut adaptée au thème
-  StatusBar.setStyle({ 
-    style: isDarkMode ? Style.Dark : Style.Light 
-  });
-  
-  StatusBar.setBackgroundColor({ 
-    color: isDarkMode ? '#000000' : '#FFFFFF' 
-  });
+  // Configuration de la barre de statut
+  StatusBar.setStyle({ style: Style.Dark });
+  StatusBar.setBackgroundColor({ color: '#6366F1' });
   
   // Masquer le splash screen après le chargement
   SplashScreen.hide();

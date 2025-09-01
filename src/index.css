@@ -6,111 +6,50 @@
 
 @layer base {
   :root {
-    /* Light Mode - High Contrast */
+    /* Light Mode */
     --background: 0 0% 100%;
-    --foreground: 0 0% 0%;
+    --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 0%;
+    --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
-    --primary: 0 0% 0%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 0%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
     --accent: 239 84% 67%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
     --ring: 239 84% 67%;
     --radius: 0.75rem;
-    
-    /* Additional semantic colors */
-    --neutral-50: 0 0% 98%;
-    --neutral-100: 0 0% 96%;
-    --neutral-200: 0 0% 90%;
-    --neutral-300: 0 0% 83%;
-    --neutral-400: 0 0% 64%;
-    --neutral-500: 0 0% 45%;
-    --neutral-600: 0 0% 32%;
-    --neutral-700: 0 0% 25%;
-    --neutral-800: 0 0% 15%;
-    --neutral-900: 0 0% 0%;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      /* Dark Mode - High Contrast */
-      --background: 0 0% 0%;
-      --foreground: 0 0% 100%;
-      --card: 0 0% 0%;
-      --card-foreground: 0 0% 100%;
-      --popover: 0 0% 0%;
-      --popover-foreground: 0 0% 100%;
-      --primary: 0 0% 100%;
-      --primary-foreground: 0 0% 0%;
-      --secondary: 0 0% 4%;
-      --secondary-foreground: 0 0% 100%;
-      --muted: 0 0% 4%;
-      --muted-foreground: 0 0% 55%;
-      --accent: 239 84% 67%;
-      --accent-foreground: 0 0% 100%;
-      --destructive: 0 84% 60%;
-      --destructive-foreground: 0 0% 100%;
-      --border: 0 0% 10%;
-      --input: 0 0% 10%;
-      --ring: 239 84% 67%;
-      
-      /* Additional semantic colors */
-      --neutral-50: 0 0% 0%;
-      --neutral-100: 0 0% 4%;
-      --neutral-200: 0 0% 10%;
-      --neutral-300: 0 0% 17%;
-      --neutral-400: 0 0% 36%;
-      --neutral-500: 0 0% 55%;
-      --neutral-600: 0 0% 68%;
-      --neutral-700: 0 0% 75%;
-      --neutral-800: 0 0% 85%;
-      --neutral-900: 0 0% 100%;
-    }
   }
 
   .dark {
-    /* Dark Mode - Manual Override */
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
-    --card: 0 0% 0%;
-    --card-foreground: 0 0% 100%;
-    --popover: 0 0% 0%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 0 0% 100%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 0 0% 4%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 4%;
-    --muted-foreground: 0 0% 55%;
+    /* Dark Mode */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
     --accent: 239 84% 67%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 10%;
-    --input: 0 0% 10%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
     --ring: 239 84% 67%;
-    
-    /* Additional semantic colors */
-    --neutral-50: 0 0% 0%;
-    --neutral-100: 0 0% 4%;
-    --neutral-200: 0 0% 10%;
-    --neutral-300: 0 0% 17%;
-    --neutral-400: 0 0% 36%;
-    --neutral-500: 0 0% 55%;
-    --neutral-600: 0 0% 68%;
-    --neutral-700: 0 0% 75%;
-    --neutral-800: 0 0% 85%;
-    --neutral-900: 0 0% 100%;
   }
 
   * {
@@ -126,32 +65,6 @@
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    
-    /* Ensure high contrast for accessibility */
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
-
-  /* Global text contrast enforcement */
-  * {
-    color: inherit;
-  }
-
-  /* Ensure proper contrast for interactive elements */
-  button, a, input, textarea, select {
-    color: hsl(var(--foreground));
-  }
-
-  /* High contrast utility classes */
-  .text-high-contrast {
-    color: hsl(var(--foreground)) !important;
-  }
-
-  .bg-high-contrast {
-    background-color: hsl(var(--background)) !important;
-  }
-
-  .border-high-contrast {
-    border-color: hsl(var(--border)) !important;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -236,36 +149,13 @@
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
 
-  /* Availability badges - High contrast versions */
+  /* Availability badges */
   .badge-available {
-    @apply bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 rounded-full px-3 py-1 text-xs font-medium border border-green-200 dark:border-green-700;
+    @apply bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 rounded-full px-3 py-1 text-xs font-medium;
   }
   
   .badge-unavailable {
-    @apply bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 rounded-full px-3 py-1 text-xs font-medium border border-red-200 dark:border-red-700;
-  }
-
-  /* Enhanced utility classes for high contrast */
-  .text-contrast-high {
-    color: hsl(var(--foreground)) !important;
-  }
-
-  .text-contrast-medium {
-    color: hsl(var(--muted-foreground)) !important;
-  }
-
-  .bg-contrast-surface {
-    background-color: hsl(var(--card)) !important;
-  }
-
-  .border-contrast {
-    border-color: hsl(var(--border)) !important;
-  }
-
-  /* Focus states for accessibility */
-  .focus-contrast:focus {
-    outline: 2px solid hsl(var(--ring));
-    outline-offset: 2px;
+    @apply bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400 rounded-full px-3 py-1 text-xs font-medium;
   }
 
   /* Hover effects */
