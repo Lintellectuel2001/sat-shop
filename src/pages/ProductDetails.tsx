@@ -222,7 +222,7 @@ const ProductDetails = () => {
                 <h3 className="text-xl font-semibold">Caractéristiques :</h3>
                 <ul className="space-y-2">
                   {product.features.map((feature, index) => <li key={index} className="flex items-center gap-2">
-                      <span className="text-primary">•</span>
+                      <span className="text-primary">3500 DA²</span>
                       {feature}
                     </li>)}
                 </ul>
