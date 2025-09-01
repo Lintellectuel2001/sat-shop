@@ -27,6 +27,18 @@
     --input: 240 5.9% 90%;
     --ring: 239 84% 67%;
     --radius: 0.75rem;
+    
+    /* Additional semantic colors */
+    --neutral-50: 0 0% 98%;
+    --neutral-100: 240 4.8% 95.9%;
+    --neutral-200: 240 5.9% 90%;
+    --neutral-300: 240 4.9% 83.9%;
+    --neutral-400: 240 5% 64.9%;
+    --neutral-500: 240 3.8% 46.1%;
+    --neutral-600: 240 5.2% 33.9%;
+    --neutral-700: 240 5.3% 26.1%;
+    --neutral-800: 240 3.7% 15.9%;
+    --neutral-900: 240 5.9% 10%;
   }
 
   .dark {
@@ -50,6 +62,18 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 239 84% 67%;
+    
+    /* Additional semantic colors */
+    --neutral-50: 240 5.9% 10%;
+    --neutral-100: 240 3.7% 15.9%;
+    --neutral-200: 240 5.2% 33.9%;
+    --neutral-300: 240 5% 64.9%;
+    --neutral-400: 240 3.8% 46.1%;
+    --neutral-500: 240 4.9% 83.9%;
+    --neutral-600: 240 5.9% 90%;
+    --neutral-700: 240 4.8% 95.9%;
+    --neutral-800: 0 0% 98%;
+    --neutral-900: 0 0% 100%;
   }
 
   * {
