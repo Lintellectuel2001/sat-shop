@@ -41,11 +41,17 @@ export function ThemeProvider({
         ? 'dark'
         : 'light';
 
-      root.classList.add(systemTheme);
+      if (systemTheme === 'dark') {
+        root.classList.add('dark');
+      }
+      // Light mode uses CSS variables from :root by default
       return;
     }
 
-    root.classList.add(theme);
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    }
+    // Light mode uses CSS variables from :root by default
   }, [theme]);
 
   const value = {
