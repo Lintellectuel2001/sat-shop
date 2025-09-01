@@ -103,7 +103,7 @@ const ShareButtons = ({ productName, productId }: ShareButtonsProps) => {
           size="sm"
           className="flex items-center gap-2"
         >
-          <Mail size={18} className="text-gray-700" />
+          <Mail size={18} className="text-muted-foreground" />
           <span className="hidden sm:inline">Email</span>
         </Button>
         
@@ -113,7 +113,7 @@ const ShareButtons = ({ productName, productId }: ShareButtonsProps) => {
           size="sm"
           className="flex items-center gap-2"
         >
-          <Copy size={18} className="text-gray-700" />
+          <Copy size={18} className="text-muted-foreground" />
           <span className="hidden sm:inline">Copier le lien</span>
         </Button>
         

@@ -217,7 +217,7 @@ const ProductDetails = () => {
       <main className="container mx-auto px-4 pt-32 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <div className="space-y-4">
-            <div className="aspect-square overflow-hidden rounded-lg bg-white p-8">
+            <div className="aspect-square overflow-hidden rounded-lg bg-card border border-border p-8">
               <img
                 src={product.image}
                 alt={product.name}
@@ -241,7 +241,7 @@ const ProductDetails = () => {
             
             {product.description && (
               <div className="prose max-w-none">
-                <p className="text-lg text-accent whitespace-pre-line">
+                <p className="text-lg text-foreground whitespace-pre-line">
                   {product.description}
                 </p>
               </div>
@@ -253,7 +253,7 @@ const ProductDetails = () => {
                 <ul className="space-y-2">
                   {product.features.map((feature, index) => (
                     <li key={index} className="flex items-center gap-2">
-                      <span className="text-primary">•</span>
+                      <span className="text-accent">•</span>
                       {feature}
                     </li>
                   ))}
@@ -273,7 +273,7 @@ const ProductDetails = () => {
 
             <div className="bg-muted p-4 rounded-lg mt-8">
               <h3 className="font-semibold mb-2">Paiement sécurisé</h3>
-              <p className="text-sm text-accent">
+              <p className="text-sm text-muted-foreground">
                 Paiement sécurisé via Chargily. Livraison immédiate après confirmation du paiement.
               </p>
             </div>
