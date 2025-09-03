@@ -3,13 +3,15 @@ import React from 'react';
 import { Facebook, Twitter, Linkedin, Mail, Copy, Share2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface ShareButtonsProps {
   productName: string;
   productId: string;
+  className?: string;
 }
 
-const ShareButtons = ({ productName, productId }: ShareButtonsProps) => {
+const ShareButtons = ({ productName, productId, className }: ShareButtonsProps) => {
   const { toast } = useToast();
   const shareUrl = `${window.location.origin}/product/${productId}`;
   
@@ -64,7 +66,7 @@ const ShareButtons = ({ productName, productId }: ShareButtonsProps) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className={cn("space-y-4", className)}>
       <h3 className="font-semibold text-lg">Partager ce produit</h3>
       <div className="flex flex-wrap gap-2">
         <Button 
