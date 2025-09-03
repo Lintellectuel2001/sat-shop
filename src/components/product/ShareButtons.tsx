@@ -58,7 +58,7 @@ const ShareButtons = ({
       });
     }
   };
-  return <div className={cn("space-y-4 bg-white p-6 rounded-lg", className)}>
+  return <div className={cn("space-y-4 bg-muted p-6 rounded-lg", className)}>
       <h3 className="font-semibold text-lg">Partager ce produit</h3>
       <div className="flex flex-wrap gap-2">
         <Button onClick={shareOnFacebook} variant="outline" size="sm" className="flex items-center gap-2">
