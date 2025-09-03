@@ -77,7 +77,7 @@ const ShareButtons = ({
         </Button>
         
         <Button onClick={shareByEmail} variant="outline" size="sm" className="flex items-center gap-2">
-          <Mail size={18} className="text-muted-foreground" />
+          <Mail size={18} className="text-muted-foreground bg-gray-100" />
           <span className="hidden sm:inline">Email</span>
         </Button>
         
