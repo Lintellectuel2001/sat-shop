@@ -66,7 +66,7 @@ const ShareButtons = ({ productName, productId, className }: ShareButtonsProps) 
   };
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn("space-y-4 bg-white p-6 rounded-lg", className)}>
       <h3 className="font-semibold text-lg">Partager ce produit</h3>
       <div className="flex flex-wrap gap-2">
         <Button 
