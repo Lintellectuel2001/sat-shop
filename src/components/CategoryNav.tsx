@@ -34,7 +34,7 @@ const CategoryNav = ({ initialCategory = "all", onCategoryChange }: CategoryNavP
         >
           <span className="text-3xl">{category.icon}</span>
           <div className="flex items-center space-x-1">
-            <span className="text-sm font-medium">{category.name}</span>
+            <span className="text-sm font-medium text-red-500">{category.name}</span>
             <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transform group-hover:translate-x-1 transition-all" />
           </div>
         </button>
