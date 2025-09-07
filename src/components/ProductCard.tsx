@@ -141,8 +141,8 @@ const ProductCard = ({
                 key={i} 
                 className={`w-4 h-4 ${
                   i < rating 
-                    ? 'fill-yellow-400 text-yellow-400' 
-                    : 'text-muted-foreground'
+                    ? 'fill-red-500 text-red-500' 
+                    : 'text-red-300'
                 }`}
               /> 
             ))}
