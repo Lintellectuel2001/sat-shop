@@ -2,8 +2,10 @@ import React from 'react';
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { Mail, Phone, MapPin, CreditCard, Globe, Facebook, MessageCircle } from "lucide-react";
+
 const Contact = () => {
-  return <div className="min-h-screen flex flex-col">
+  return (
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       
       <main className="flex-grow container mx-auto px-4 py-24">
@@ -33,7 +35,7 @@ const Contact = () => {
 
             <div className="flex items-start gap-4">
               <MapPin className="w-6 h-6 text-[#ea384c] mt-1" />
-              <div className="text-red-600">
+              <div>
                 <h2 className="font-semibold mb-1">Adresse</h2>
                 <p className="text-accent">
                   Yasmin 2, côté café Dubai<br />
@@ -43,7 +45,7 @@ const Contact = () => {
             </div>
 
             <div className="border-t pt-8">
-              <h2 className="text-xl font-bold mb-6 text-red-600">Options de Paiement</h2>
+              <h2 className="text-xl font-bold mb-6">Options de Paiement</h2>
               
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
@@ -53,7 +55,7 @@ const Contact = () => {
                     <ul className="space-y-2 text-accent">
                       <li>CCP : 5617859 clé 70 (mehalli rabie)</li>
                       <li>Baridi mob : 00799999000561785988</li>
-                      <li className="text-red-600">Paysera : mehalli.rabie@gmail.com</li>
+                      <li>Paysera : mehalli.rabie@gmail.com</li>
                       <li>
                         <a href="https://taplink.cc/satshop" className="text-[#ea384c] hover:underline" target="_blank" rel="noopener noreferrer">
                           Paiement par CIB CARD ou EDAHABIA
@@ -68,7 +70,7 @@ const Contact = () => {
                   <div>
                     <h3 className="font-semibold mb-2">Liens Utiles</h3>
                     <ul className="space-y-2">
-                      <li className="text-red-600">
+                      <li>
                         <a href="https://sat-shop.eu" className="text-[#ea384c] hover:underline" target="_blank" rel="noopener noreferrer">
                           Notre site web
                         </a>
@@ -85,7 +87,7 @@ const Contact = () => {
                 <div className="flex items-start gap-4">
                   <MessageCircle className="w-6 h-6 text-[#ea384c] mt-1" />
                   <div>
-                    <h3 className="font-semibold mb-2 text-red-600">WhatsApp</h3>
+                    <h3 className="font-semibold mb-2">WhatsApp</h3>
                     <a href="https://wa.me/213669254864" className="text-[#ea384c] hover:underline">
                       0669254864
                     </a>
@@ -99,12 +101,18 @@ const Contact = () => {
           </div>
 
           <div className="mt-16">
-            <img src="/lovable-uploads/22390200-5f55-4644-a2a3-1332ebd6642e.png" alt="Sports fans watching game" className="w-full rounded-lg shadow-md" />
+            <img 
+              src="/lovable-uploads/22390200-5f55-4644-a2a3-1332ebd6642e.png" 
+              alt="Sports fans watching game"
+              className="w-full rounded-lg shadow-md"
+            />
           </div>
         </div>
       </main>
 
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Contact;
