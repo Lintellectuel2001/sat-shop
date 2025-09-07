@@ -108,7 +108,7 @@ const ProductCard = ({
             <Button
               size="sm"
               onClick={handleQuickAdd}
-              className="bg-white/90 text-foreground hover:bg-white shadow-sm"
+              className="bg-white/90 text-red-500 hover:bg-white hover:text-red-600 shadow-sm"
               disabled={!isAvailable}
             >
               <ShoppingCart className="w-4 h-4" />
@@ -119,7 +119,7 @@ const ProductCard = ({
               size="sm"
               variant="outline"
               onClick={handleWishlist}
-              className="bg-white/90 border-white/50 text-foreground hover:bg-white shadow-sm"
+              className="bg-white/90 border-white/50 text-red-500 hover:bg-white hover:text-red-600 shadow-sm"
             >
               <Heart className="w-4 h-4" />
             </Button>
