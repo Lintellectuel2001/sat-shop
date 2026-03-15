@@ -1,11 +1,1 @@
-
-project_id = "kyjuwizqndxvbuswmkiw"
-
-[functions.check-rls]
-verify_jwt = true
-
-[functions.send-order-notification]
-verify_jwt = false
-
-[functions.send-telegram-notification]
-verify_jwt = true
+project_id = "dctdepjmontfhtblpzwm"
