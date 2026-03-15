@@ -282,6 +282,38 @@ export type Database = {
         }
         Relationships: []
       }
+      order_tracking: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          order_id: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          status: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_tracking_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           amount: string
@@ -526,8 +558,10 @@ export type Database = {
         Row: {
           created_at: string
           current_position: number | null
+          difficulty: string | null
           id: string
           keyword: string
+          last_checked: string | null
           previous_position: number | null
           search_volume: number | null
           target_url: string | null
@@ -536,8 +570,10 @@ export type Database = {
         Insert: {
           created_at?: string
           current_position?: number | null
+          difficulty?: string | null
           id?: string
           keyword: string
+          last_checked?: string | null
           previous_position?: number | null
           search_volume?: number | null
           target_url?: string | null
@@ -546,8 +582,10 @@ export type Database = {
         Update: {
           created_at?: string
           current_position?: number | null
+          difficulty?: string | null
           id?: string
           keyword?: string
+          last_checked?: string | null
           previous_position?: number | null
           search_volume?: number | null
           target_url?: string | null
