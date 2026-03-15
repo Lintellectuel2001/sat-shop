@@ -14,7 +14,479 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admin_users: {
+        Row: {
+          created_at: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      backups: {
+        Row: {
+          created_at: string
+          data: Json
+          description: string | null
+          id: string
+          name: string
+          size: number | null
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          description?: string | null
+          id?: string
+          name: string
+          size?: number | null
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          description?: string | null
+          id?: string
+          name?: string
+          size?: number | null
+        }
+        Relationships: []
+      }
+      cart_history: {
+        Row: {
+          action_type: string
+          created_at: string
+          id: string
+          payment_status: string | null
+          product_id: string | null
+          profit: number | null
+        }
+        Insert: {
+          action_type?: string
+          created_at?: string
+          id?: string
+          payment_status?: string | null
+          product_id?: string | null
+          profit?: number | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          id?: string
+          payment_status?: string | null
+          product_id?: string | null
+          profit?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_history_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      delivery_orders: {
+        Row: {
+          actual_delivery: string | null
+          created_at: string
+          delivery_address: string | null
+          delivery_notes: string | null
+          delivery_status: string
+          estimated_delivery: string | null
+          id: string
+          order_id: string | null
+          tracking_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          actual_delivery?: string | null
+          created_at?: string
+          delivery_address?: string | null
+          delivery_notes?: string | null
+          delivery_status?: string
+          estimated_delivery?: string | null
+          id?: string
+          order_id?: string | null
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          actual_delivery?: string | null
+          created_at?: string
+          delivery_address?: string | null
+          delivery_notes?: string | null
+          delivery_status?: string
+          estimated_delivery?: string | null
+          id?: string
+          order_id?: string | null
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_orders_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_points: {
+        Row: {
+          created_at: string
+          id: string
+          lifetime_points: number
+          points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lifetime_points?: number
+          points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lifetime_points?: number
+          points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      loyalty_transactions: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          points: number
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          points: number
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          points?: number
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      marketing_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          title: string
+          type?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          amount: string
+          created_at: string
+          customer_email: string | null
+          customer_name: string | null
+          guest_address: string | null
+          guest_email: string | null
+          guest_phone: string | null
+          id: string
+          payment_id: string | null
+          product_id: string | null
+          product_name: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: string
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          guest_address?: string | null
+          guest_email?: string | null
+          guest_phone?: string | null
+          id?: string
+          payment_id?: string | null
+          product_id?: string | null
+          product_name: string
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: string
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          guest_address?: string | null
+          guest_email?: string | null
+          guest_phone?: string | null
+          id?: string
+          payment_id?: string | null
+          product_id?: string | null
+          product_name?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          features: string[] | null
+          id: string
+          image: string
+          is_available: boolean | null
+          is_physical: boolean | null
+          name: string
+          payment_link: string
+          price: string
+          purchase_price: number | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          image: string
+          is_available?: boolean | null
+          is_physical?: boolean | null
+          name: string
+          payment_link?: string
+          price: string
+          purchase_price?: number | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          image?: string
+          is_available?: boolean | null
+          is_physical?: boolean | null
+          name?: string
+          payment_link?: string
+          price?: string
+          purchase_price?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      promo_codes: {
+        Row: {
+          code: string
+          created_at: string
+          current_uses: number
+          discount_amount: number | null
+          discount_percentage: number | null
+          end_date: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          minimum_purchase: number | null
+          start_date: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          current_uses?: number
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          minimum_purchase?: number | null
+          start_date?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          current_uses?: number
+          discount_amount?: number | null
+          discount_percentage?: number | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          minimum_purchase?: number | null
+          start_date?: string | null
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          created_at: string
+          id: string
+          logo_text: string | null
+          logo_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          logo_text?: string | null
+          logo_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          logo_text?: string | null
+          logo_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      slides: {
+        Row: {
+          blur_image: boolean | null
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image: string
+          is_4k_wallpaper: boolean | null
+          order: number
+          text_color: string | null
+          title: string
+        }
+        Insert: {
+          blur_image?: boolean | null
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image: string
+          is_4k_wallpaper?: boolean | null
+          order?: number
+          text_color?: string | null
+          title: string
+        }
+        Update: {
+          blur_image?: boolean | null
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image?: string
+          is_4k_wallpaper?: boolean | null
+          order?: number
+          text_color?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      user_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          notification_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          notification_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          notification_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_notifications_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
