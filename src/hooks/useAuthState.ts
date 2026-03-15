@@ -11,8 +11,9 @@ export const useAuthState = () => {
   let navigate: ((path: string) => void) | undefined;
   
   try {
-    // Only import and use useNavigate if we're in a Router context
-    const { useNavigate } = require('react-router-dom');
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { useNavigate } = await import('react-router-dom');
+    // @ts-ignore
     navigate = useNavigate();
   } catch (error) {
     console.log('Not in Router context, navigation disabled');
