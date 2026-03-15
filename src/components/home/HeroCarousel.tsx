@@ -100,7 +100,7 @@ const HeroCarousel = () => {
   }
 
   return (
-    <section className="w-full bg-white pt-16">
+    <section className="w-full bg-white pt-20 sm:pt-16">
       <Carousel 
         className="w-full max-w-[2000px] mx-auto" 
         opts={{ 
