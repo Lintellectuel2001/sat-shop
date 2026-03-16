@@ -12,14 +12,21 @@ const queryClient = new QueryClient({
   },
 })
 
-// Configuration pour les appareils mobiles
-if (Capacitor.isNativePlatform()) {
-  // Configuration de la barre de statut
-  StatusBar.setStyle({ style: Style.Dark });
-  StatusBar.setBackgroundColor({ color: '#6366F1' });
-  
-  // Masquer le splash screen après le chargement
-  SplashScreen.hide();
+// Configuration pour les appareils mobiles (Capacitor)
+try {
+  import('@capacitor/core').then(({ Capacitor }) => {
+    if (Capacitor.isNativePlatform()) {
+      import('@capacitor/status-bar').then(({ StatusBar, Style }) => {
+        StatusBar.setStyle({ style: Style.Dark });
+        StatusBar.setBackgroundColor({ color: '#6366F1' });
+      });
+      import('@capacitor/splash-screen').then(({ SplashScreen }) => {
+        SplashScreen.hide();
+      });
+    }
+  });
+} catch (e) {
+  // Not running on native platform
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
