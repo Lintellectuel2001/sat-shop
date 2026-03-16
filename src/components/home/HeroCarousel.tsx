@@ -112,11 +112,11 @@ const HeroCarousel = () => {
         <CarouselContent>
           {slides.map((slide: Slide) => (
             <CarouselItem key={slide.id}>
-              <div className="relative h-auto sm:h-[85vh] sm:max-h-[800px] w-full overflow-hidden group cursor-pointer">
+              <div className="relative h-[85vh] max-h-[800px] w-full overflow-hidden group cursor-pointer">
                 <img
                   src={slide.image}
                   alt={slide.title}
-                  className="w-full h-auto sm:h-full object-contain sm:object-cover sm:object-[50%_25%]
+                  className="w-full h-full object-cover object-[50%_5%] sm:object-[50%_25%]
                   transition-transform duration-1000 ease-out
                   group-hover:scale-110 group-hover:rotate-1"
                 />
