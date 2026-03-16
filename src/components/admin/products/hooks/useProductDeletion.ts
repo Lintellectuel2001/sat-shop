@@ -36,19 +36,11 @@ export const useProductDeletion = () => {
 
       // Delete all related records first to avoid foreign key constraint violations
       
-      // 1. Delete delivery orders related to this product's orders
-      const { data: productOrders } = await supabase
-        .from('orders')
-        .select('id')
+      // 1. Delete delivery orders
+      await supabase
+        .from('delivery_orders')
+        .delete()
         .eq('product_id', id);
-      
-      if (productOrders && productOrders.length > 0) {
-        const orderIds = productOrders.map(o => o.id);
-        await supabase
-          .from('delivery_orders')
-          .delete()
-          .in('order_id', orderIds);
-      }
 
       // 2. Delete orders
       await supabase

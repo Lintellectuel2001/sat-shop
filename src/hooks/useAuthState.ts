@@ -1,6 +1,5 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -8,12 +7,14 @@ export const useAuthState = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   
+  // Get navigate function safely - will be undefined when not in Router context
   let navigate: ((path: string) => void) | undefined;
   
   try {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+    // Only import and use useNavigate if we're in a Router context
+    const { useNavigate } = require('react-router-dom');
     navigate = useNavigate();
-  } catch {
+  } catch (error) {
     console.log('Not in Router context, navigation disabled');
   }
 
